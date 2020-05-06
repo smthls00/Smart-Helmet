@@ -16,28 +16,32 @@ import java.io.OutputStream;
 import static android.content.ContentValues.TAG;
 
 public class BTService extends Service {
+
+
+    ConnectedThread connectedThread;
+
+
     @Override
     public IBinder onBind(Intent intent) {
-        return  null;
+        return null;
     }
+
     @Override
     public void onCreate() {
         Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
-
-        ConnectedThread connectedThread = new ConnectedThread(new ConnectFragment().get_socket());
-        connectedThread.start();
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals("BTDevice")) {
-            String value = intent.getStringExtra("BTDeviceInstance");
-        } else {
-            Log.d(TAG, "Received intent with action="+intent.getAction()+"; now what?");
-        }
+        connectedThread = new ConnectedThread(new ConnectFragment().get_socket());
+        connectedThread.start();
+
         return START_STICKY;
     }
+
     @Override
     public void onDestroy() {
+        connectedThread.cancel();
         super.onDestroy();
     }
 

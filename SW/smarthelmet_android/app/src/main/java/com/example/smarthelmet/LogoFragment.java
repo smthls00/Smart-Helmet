@@ -35,7 +35,7 @@ public class LogoFragment extends Fragment {
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                         .setCustomAnimations(R.anim.slide_down, R.anim.slide_up)
+                        .setCustomAnimations(R.anim.slide_down, R.anim.slide_up)
                         .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
                         .commit();
             }

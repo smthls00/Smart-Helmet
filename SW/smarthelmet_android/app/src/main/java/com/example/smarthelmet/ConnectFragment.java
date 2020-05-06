@@ -35,6 +35,13 @@ public class ConnectFragment extends Fragment {
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
 
+    Handler scannerHandler;
+    Runnable scannerRunnable;
+    ConnectThread newConnection;
+
+    IntentFilter scannerFilter;
+    IntentFilter btFilter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +49,7 @@ public class ConnectFragment extends Fragment {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            Toast.makeText(getActivity(),"Your smartphone doesn't support BT", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Your smartphone doesn't support BT", Toast.LENGTH_SHORT).show();
         }
 
         if (!bluetoothAdapter.isEnabled()) {
@@ -50,8 +57,11 @@ public class ConnectFragment extends Fragment {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        getActivity().registerReceiver(receiver, filter);
+        scannerFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        btFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        getActivity().registerReceiver(scannerReceiver, scannerFilter);
+        getActivity().registerReceiver(btReceiver, btFilter);
     }
 
     @Override
@@ -67,12 +77,27 @@ public class ConnectFragment extends Fragment {
         connectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!bluetoothAdapter.isEnabled()){
+                if (!bluetoothAdapter.isEnabled()) {
                     Toast.makeText(getActivity(), "Please, turn on BT first", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     connectProgressInd.setVisibility(View.VISIBLE);
-                    connectText.setText("Looking for a helmet");
+                    connectText.setText("Looking \n for a helmet");
+                    connectText.setClickable(false);
+
+                    bluetoothAdapter.startDiscovery();
+
+                scannerHandler = new Handler();
+                scannerHandler.postDelayed(scannerRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                            connectProgressInd.setVisibility(View.GONE);
+                            connectText.setText("Tap to connect");
+                            connectText.setClickable(true);
+
+                            bluetoothAdapter.cancelDiscovery();
+                            Toast.makeText(getActivity(),"Can't find a helmet", Toast.LENGTH_LONG).show();
+                    }
+                }, 15000);
                 }
             }
         });
@@ -81,15 +106,31 @@ public class ConnectFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        if(newConnection != null)
+            newConnection.cancel();
 
-        getActivity().unregisterReceiver(receiver);
+        scannerHandler.removeCallbacks(scannerRunnable);
+        getActivity().unregisterReceiver(btReceiver);
+        getActivity().unregisterReceiver(scannerReceiver);
+
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        if(newConnection != null && !newConnection.isAlive())
+            newConnection.start();
+
+        getActivity().registerReceiver(scannerReceiver, scannerFilter);
+        getActivity().registerReceiver(btReceiver, btFilter);
+
+        super.onStart();
     }
 
 
     // Create a BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
@@ -100,15 +141,57 @@ public class ConnectFragment extends Fragment {
                 String deviceHardwareAddress = device.getAddress(); // MAC address
 
                 Log.d("bluetooth device found", deviceName);
-                if(deviceName.equals("SmartHelmet")){
-                    ConnectThread newConnection = new ConnectThread(device);
+                if (deviceName.equals("SmartHelmet")) {
+
+                    bluetoothAdapter.cancelDiscovery();
+                    scannerHandler.removeCallbacks(scannerRunnable);
+
+                    newConnection = new ConnectThread(device);
                     newConnection.start();
                 }
             }
         }
     };
 
-    public BluetoothSocket get_socket(){
+    // Create a BroadcastReceiver for BT_STATE_CHANGED.
+    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                Log.d("bluetooth device found","hello");
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+
+                        //Indicates the local Bluetooth adapter is off.
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        //Indicates the local Bluetooth adapter is turning on. However local clients should wait for STATE_ON before attempting to use the adapter.
+                        break;
+
+                    case BluetoothAdapter.STATE_ON:
+                        //Indicates the local Bluetooth adapter is on, and ready for use.
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        connectProgressInd.setVisibility(View.GONE);
+                        connectText.setText("Tap to connect");
+                        connectText.setClickable(true);
+
+                        bluetoothAdapter.cancelDiscovery();
+                        Toast.makeText(getContext(),"Can't find a helmet", Toast.LENGTH_LONG).show();
+
+                        //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
+                        break;
+                }
+            }
+        }
+    };
+
+    public BluetoothSocket get_socket() {
         return mmSocket;
     }
 
@@ -153,7 +236,7 @@ public class ConnectFragment extends Fragment {
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
 
-            //manageMyConnectedSocket(mmSocket);
+            connectProgressInd.setVisibility(View.GONE);
             connectProgress.setProgress(100);
             connectText.setText("Connected");
 
@@ -163,8 +246,7 @@ public class ConnectFragment extends Fragment {
                 @Override
                 public void run() {
                     connectText.setVisibility(View.GONE);
-                    connectProgress.setVisibility(View.GONE);
-                    connectProgressInd.setVisibility(View.GONE);
+                    connectProgress.setVisibility(View.GONE);;
 
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
@@ -172,7 +254,7 @@ public class ConnectFragment extends Fragment {
                             .replace(R.id.frame_container, new OverviewFragment()) // replace flContainer
                             .commit();
                 }
-            }, 2000);
+            }, 2500);
         }
 
         // Closes the client socket and causes the thread to finish.
