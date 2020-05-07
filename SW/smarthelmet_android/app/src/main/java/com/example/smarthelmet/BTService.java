@@ -103,18 +103,19 @@ public class BTService extends Service {
                     if (numBytes != 0) {
 
                         mmBuffer = new byte[1024];
-                        SystemClock.sleep(10);
+                        SystemClock.sleep(25);
                         numBytes = mmInStream.available();
+
                         numBytes = mmInStream.read(mmBuffer, 0, numBytes);
 
                         StringBuilder sb = new StringBuilder();
-                        for (byte b : mmBuffer) {
-                            sb.append(String.format("%02X ", b));
+                        for (int i = 0; i < numBytes; i++) {
+                            sb.append(String.format("%02X ", mmBuffer[i]));
                         }
 
                         Log.d(TAG, "datahex = " + sb);
 
-                        String dataRx = new String(mmBuffer);
+                        String dataRx = new String(mmBuffer, 0, numBytes);
                         // Send the obtained bytes to the UI activity.
                         Intent intent = new Intent("BTEvent");
                         intent.putExtra("RXData", dataRx);

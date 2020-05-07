@@ -40,76 +40,12 @@ public class ConnectFragment extends Fragment {
     ProgressBar connectProgressInd;
     TextView connectText;
     BluetoothAdapter bluetoothAdapter;
-    // Create a BroadcastReceiver for BT_STATE_CHANGED.
-    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                Log.d("bluetooth device found", "hello");
-                switch (state) {
-                    case BluetoothAdapter.STATE_OFF:
-
-                        //Indicates the local Bluetooth adapter is off.
-                        break;
-
-                    case BluetoothAdapter.STATE_TURNING_ON:
-                        //Indicates the local Bluetooth adapter is turning on. However local clients should wait for STATE_ON before attempting to use the adapter.
-                        break;
-
-                    case BluetoothAdapter.STATE_ON:
-                        //Indicates the local Bluetooth adapter is on, and ready for use.
-                        break;
-
-                    case BluetoothAdapter.STATE_TURNING_OFF:
-                        connectProgressInd.setVisibility(View.GONE);
-                        connectProgress.setProgress(0);
-                        connectText.setText("Tap to connect");
-                        connectText.setClickable(true);
-
-                        bluetoothAdapter.cancelDiscovery();
-
-                        //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
-                        break;
-                }
-            }
-        }
-    };
     Handler scannerHandler;
     Runnable scannerRunnable;
     ConnectThread newConnection;
-    // Create a BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                if (deviceName != null) {
-                    Log.d("ConnectFragment", deviceName);
-                    if (deviceName.equals("ESP32_SmartHelmet")) {
-
-                        bluetoothAdapter.cancelDiscovery();
-                        scannerHandler.removeCallbacks(scannerRunnable);
-
-                        newConnection = new ConnectThread(device);
-                        newConnection.start();
-                    }
-                }
-            }
-        }
-    };
     IntentFilter scannerFilter;
     IntentFilter btFilter;
 
-    public static BluetoothSocket get_socket() {
-        return mmSocket;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -154,6 +90,73 @@ public class ConnectFragment extends Fragment {
 //                    .setNegativeButton("No", null)
 //                    .show();
 //        }
+    }
+
+    // Create a BroadcastReceiver for BT_STATE_CHANGED.
+    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                Log.d("bluetooth device found", "hello");
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+
+                        //Indicates the local Bluetooth adapter is off.
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        //Indicates the local Bluetooth adapter is turning on. However local clients should wait for STATE_ON before attempting to use the adapter.
+                        break;
+
+                    case BluetoothAdapter.STATE_ON:
+                        //Indicates the local Bluetooth adapter is on, and ready for use.
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        connectProgressInd.setVisibility(View.GONE);
+                        connectProgress.setProgress(0);
+                        connectText.setText("Tap to connect");
+                        connectText.setClickable(true);
+
+                        bluetoothAdapter.cancelDiscovery();
+
+                        //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
+                        break;
+                }
+            }
+        }
+    };
+
+    // Create a BroadcastReceiver for ACTION_FOUND.
+    private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Discovery has found a device. Get the BluetoothDevice
+                // object and its info from the Intent.
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+                if (deviceName != null) {
+                    Log.d("ConnectFragment", deviceName);
+                    if (deviceName.equals("ESP32_SmartHelmet")) {
+
+                        bluetoothAdapter.cancelDiscovery();
+                        scannerHandler.removeCallbacks(scannerRunnable);
+
+                        newConnection = new ConnectThread(device);
+                        newConnection.start();
+                    }
+                }
+            }
+        }
+    };
+
+    public static BluetoothSocket get_socket() {
+        return mmSocket;
     }
 
     @Override

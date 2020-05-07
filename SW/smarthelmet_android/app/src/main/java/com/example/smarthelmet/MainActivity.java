@@ -18,55 +18,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager;
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.connection:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
-                            .commit();
-                    return true;
-
-                case R.id.user:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new UserFragment()) // replace flContainer
-                            .commit();
-                    return true;
-
-                case R.id.settings:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new SettingsFragment()) // replace flContainer
-                            .commit();
-                    return true;
-
-                case R.id.chat:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new ChatFragment()) // replace flContainer
-                            .commit();
-                    return true;
-
-                case R.id.environment:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new EnvironmentFragment()) // replace flContainer
-                            .commit();
-                    return true;
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +34,57 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 .replace(R.id.frame_container, new LogoFragment())
-                .commit();
+                .commitAllowingStateLoss();
     }
+
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.connection:
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                            .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
+                            .commitAllowingStateLoss();
+                    return true;
+
+                case R.id.user:
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                            .replace(R.id.frame_container, new UserFragment()) // replace flContainer
+                            .commitAllowingStateLoss();
+                    return true;
+
+                case R.id.settings:
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                            .replace(R.id.frame_container, new SettingsFragment()) // replace flContainer
+                            .commitAllowingStateLoss();
+                    return true;
+
+                case R.id.chat:
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                            .replace(R.id.frame_container, new ChatFragment()) // replace flContainer
+                            .commitAllowingStateLoss();
+                    return true;
+
+                case R.id.environment:
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                            .replace(R.id.frame_container, new EnvironmentFragment()) // replace flContainer
+                            .commitAllowingStateLoss();
+                    return true;
+            }
+            return false;
+        }
+    };
 }

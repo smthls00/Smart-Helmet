@@ -51,16 +51,7 @@ public class UserFragment extends Fragment {
     LineChart tempChart;
     PieChart actChart;
     BarChart stepsChart;
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("RXData");
-            Log.d("receiver", "Got message: " + message);
 
-            dataTv.append(message + " ");
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +82,17 @@ public class UserFragment extends Fragment {
 
         return view;
     }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("RXData");
+            Log.d("receiver", "Got message: " + message);
+
+            dataTv.append(message + " ");
+        }
+    };
 
     private void tempChart_create() {
         ArrayList<Entry> values = new ArrayList<>();

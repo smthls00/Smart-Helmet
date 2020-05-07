@@ -6,6 +6,7 @@ buildscript {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven { url "https://raw.githubusercontent.com/sendbird/SendBird-SDK-Android/master/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
@@ -21,6 +22,7 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven { url "https://raw.githubusercontent.com/sendbird/SendBird-SDK-Android/master/" }
     }
 }
 
