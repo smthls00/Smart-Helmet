@@ -32,7 +32,7 @@
 
     <TextView
         android:id="@+id/text_message_name"
-        android:text="William Defo"
+        android:text="Bruce Wayne"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="12sp"
@@ -93,7 +93,7 @@
 
         <TextView
             android:id="@+id/text_message_name1"
-            android:text="John Doe"
+            android:text="Peter Parker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
@@ -104,7 +104,7 @@
 
         <TextView
             android:id="@+id/text_message_body1"
-            android:text="hi man, how are you?"
+            android:text="Hi man, I'm working very efficiently today!"
             android:background="@drawable/rounded_rectangle_blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -152,7 +152,7 @@
 
         <TextView
             android:id="@+id/text_message_name2"
-            android:text="James Franko"
+            android:text="Clark Kent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
