@@ -1,4 +1,4 @@
-package com.example.smarthelmet;
+package com.example.smarthelmet.Fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.example.smarthelmet.R;
 
 
 public class LogoFragment extends Fragment {
@@ -39,7 +41,7 @@ public class LogoFragment extends Fragment {
                         .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
                         .commit();
             }
-        }, 2000);
+        }, 1500);
 
         return view;
     }

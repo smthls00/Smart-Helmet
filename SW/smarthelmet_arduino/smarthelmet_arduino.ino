@@ -32,6 +32,8 @@
 #include <MAX30105.h>
 #include <heartRate.h>
 
+#include <BluetoothSerial.h>
+
 #include <utility/imumaths.h>
 
 
@@ -49,6 +51,8 @@ Adafruit_BME680 bme;
 Adafruit_VL53L0X lox;
 Adafruit_VCNL4040 vcnl4040;
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+BluetoothSerial SerialBT;
 
 MAX30105 particleSensor;
 
@@ -341,11 +345,13 @@ void setup() {
 
   Serial.println("Initialization");
 
-  //bme680_init();
-  vl53l0x_init();
-  vcnl4040_init();
-  bno055_init();
-  max30102_init();
+//  //bme680_init();
+//  vl53l0x_init();
+//  vcnl4040_init();
+//  bno055_init();
+//  max30102_init();
+
+  SerialBT.begin("ESP32_SmartHelmet");
 
   delay(2000);
 }
@@ -356,19 +362,33 @@ void setup() {
  */
 void loop() {
   
-  bme680_read();
-  debug();
-  
-  vl53l0x_read();
-  debug();
+//  bme680_read();
+//  debug();
+//  
+//  vl53l0x_read();
+//  debug();
+//
+//  vcnl4040_read();
+//  debug();
+//
+//  bno055_read();
+//  debug();
+//
+//  max30102_read();
+//  debug();
 
-  vcnl4040_read();
-  debug();
+//if (Serial.available()) {
+//    SerialBT.write(Serial.read());
+//  }
+//  if (SerialBT.available()) {
+//    Serial.write(SerialBT.read());
+//  }
+if(SerialBT.available()){
+    char str[] = "hello\n";
+    for(int i = 0; i < strlen(str); i++)
+      SerialBT.write(str[i]);
+}
 
-  bno055_read();
-  debug();
-
-  max30102_read();
-  debug();
+delay(5000);
   
 }

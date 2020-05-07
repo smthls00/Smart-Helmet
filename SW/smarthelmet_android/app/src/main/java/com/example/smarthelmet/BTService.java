@@ -4,10 +4,12 @@ import android.app.Service;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.example.smarthelmet.Fragments.ConnectFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +20,16 @@ import static android.content.ContentValues.TAG;
 public class BTService extends Service {
 
 
+    static boolean isConnected = false;
     ConnectedThread connectedThread;
 
+    public static boolean getConnection() {
+        return isConnected;
+    }
+
+    public static void setConnection(boolean updateConnected) {
+        isConnected = updateConnected;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -28,20 +38,28 @@ public class BTService extends Service {
 
     @Override
     public void onCreate() {
-        Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        connectedThread = new ConnectedThread(new ConnectFragment().get_socket());
+        connectedThread = new ConnectedThread(ConnectFragment.get_socket());
         connectedThread.start();
+
+
+        String data = "hello";
+        connectedThread.write(data.getBytes());
+
+        isConnected = true;
 
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        connectedThread.cancel();
+        if (connectedThread != null)
+            connectedThread.cancel();
+
         super.onDestroy();
     }
 
@@ -81,12 +99,29 @@ public class BTService extends Service {
             while (true) {
                 try {
                     // Read from the InputStream.
-                    numBytes = mmInStream.read(mmBuffer);
-                    // Send the obtained bytes to the UI activity.
-                    Intent intent = new Intent("BTEvent");
-                    // You can also include some extra data.
-                    intent.putExtra("RXDATA", mmBuffer);
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    numBytes = mmInStream.available();
+                    if (numBytes != 0) {
+
+                        mmBuffer = new byte[1024];
+                        SystemClock.sleep(10);
+                        numBytes = mmInStream.available();
+                        numBytes = mmInStream.read(mmBuffer, 0, numBytes);
+
+                        StringBuilder sb = new StringBuilder();
+                        for (byte b : mmBuffer) {
+                            sb.append(String.format("%02X ", b));
+                        }
+
+                        Log.d(TAG, "datahex = " + sb);
+
+                        String dataRx = new String(mmBuffer);
+                        // Send the obtained bytes to the UI activity.
+                        Intent intent = new Intent("BTEvent");
+                        intent.putExtra("RXData", dataRx);
+
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    }
+
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
                     break;
@@ -106,6 +141,7 @@ public class BTService extends Service {
         // Call this method from the main activity to shut down the connection.
         public void cancel() {
             try {
+                isConnected = false;
                 mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Could not close the connect socket", e);

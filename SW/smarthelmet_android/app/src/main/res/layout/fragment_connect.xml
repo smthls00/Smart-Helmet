@@ -4,37 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ConnectFragment">
+    tools:context=".Fragments.ConnectFragment">
 
     <ProgressBar
         android:id="@+id/connectPb"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:indeterminate="false"
-        android:progressDrawable="@drawable/circular_progress_bar"
         android:background="@drawable/circle_shape"
-        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="false"
         android:max="100"
         android:progress="0"
+        android:progressDrawable="@drawable/circular_progress_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/connectIndPb"
         android:layout_width="400dp"
         android:layout_height="400dp"
         android:indeterminate="true"
-        android:maxHeight="1dp"
+        android:indeterminateTint="@color/colorPrimary"
         android:maxWidth="1dp"
+        android:maxHeight="1dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -46,12 +45,12 @@
         android:fontFamily="monospace"
         android:gravity="center"
         android:text="Tap to connect"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/textColor"
         android:textSize="25sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="parent"
         app:layout_constraintRight_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
