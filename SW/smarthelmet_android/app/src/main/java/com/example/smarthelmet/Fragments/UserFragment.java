@@ -47,6 +47,8 @@ import java.util.ArrayList;
 
 public class UserFragment extends Fragment {
 
+    private final String BTDataIntent = "BTDataIntent";
+
     TextView dataTv;
     LineChart bpmChart;
     LineChart tempChart;
@@ -59,8 +61,8 @@ public class UserFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter("BTEvent"));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BTDataReceiver,
+                new IntentFilter(BTDataIntent));
     }
 
     @Override
@@ -84,11 +86,11 @@ public class UserFragment extends Fragment {
         return view;
     }
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            String message = intent.getStringExtra("BTDataEvent");
+            String message = intent.getStringExtra(BTDataIntent);
             Log.d("receiver", "Got message: " + message);
 
             dataTv.append(message + " ");

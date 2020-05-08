@@ -165,8 +165,7 @@ public class ConnectFragment extends Fragment {
                 if (!bluetoothAdapter.isEnabled()) {
                     Toast.makeText(getActivity(), "Please, turn on BT first", Toast.LENGTH_SHORT).show();
                 } else {
-
-                    getActivity().startService(new Intent(getActivity(), BTService.class));
+                    getActivity().startForegroundService(new Intent(getActivity(), BTService.class));
 
                     connectProgressInd.setVisibility(View.VISIBLE);
                     connectText.setText("Looking \n for a helmet");

@@ -1,5 +1,6 @@
 package com.example.smarthelmet;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -17,6 +18,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.renderscript.RenderScript;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -39,9 +41,11 @@ public class BTService extends Service {
     private final String BTStateIntent = "BTStateIntent";
     private final String BTDataIntent = "BTDataIntent";
     private final String connectIntent = "connectIntent";
-    public final String BTOff = "BTOff";
-    public final String BTOn = "BTOn";
-    public final String scannerTimeOut = "TimeOut";
+    private final String BTOff = "BTOff";
+    private final String BTOn = "BTOn";
+    private final String scannerTimeOut = "TimeOut";
+    public final String stopService = "stopServiceIntent";
+
 
 
     ConnectThread connectThread;
@@ -54,6 +58,7 @@ public class BTService extends Service {
     Intent btScanIntent;
     Intent btStateIntent;
     Handler scannerHandler;
+    IntentFilter stopServerFilter;
 
     static boolean isConnected;
 
@@ -65,6 +70,7 @@ public class BTService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d("BTService", "onCreate()");
         //Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
         btDataIntent = new Intent(BTDataIntent);
         btStateIntent = new Intent(BTStateIntent);
@@ -77,31 +83,54 @@ public class BTService extends Service {
 
         scannerFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         btStateFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        stopServerFilter = new IntentFilter(stopService);
 
         scannerHandler = new Handler();
 
         isConnected = false;
 
-        createNotificationChannel();
+        createNotificationDisconnectChannel();
+        createNotificationFgChannel();
+
+        makeForegroundNotification();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         bluetoothAdapter = ConnectFragment.get_btAdapter();
-        bluetoothAdapter.startDiscovery();
 
         registerReceiver(scannerReceiver, scannerFilter);
         registerReceiver(btStateReceiver, btStateFilter);
         registerReceiver(btActionReceiver, btActionFilter);
+        registerReceiver(serviceKillReceiver, stopServerFilter);
 
         scannerHandler.postDelayed(scannerRunnable, 5000);
+
+        bluetoothAdapter.startDiscovery();
 
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(connectReceiver,
                 new IntentFilter(connectIntent));
 
+
+
+
         return START_STICKY;
     }
+
+    private BroadcastReceiver serviceKillReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("btservice", "servicekiller");
+
+            String message = intent.getStringExtra(stopService);
+
+            if(message.equals("OK")){
+                fgKill();
+            }
+        }
+    };
 
     private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
         @Override
@@ -161,11 +190,13 @@ public class BTService extends Service {
                         Log.d("BTService", "STATE_TURNING_OFF");
                         bluetoothAdapter.cancelDiscovery();
                         if(isConnected){
-                            makeNotification();
+                            makeDisconnectNotification();
                             isConnected = false;
                         }
 
                         broadcastIntent(BTStateIntent, BTOff);
+
+                        fgKill();
                         break;
                 }
             }
@@ -202,7 +233,9 @@ public class BTService extends Service {
                     broadcastIntent(BTStateIntent, BTOff);
                     isConnected = false;
 
-                    makeNotification();
+                    makeDisconnectNotification();
+
+                    fgKill();
                     break;
             }
         }
@@ -232,22 +265,49 @@ public class BTService extends Service {
         }
     };
 
-    public void makeNotification(){
+    public void makeDisconnectNotification(){
         Intent notificationIntent = new Intent();
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "1")
                 .setSmallIcon(R.drawable.ic_build_black_24dp)
                 .setContentTitle("Smart Helmet Disconnected")
                 .setContentText("You are not connected anymore")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
+    }
+
+    public void makeForegroundNotification(){
+        Intent notificationIntent = new Intent(getApplicationContext(), ServiceKillNotificationHandler.class);
+        notificationIntent.setAction("stop");
+
+        PendingIntent pendingIntentKill = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Notification builder = new NotificationCompat.Builder(this, "0")
+                .setSmallIcon(R.drawable.ic_build_black_24dp)
+                .setContentTitle("Background data processing")
+                .setContentText("Data is received and processed in background")
+                .addAction(R.drawable.rectangle_button, "stop", pendingIntentKill)
+                .setOngoing(true)
+                .build();
+
+        startForeground(1, builder);
+    }
+
+
+    public void fgKill(){
+        if(isConnected){
+            makeDisconnectNotification();
+            isConnected = false;
+        }
+
+        broadcastIntent(BTStateIntent, BTOff);
+        stopForeground(true);
+        stopSelf();
     }
 
     public static boolean getConnectionStatus(){
@@ -257,8 +317,11 @@ public class BTService extends Service {
 
     @Override
     public void onDestroy() {
+
+        Log.d("BTService", "onDestroy()");
+
         try {
-            Log.d("BTService", "OnDestroy");
+
             if (connectThread != null)
                 connectThread.cancel();
 
@@ -266,12 +329,14 @@ public class BTService extends Service {
             unregisterReceiver(scannerReceiver);
             unregisterReceiver(btStateReceiver);
             unregisterReceiver(btActionReceiver);
+            unregisterReceiver(serviceKillReceiver);
         } catch (Exception e){
             Log.d("BTService", e.toString());
         }
 
         super.onDestroy();
     }
+
 
     public void broadcastIntent(String TAG, String data){
         String message = TAG;
@@ -292,14 +357,30 @@ public class BTService extends Service {
 
     }
 
-    private void createNotificationChannel() {
+    private void createNotificationFgChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "FgNotifications";
+            String description = "ForegroundServiceNOtification";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel("0", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void createNotificationDisconnectChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Disconnect";
             String description = "Disconnected";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("0", name, importance);
+            NotificationChannel channel = new NotificationChannel("1", name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -424,8 +505,7 @@ public class BTService extends Service {
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);
-                        btDataIntent.putExtra("BTDataIntent", dataRx);
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
+                        broadcastIntent(BTDataIntent, dataRx);
                     }
 
                 } catch (IOException e) {
