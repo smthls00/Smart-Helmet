@@ -1,12 +1,27 @@
 package com.example.smarthelmet;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.smarthelmet.Fragments.ConnectFragment;
@@ -19,17 +34,29 @@ import static android.content.ContentValues.TAG;
 
 public class BTService extends Service {
 
+    private final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
+    private final String BTScanIntent = "BTScanIntent";
+    private final String BTStateIntent = "BTStateIntent";
+    private final String BTDataIntent = "BTDataIntent";
+    private final String connectIntent = "connectIntent";
+    public final String BTOff = "BTOff";
+    public final String BTOn = "BTOn";
+    public final String scannerTimeOut = "TimeOut";
 
-    static boolean isConnected = false;
-    ConnectedThread connectedThread;
 
-    public static boolean getConnection() {
-        return isConnected;
-    }
+    ConnectThread connectThread;
+    RxTxThread rxtxThread;
+    BluetoothAdapter bluetoothAdapter;
+    IntentFilter btActionFilter;
+    IntentFilter scannerFilter;
+    IntentFilter btStateFilter;
+    Intent btDataIntent;
+    Intent btScanIntent;
+    Intent btStateIntent;
+    Handler scannerHandler;
 
-    public static void setConnection(boolean updateConnected) {
-        isConnected = updateConnected;
-    }
+    static boolean isConnected;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,37 +66,312 @@ public class BTService extends Service {
     @Override
     public void onCreate() {
         //Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
+        btDataIntent = new Intent(BTDataIntent);
+        btStateIntent = new Intent(BTStateIntent);
+        btScanIntent = new Intent(BTScanIntent);
+
+        btActionFilter = new IntentFilter();
+        btActionFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        btActionFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        btActionFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+
+        scannerFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        btStateFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        scannerHandler = new Handler();
+
+        isConnected = false;
+
+        createNotificationChannel();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        connectedThread = new ConnectedThread(ConnectFragment.get_socket());
-        connectedThread.start();
 
+        bluetoothAdapter = ConnectFragment.get_btAdapter();
+        bluetoothAdapter.startDiscovery();
 
-        String data = "hello";
-        connectedThread.write(data.getBytes());
+        registerReceiver(scannerReceiver, scannerFilter);
+        registerReceiver(btStateReceiver, btStateFilter);
+        registerReceiver(btActionReceiver, btActionFilter);
 
-        isConnected = true;
+        scannerHandler.postDelayed(scannerRunnable, 5000);
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(connectReceiver,
+                new IntentFilter(connectIntent));
 
         return START_STICKY;
     }
 
+    private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("connectOnStop", intent.getAction());
+
+            String message = intent.getStringExtra(connectIntent);
+
+            if(message.equals("onStop")){
+                if(bluetoothAdapter.isDiscovering()) {
+                    bluetoothAdapter.cancelDiscovery();
+                    scannerHandler.removeCallbacks(scannerRunnable);
+                }
+            }
+        }
+    };
+
+    Runnable scannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            Log.d("BTScan","TimeOutScan");
+            bluetoothAdapter.cancelDiscovery();
+
+            broadcastIntent(BTScanIntent, scannerTimeOut);
+        }
+    };
+
+    // Create a BroadcastReceiver for BT_STATE_CHANGED.
+    private final BroadcastReceiver btStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        //Indicates the local Bluetooth adapter is off.
+                        Log.d("BTService", "STATE_OFF");
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        //Indicates the local Bluetooth adapter is turning on. However local clients should wait for STATE_ON before attempting to use the adapter.
+                        Log.d("BTService", "STATE_TURNING_ON");
+                        break;
+
+                    case BluetoothAdapter.STATE_ON:
+                        //Indicates the local Bluetooth adapter is on, and ready for use.
+                        Log.d("BTService", "STATE_ON");
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
+                        Log.d("BTService", "STATE_TURNING_OFF");
+                        bluetoothAdapter.cancelDiscovery();
+                        if(isConnected){
+                            makeNotification();
+                            isConnected = false;
+                        }
+
+                        broadcastIntent(BTStateIntent, BTOff);
+                        break;
+                }
+            }
+        }
+    };
+
+    //The BroadcastReceiver that listens for bluetooth broadcasts
+    private final BroadcastReceiver btActionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            switch (action) {
+                case BluetoothDevice.ACTION_FOUND:
+                    //Indicates the local Bluetooth adapter is off.
+                    Log.d("BTService", "ACTION_FOUND");
+                    break;
+
+                case BluetoothDevice.ACTION_ACL_CONNECTED:
+                    //Indicates the local Bluetooth adapter is connected.
+                    Log.d("BTService", "ACTION_ACL_CONNECTED");
+                    broadcastIntent(BTStateIntent, BTOn);
+                    isConnected = true;
+                    break;
+
+                case BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED:
+                    //Indicates the local Bluetooth adapter is on, and ready for use.
+                    Log.d("BTService", "ACTION_ACL_DISCONNECT_REQUESTED");
+                    break;
+
+                case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+                    //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
+                    Log.d("BTService", "ACTION_ACL_DISCONNECTED");
+                    broadcastIntent(BTStateIntent, BTOff);
+                    isConnected = false;
+
+                    makeNotification();
+                    break;
+            }
+        }
+    };
+
+    // Create a BroadcastReceiver for ACTION_FOUND.
+    private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Discovery has found a device. Get the BluetoothDevice
+                // object and its info from the Intent.
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+                if (deviceName != null) {
+                    Log.d("BTService", deviceName);
+                    if (deviceName.equals("ESP32_SmartHelmet")) {
+                        bluetoothAdapter.cancelDiscovery();
+                        scannerHandler.removeCallbacks(scannerRunnable);
+
+                        connectThread = new ConnectThread(device);
+                        connectThread.start();
+                    }
+                }
+            }
+        }
+    };
+
+    public void makeNotification(){
+        Intent notificationIntent = new Intent();
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "0")
+                .setSmallIcon(R.drawable.ic_build_black_24dp)
+                .setContentTitle("Smart Helmet Disconnected")
+                .setContentText("You are not connected anymore")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(0, builder.build());
+    }
+
+    public static boolean getConnectionStatus(){
+        return isConnected;
+    }
+
+
     @Override
     public void onDestroy() {
-        if (connectedThread != null)
-            connectedThread.cancel();
+        try {
+            Log.d("BTService", "OnDestroy");
+            if (connectThread != null)
+                connectThread.cancel();
+
+
+            unregisterReceiver(scannerReceiver);
+            unregisterReceiver(btStateReceiver);
+            unregisterReceiver(btActionReceiver);
+        } catch (Exception e){
+            Log.d("BTService", e.toString());
+        }
 
         super.onDestroy();
     }
 
-    private class ConnectedThread extends Thread {
+    public void broadcastIntent(String TAG, String data){
+        String message = TAG;
+        switch (TAG){
+            case BTScanIntent:
+                btScanIntent.putExtra(TAG, data);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btScanIntent);
+                break;
+            case BTDataIntent:
+                btDataIntent.putExtra(TAG, data);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
+                break;
+            case BTStateIntent:
+                btStateIntent.putExtra(TAG, data);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btStateIntent);
+                break;
+        }
+
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Disconnect";
+            String description = "Disconnected";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("0", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
+    public class ConnectThread extends Thread {
+
+        private final BluetoothDevice mmDevice;
+        private final BluetoothSocket mmSocket;
+
+        public ConnectThread(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket
+            // because mmSocket is final.
+            BluetoothSocket tmp = null;
+            mmDevice = device;
+
+            try {
+                // Get a BluetoothSocket to connect with the given BluetoothDevice.
+                // MY_UUID is the app's UUID string, also used in the server code.
+                tmp = device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
+            } catch (IOException e) {
+                Log.e(TAG, "Socket's create() method failed", e);
+            }
+            mmSocket = tmp;
+        }
+
+        public void run() {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter.cancelDiscovery();
+
+            try {
+                // Connect to the remote device through the socket. This call blocks
+                // until it succeeds or throws an exception.
+                mmSocket.connect();
+            } catch (IOException connectException) {
+                // Unable to connect; close the socket and return.
+                Log.d(TAG, "connection error");
+                try {
+                    mmSocket.close();
+                } catch (IOException closeException) {
+                    Log.e(TAG, "Could not close the client socket", closeException);
+                }
+                return;
+            }
+
+            // The connection attempt succeeded. Perform work associated with
+            // the connection in a separate thread.
+            rxtxThread = new RxTxThread(mmSocket);
+            rxtxThread.start();
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Could not close the client socket", e);
+            }
+        }
+    }
+
+    private class RxTxThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
         private byte[] mmBuffer; // mmBuffer store for the stream
 
-        public ConnectedThread(BluetoothSocket socket) {
+        public RxTxThread(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -89,6 +391,11 @@ public class BTService extends Service {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+
+
+
+            String data = "hello";
+            write(data.getBytes());
         }
 
         public void run() {
@@ -115,12 +422,10 @@ public class BTService extends Service {
 
                         Log.d(TAG, "datahex = " + sb);
 
-                        String dataRx = new String(mmBuffer, 0, numBytes);
                         // Send the obtained bytes to the UI activity.
-                        Intent intent = new Intent("BTEvent");
-                        intent.putExtra("RXData", dataRx);
-
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                        String dataRx = new String(mmBuffer, 0, numBytes);
+                        btDataIntent.putExtra("BTDataIntent", dataRx);
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
                     }
 
                 } catch (IOException e) {
@@ -142,7 +447,6 @@ public class BTService extends Service {
         // Call this method from the main activity to shut down the connection.
         public void cancel() {
             try {
-                isConnected = false;
                 mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Could not close the connect socket", e);

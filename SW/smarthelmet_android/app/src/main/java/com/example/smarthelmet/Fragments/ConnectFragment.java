@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
@@ -33,26 +34,29 @@ public class ConnectFragment extends Fragment {
 
     private static final int REQUEST_ENABLE_BT = 3;
     private static final int ACTION_REQUEST_MULTIPLE_PERMISSION = 2;
-    static BluetoothSocket mmSocket;
-    public final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
+    private final String BTScanIntent = "BTScanIntent";
+    private final String BTStateIntent = "BTStateIntent";
+    private final String connectIntent = "connectIntent";
+    public final String BTOff = "BTOff";
+    public final String BTOn = "BTOn";
+    public final String scannerTimeOut = "TimeOut";
+
     int REQUEST_ACCESS_COARSE_LOCATION = 1;
     ProgressBar connectProgress;
     ProgressBar connectProgressInd;
     TextView connectText;
-    BluetoothAdapter bluetoothAdapter;
-    Handler scannerHandler;
-    Runnable scannerRunnable;
-    ConnectThread newConnection;
-    IntentFilter scannerFilter;
-    IntentFilter btFilter;
+    Intent connectFragmentIntent;
+    static BluetoothAdapter bluetoothAdapter;
+
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        connectFragmentIntent = new Intent(connectIntent);
+
         if (bluetoothAdapter == null) {
             Toast.makeText(getActivity(), "Your smartphone doesn't support BT", Toast.LENGTH_SHORT).show();
         }
@@ -61,12 +65,6 @@ public class ConnectFragment extends Fragment {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-
-        scannerFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        btFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-
-        getActivity().registerReceiver(scannerReceiver, scannerFilter);
-        getActivity().registerReceiver(btReceiver, btFilter);
 
 
         int pCheck = getActivity().checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
@@ -90,73 +88,59 @@ public class ConnectFragment extends Fragment {
 //                    .setNegativeButton("No", null)
 //                    .show();
 //        }
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(btScanReceiver,
+                new IntentFilter(BTScanIntent));
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(btStateReceiver,
+                new IntentFilter(BTStateIntent));
     }
 
-    // Create a BroadcastReceiver for BT_STATE_CHANGED.
-    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver btScanReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+            // Get extra data included in the Intent
+            Log.d("ConnectBTEvent", intent.getAction());
 
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                Log.d("bluetooth device found", "hello");
-                switch (state) {
-                    case BluetoothAdapter.STATE_OFF:
+            String message = intent.getStringExtra(BTScanIntent);
 
-                        //Indicates the local Bluetooth adapter is off.
-                        break;
+            if(message.equals(scannerTimeOut)){
+                connectProgressInd.setVisibility(View.GONE);
+                connectText.setText("Tap to connect");
+                connectText.setClickable(true);
 
-                    case BluetoothAdapter.STATE_TURNING_ON:
-                        //Indicates the local Bluetooth adapter is turning on. However local clients should wait for STATE_ON before attempting to use the adapter.
-                        break;
-
-                    case BluetoothAdapter.STATE_ON:
-                        //Indicates the local Bluetooth adapter is on, and ready for use.
-                        break;
-
-                    case BluetoothAdapter.STATE_TURNING_OFF:
-                        connectProgressInd.setVisibility(View.GONE);
-                        connectProgress.setProgress(0);
-                        connectText.setText("Tap to connect");
-                        connectText.setClickable(true);
-
-                        bluetoothAdapter.cancelDiscovery();
-
-                        //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
-                        break;
-                }
+                if(getContext() != null)
+                    Toast.makeText(getContext(), "Can't find a helmet", Toast.LENGTH_LONG).show();
             }
         }
     };
 
-    // Create a BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver btStateReceiver = new BroadcastReceiver() {
+        @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                if (deviceName != null) {
-                    Log.d("ConnectFragment", deviceName);
-                    if (deviceName.equals("ESP32_SmartHelmet")) {
+            // Get extra data included in the Intent
+            Log.d("ConnectBTEvent", intent.getAction());
 
-                        bluetoothAdapter.cancelDiscovery();
-                        scannerHandler.removeCallbacks(scannerRunnable);
+            String message = intent.getStringExtra(BTStateIntent);
 
-                        newConnection = new ConnectThread(device);
-                        newConnection.start();
-                    }
-                }
+            connectProgressInd.setVisibility(View.GONE);
+
+            if (message.equals(BTOff)) {
+                connectProgress.setProgress(0);
+                connectText.setText("Tap to connect");
+                connectText.setClickable(true);
+            } else if (message.equals(BTOn)) {
+                connectProgress.setProgress(100);
+                connectText.setText("Connected");
+                connectText.setClickable(false);
             }
         }
     };
 
-    public static BluetoothSocket get_socket() {
-        return mmSocket;
+
+
+    public static BluetoothAdapter get_btAdapter() {
+        return bluetoothAdapter;
     }
 
     @Override
@@ -181,39 +165,22 @@ public class ConnectFragment extends Fragment {
                 if (!bluetoothAdapter.isEnabled()) {
                     Toast.makeText(getActivity(), "Please, turn on BT first", Toast.LENGTH_SHORT).show();
                 } else {
+
+                    getActivity().startService(new Intent(getActivity(), BTService.class));
+
                     connectProgressInd.setVisibility(View.VISIBLE);
                     connectText.setText("Looking \n for a helmet");
                     connectText.setClickable(false);
-
-                    bluetoothAdapter.startDiscovery();
-
-                    scannerHandler = new Handler();
-                    scannerHandler.postDelayed(scannerRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            connectProgressInd.setVisibility(View.GONE);
-                            connectText.setText("Tap to connect");
-                            connectText.setClickable(true);
-
-                            bluetoothAdapter.cancelDiscovery();
-                            Toast.makeText(getActivity(), "Can't find a helmet", Toast.LENGTH_LONG).show();
-                        }
-                    }, 15000);
                 }
             }
         });
 
-
-        if (mmSocket != null) {
-            if (mmSocket.isConnected() && bluetoothAdapter.isEnabled()) {
-                connectProgressInd.setVisibility(View.GONE);
-                connectProgress.setProgress(100);
-                connectText.setText("Connected");
-
-                Log.d("ConnectFragment", "mmSocketConnected");
-                connectText.setClickable(false);
-            }
+        if(BTService.getConnectionStatus()){
+            connectProgress.setProgress(100);
+            connectText.setText("Connected");
+            connectText.setClickable(false);
         }
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -221,14 +188,6 @@ public class ConnectFragment extends Fragment {
     @Override
     public void onStop() {
         Log.d("ConnectFragment", "OnStop");
-        if (scannerHandler != null)
-            scannerHandler.removeCallbacks(scannerRunnable);
-
-        if (bluetoothAdapter.isDiscovering())
-            bluetoothAdapter.cancelDiscovery();
-
-        getActivity().unregisterReceiver(btReceiver);
-        getActivity().unregisterReceiver(scannerReceiver);
 
         super.onStop();
     }
@@ -237,103 +196,15 @@ public class ConnectFragment extends Fragment {
     public void onStart() {
         Log.d("ConnectFragment", "OnStart");
 
-        getActivity().registerReceiver(scannerReceiver, scannerFilter);
-        getActivity().registerReceiver(btReceiver, btFilter);
-
         super.onStart();
     }
 
-    public class ConnectThread extends Thread {
+    @Override
+    public  void onPause(){
 
-        private final BluetoothDevice mmDevice;
+        connectFragmentIntent.putExtra(connectIntent, "onStop");
+        LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(connectFragmentIntent);
 
-        public ConnectThread(BluetoothDevice device) {
-            // Use a temporary object that is later assigned to mmSocket
-            // because mmSocket is final.
-            BluetoothSocket tmp = null;
-            mmDevice = device;
-
-            try {
-                // Get a BluetoothSocket to connect with the given BluetoothDevice.
-                // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
-            } catch (IOException e) {
-                Log.e(TAG, "Socket's create() method failed", e);
-            }
-            mmSocket = tmp;
-        }
-
-        public void run() {
-            // Cancel discovery because it otherwise slows down the connection.
-            bluetoothAdapter.cancelDiscovery();
-
-            try {
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
-                mmSocket.connect();
-            } catch (IOException connectException) {
-                // Unable to connect; close the socket and return.
-                Log.d(TAG, "connection error");
-                try {
-                    mmSocket.close();
-                } catch (IOException closeException) {
-                    Log.e(TAG, "Could not close the client socket", closeException);
-                }
-                return;
-            }
-
-            // The connection attempt succeeded. Perform work associated with
-            // the connection in a separate thread.
-            try {
-                getActivity().startService(new Intent(getActivity(), BTService.class));
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        // Stuff that updates the UI
-                        connectProgressInd.setVisibility(View.GONE);
-                        connectProgress.setProgress(100);
-                        connectText.setText("Connected");
-
-                        connectText.setClickable(false);
-                    }
-                });
-            } catch (Exception e) {
-                Log.d("ConnectFragment", "rononuithreadexception");
-            }
-
-//            try {
-//                Thread.sleep(2500);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            getActivity().runOnUiThread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                // Stuff that updates the UI
-//                connectText.setVisibility(View.GONE);
-//                connectProgress.setVisibility(View.GONE);
-//                ;
-//
-////                getActivity().getSupportFragmentManager()
-////                        .beginTransaction()
-////                        .setCustomAnimations(R.anim.slide_down, R.anim.slide_up)
-////                        .replace(R.id.frame_container, new UserFragment()) // replace flContainer
-////                        .commit();
-////            }
-////            });
-        }
-
-        // Closes the client socket and causes the thread to finish.
-        public void cancel() {
-            try {
-                BTService.setConnection(false);
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Could not close the client socket", e);
-            }
-        }
+        super.onPause();
     }
-
 }

@@ -384,7 +384,7 @@ void loop() {
 //    Serial.write(SerialBT.read());
 //  }
 if(SerialBT.available()){
-    char str[] = "hello\n";
+    char str[] = "hello";
     for(int i = 0; i < strlen(str); i++)
       SerialBT.write(str[i]);
 }

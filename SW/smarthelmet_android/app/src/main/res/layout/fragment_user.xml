@@ -46,13 +46,13 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
-                        android:text="Beats Per Minute"
+                        android:text="Heart Rate"
                         android:textColor="#222"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <View
-                        android:id="@+id/divider"
+                        android:id="@+id/bpmDivider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@id/bpmTv"
@@ -63,7 +63,7 @@
                         android:id="@+id/bpmChart"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_below="@id/divider"
+                        android:layout_below="@id/bpmDivider"
                         android:layout_margin="7dp" />
 
                 </RelativeLayout>
@@ -71,7 +71,7 @@
 
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/card_view"
+                android:id="@+id/tempCard"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_gravity="center"
@@ -80,7 +80,7 @@
                 app:contentPadding="5dp"
                 app:cardElevation="6dp"
                 app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toBottomOf="@id/stepsChart">
+                app:layout_constraintTop_toBottomOf="@id/bpmCard">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -93,7 +93,9 @@
                         android:padding="12dp"
                         android:paddingEnd="0dp"
                         android:src="@drawable/ic_ac_unit_black_24dp"
-                        tools:ignore="RtlSymmetry"></ImageView>
+                        tools:ignore="RtlSymmetry">
+
+                    </ImageView>
 
                     <TextView
                         android:id="@+id/tempTv"
@@ -101,13 +103,13 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
-                        android:text="Skin Temperature Per Day"
+                        android:text="Skin Temperature"
                         android:textColor="#222"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <View
-                        android:id="@+id/divider2"
+                        android:id="@+id/tempDivider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@id/tempTv"
@@ -118,7 +120,7 @@
                         android:id="@+id/tempChart"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_below="@id/divider2"
+                        android:layout_below="@id/tempDivider"
                         android:layout_margin="7dp" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -133,7 +135,7 @@
                 app:contentPadding="5dp"
                 app:cardElevation="6dp"
                 app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="@id/tempCard">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -146,7 +148,9 @@
                         android:padding="12dp"
                         android:paddingEnd="0dp"
                         android:src="@drawable/ic_star_black_24dp"
-                        tools:ignore="RtlSymmetry"></ImageView>
+                        tools:ignore="RtlSymmetry">
+
+                    </ImageView>
 
                     <TextView
                         android:id="@+id/actTv"
@@ -154,13 +158,13 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
-                        android:text="Activities Per Day"
+                        android:text="Activities"
                         android:textColor="#222"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <View
-                        android:id="@+id/divider3"
+                        android:id="@+id/actDivider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@id/actTv"
@@ -171,7 +175,7 @@
                         android:id="@+id/actChart"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_below="@id/divider3"
+                        android:layout_below="@id/actDivider"
                         android:layout_margin="7dp" />
 
                 </RelativeLayout>
@@ -187,7 +191,7 @@
                 app:contentPadding="5dp"
                 app:cardElevation="6dp"
                 app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toTopOf="@id/bpmCard">
+                app:layout_constraintTop_toTopOf="@id/actCard">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -200,7 +204,9 @@
                         android:padding="12dp"
                         android:paddingEnd="0dp"
                         android:src="@drawable/ic_directions_walk_black_24dp"
-                        tools:ignore="RtlSymmetry"></ImageView>
+                        tools:ignore="RtlSymmetry">
+
+                    </ImageView>
 
                     <TextView
                         android:id="@+id/stepsTv"
@@ -208,13 +214,13 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
-                        android:text="Steps Per Week"
+                        android:text="Steps"
                         android:textColor="#222"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <View
-                        android:id="@+id/divider1"
+                        android:id="@+id/stepsDivider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@id/stepsTv"
@@ -225,7 +231,7 @@
                         android:id="@+id/stepsChart"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_below="@id/divider1"
+                        android:layout_below="@id/stepsDivider"
                         android:layout_margin="7dp" />
 
                 </RelativeLayout>
@@ -233,10 +239,12 @@
 
 
             <TextView
+                android:background="#0006FF"
                 android:id="@+id/dataTv"
-                android:layout_width="300dp"
-                android:layout_height="100dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="20dp"
+                android:textColor="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"

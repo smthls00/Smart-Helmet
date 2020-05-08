@@ -19,6 +19,7 @@ import com.example.smarthelmet.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.IMarker;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.MarkerView;
@@ -87,7 +88,7 @@ public class UserFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            String message = intent.getStringExtra("RXData");
+            String message = intent.getStringExtra("BTDataEvent");
             Log.d("receiver", "Got message: " + message);
 
             dataTv.append(message + " ");
