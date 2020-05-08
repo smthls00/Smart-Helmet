@@ -12,16 +12,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.renderscript.RenderScript;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -45,7 +40,6 @@ public class BTService extends Service {
     private final String BTOn = "BTOn";
     private final String scannerTimeOut = "TimeOut";
     public final String stopService = "stopServiceIntent";
-
 
 
     ConnectThread connectThread;
@@ -105,14 +99,12 @@ public class BTService extends Service {
         registerReceiver(btActionReceiver, btActionFilter);
         registerReceiver(serviceKillReceiver, stopServerFilter);
 
-        scannerHandler.postDelayed(scannerRunnable, 5000);
+        scannerHandler.postDelayed(scannerRunnable, 15000);
 
         bluetoothAdapter.startDiscovery();
 
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(connectReceiver,
                 new IntentFilter(connectIntent));
-
-
 
 
         return START_STICKY;
@@ -126,7 +118,7 @@ public class BTService extends Service {
 
             String message = intent.getStringExtra(stopService);
 
-            if(message.equals("OK")){
+            if (message.equals("OK")) {
                 fgKill();
             }
         }
@@ -140,10 +132,14 @@ public class BTService extends Service {
 
             String message = intent.getStringExtra(connectIntent);
 
-            if(message.equals("onStop")){
-                if(bluetoothAdapter.isDiscovering()) {
+            if (message.equals("onStop")) {
+                if (!isConnected) {
+                    Log.d("stopDiscoveringOnStop", intent.getAction());
+
                     bluetoothAdapter.cancelDiscovery();
                     scannerHandler.removeCallbacks(scannerRunnable);
+
+                    fgKill();
                 }
             }
         }
@@ -153,7 +149,7 @@ public class BTService extends Service {
         @Override
         public void run() {
 
-            Log.d("BTScan","TimeOutScan");
+            Log.d("BTScan", "TimeOutScan");
             bluetoothAdapter.cancelDiscovery();
 
             broadcastIntent(BTScanIntent, scannerTimeOut);
@@ -189,14 +185,14 @@ public class BTService extends Service {
                         //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
                         Log.d("BTService", "STATE_TURNING_OFF");
                         bluetoothAdapter.cancelDiscovery();
-                        if(isConnected){
+                        if (isConnected) {
                             makeDisconnectNotification();
                             isConnected = false;
+
+                            broadcastIntent(BTStateIntent, BTOff);
+
+                            fgKill();
                         }
-
-                        broadcastIntent(BTStateIntent, BTOff);
-
-                        fgKill();
                         break;
                 }
             }
@@ -218,8 +214,10 @@ public class BTService extends Service {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                     //Indicates the local Bluetooth adapter is connected.
                     Log.d("BTService", "ACTION_ACL_CONNECTED");
-                    broadcastIntent(BTStateIntent, BTOn);
-                    isConnected = true;
+                    if(!isConnected) {
+                        broadcastIntent(BTStateIntent, BTOn);
+                        isConnected = true;
+                    }
                     break;
 
                 case BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED:
@@ -230,12 +228,14 @@ public class BTService extends Service {
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                     //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
                     Log.d("BTService", "ACTION_ACL_DISCONNECTED");
-                    broadcastIntent(BTStateIntent, BTOff);
-                    isConnected = false;
+                    if(isConnected) {
+                        broadcastIntent(BTStateIntent, BTOff);
+                        isConnected = false;
 
-                    makeDisconnectNotification();
+                        makeDisconnectNotification();
 
-                    fgKill();
+                        fgKill();
+                    }
                     break;
             }
         }
@@ -265,7 +265,7 @@ public class BTService extends Service {
         }
     };
 
-    public void makeDisconnectNotification(){
+    public void makeDisconnectNotification() {
         Intent notificationIntent = new Intent();
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
@@ -281,7 +281,7 @@ public class BTService extends Service {
         manager.notify(0, builder.build());
     }
 
-    public void makeForegroundNotification(){
+    public void makeForegroundNotification() {
         Intent notificationIntent = new Intent(getApplicationContext(), ServiceKillNotificationHandler.class);
         notificationIntent.setAction("stop");
 
@@ -299,8 +299,8 @@ public class BTService extends Service {
     }
 
 
-    public void fgKill(){
-        if(isConnected){
+    public void fgKill() {
+        if (isConnected) {
             makeDisconnectNotification();
             isConnected = false;
         }
@@ -310,7 +310,7 @@ public class BTService extends Service {
         stopSelf();
     }
 
-    public static boolean getConnectionStatus(){
+    public static boolean getConnectionStatus() {
         return isConnected;
     }
 
@@ -321,7 +321,6 @@ public class BTService extends Service {
         Log.d("BTService", "onDestroy()");
 
         try {
-
             if (connectThread != null)
                 connectThread.cancel();
 
@@ -330,7 +329,7 @@ public class BTService extends Service {
             unregisterReceiver(btStateReceiver);
             unregisterReceiver(btActionReceiver);
             unregisterReceiver(serviceKillReceiver);
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.d("BTService", e.toString());
         }
 
@@ -338,9 +337,9 @@ public class BTService extends Service {
     }
 
 
-    public void broadcastIntent(String TAG, String data){
+    public void broadcastIntent(String TAG, String data) {
         String message = TAG;
-        switch (TAG){
+        switch (TAG) {
             case BTScanIntent:
                 btScanIntent.putExtra(TAG, data);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btScanIntent);
@@ -432,6 +431,10 @@ public class BTService extends Service {
 
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
+            if(!isConnected) {
+                broadcastIntent(BTStateIntent, BTOn);
+                isConnected = true;
+            }
             rxtxThread = new RxTxThread(mmSocket);
             rxtxThread.start();
         }
@@ -472,7 +475,6 @@ public class BTService extends Service {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
-
 
 
             String data = "hello";
@@ -521,15 +523,6 @@ public class BTService extends Service {
                 mmOutStream.write(bytes);
             } catch (IOException e) {
                 Log.e(TAG, "Error occurred when sending data", e);
-            }
-        }
-
-        // Call this method from the main activity to shut down the connection.
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Could not close the connect socket", e);
             }
         }
     }

@@ -10,348 +10,355 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/gasCard"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <RelativeLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/gasCard"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/gasTv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_local_gas_station_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/gasTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="Gas Resistance"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/dividerGas"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/gasTv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/gasChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/dividerGas"
-                    android:layout_margin="7dp" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/gasTv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_local_gas_station_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    </ImageView>
+
+                    <TextView
+                        android:id="@+id/gasTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Gas Resistance"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/dividerGas"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/gasTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/gasChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/dividerGas"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
 
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/co2Card"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toBottomOf="@id/gasCard">
-
-            <RelativeLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/co2Card"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toBottomOf="@id/gasCard">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/co2Tv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_local_florist_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/co2Tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="CO2"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/co2Divider"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/co2Tv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/co2Chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/co2Divider"
-                    android:layout_margin="7dp" />
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/co2Tv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_local_florist_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/smokeCard"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toTopOf="@id/co2Card">
+                    </ImageView>
 
-            <RelativeLayout
+                    <TextView
+                        android:id="@+id/co2Tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="CO2"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/co2Divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/co2Tv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/co2Chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/co2Divider"
+                        android:layout_margin="7dp" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/smokeCard"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="@id/co2Card">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/smokeTv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_cloud_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/smokeTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="Smoke"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/smokeDivider"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/smokeTv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/smokeChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/smokeDivider"
-                    android:layout_margin="7dp" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/smokeTv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_cloud_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    </ImageView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/tempCard"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toTopOf="@id/smokeCard">
+                    <TextView
+                        android:id="@+id/smokeTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Smoke"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <RelativeLayout
+                    <View
+                        android:id="@+id/smokeDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/smokeTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/smokeChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/smokeDivider"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/tempCard"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="@id/smokeCard">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/tempTv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_ac_unit_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/tempTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="Outside Temperature"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/outTempDivider"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/tempTv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/outtempChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/outTempDivider"
-                    android:layout_margin="7dp" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/tempTv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_ac_unit_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    </ImageView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/presCard"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toTopOf="@id/tempCard">
+                    <TextView
+                        android:id="@+id/tempTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Outside Temperature"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <RelativeLayout
+                    <View
+                        android:id="@+id/outTempDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/tempTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/outtempChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/outTempDivider"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/presCard"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="@id/tempCard">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/presTv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_filter_hdr_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/presTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="Pressure"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/presDivider"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/presTv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/presChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/presDivider"
-                    android:layout_margin="7dp" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/presTv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_filter_hdr_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    </ImageView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/humCard"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="5dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:layout_constraintTop_toTopOf="@id/presDivider">
+                    <TextView
+                        android:id="@+id/presTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Pressure"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <RelativeLayout
+                    <View
+                        android:id="@+id/presDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/presTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/presChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/presDivider"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/humCard"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="60dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="@id/presDivider">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/humTv"
-                    android:padding="12dp"
-                    android:paddingEnd="0dp"
-                    android:src="@drawable/ic_opacity_black_24dp"
-                    tools:ignore="RtlSymmetry">
-
-                </ImageView>
-
-                <TextView
-                    android:id="@+id/humTv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:padding="12dp"
-                    android:text="Humidity"
-                    android:textColor="#222"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/humDivider"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@id/humTv"
-                    android:layout_margin="4dp"
-                    android:background="@android:color/black" />
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/humChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/humDivider"
-                    android:layout_margin="7dp" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/humTv"
+                        android:padding="12dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_opacity_black_24dp"
+                        tools:ignore="RtlSymmetry">
 
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+                    </ImageView>
 
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/humTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Humidity"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/humDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/humTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/colorPrimaryDark" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/humChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/humDivider"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
     </ScrollView>
 
 </FrameLayout>

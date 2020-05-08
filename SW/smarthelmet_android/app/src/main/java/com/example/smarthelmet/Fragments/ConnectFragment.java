@@ -2,14 +2,11 @@ package com.example.smarthelmet.Fragments;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +21,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.io.IOException;
-
-import static android.content.ContentValues.TAG;
 
 public class ConnectFragment extends Fragment {
 
@@ -47,7 +40,6 @@ public class ConnectFragment extends Fragment {
     TextView connectText;
     Intent connectFragmentIntent;
     static BluetoothAdapter bluetoothAdapter;
-
 
 
     @Override
@@ -104,12 +96,12 @@ public class ConnectFragment extends Fragment {
 
             String message = intent.getStringExtra(BTScanIntent);
 
-            if(message.equals(scannerTimeOut)){
+            if (message.equals(scannerTimeOut)) {
                 connectProgressInd.setVisibility(View.GONE);
                 connectText.setText("Tap to connect");
                 connectText.setClickable(true);
 
-                if(getContext() != null)
+                if (getContext() != null)
                     Toast.makeText(getContext(), "Can't find a helmet", Toast.LENGTH_LONG).show();
             }
         }
@@ -136,7 +128,6 @@ public class ConnectFragment extends Fragment {
             }
         }
     };
-
 
 
     public static BluetoothAdapter get_btAdapter() {
@@ -174,7 +165,7 @@ public class ConnectFragment extends Fragment {
             }
         });
 
-        if(BTService.getConnectionStatus()){
+        if (BTService.getConnectionStatus()) {
             connectProgress.setProgress(100);
             connectText.setText("Connected");
             connectText.setClickable(false);
@@ -199,7 +190,7 @@ public class ConnectFragment extends Fragment {
     }
 
     @Override
-    public  void onPause(){
+    public void onPause() {
 
         connectFragmentIntent.putExtra(connectIntent, "onStop");
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(connectFragmentIntent);

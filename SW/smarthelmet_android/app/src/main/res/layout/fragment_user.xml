@@ -47,7 +47,8 @@
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
                         android:text="Heart Rate"
-                        android:textColor="#222"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -57,7 +58,7 @@
                         android:layout_height="1dp"
                         android:layout_below="@id/bpmTv"
                         android:layout_margin="4dp"
-                        android:background="@android:color/black" />
+                        android:background="@color/colorPrimaryDark" />
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/bpmChart"
@@ -104,7 +105,8 @@
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
                         android:text="Skin Temperature"
-                        android:textColor="#222"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -114,7 +116,7 @@
                         android:layout_height="1dp"
                         android:layout_below="@id/tempTv"
                         android:layout_margin="4dp"
-                        android:background="@android:color/black" />
+                        android:background="@color/colorPrimaryDark" />
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/tempChart"
@@ -159,7 +161,8 @@
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
                         android:text="Activities"
-                        android:textColor="#222"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -169,7 +172,7 @@
                         android:layout_height="1dp"
                         android:layout_below="@id/actTv"
                         android:layout_margin="4dp"
-                        android:background="@android:color/black" />
+                        android:background="@color/colorPrimaryDark" />
 
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/actChart"
@@ -187,6 +190,7 @@
                 android:layout_height="300dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="60dp"
                 app:cardCornerRadius="4dp"
                 app:contentPadding="5dp"
                 app:cardElevation="6dp"
@@ -215,7 +219,8 @@
                         android:layout_centerHorizontal="true"
                         android:padding="12dp"
                         android:text="Steps"
-                        android:textColor="#222"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -225,7 +230,7 @@
                         android:layout_height="1dp"
                         android:layout_below="@id/stepsTv"
                         android:layout_margin="4dp"
-                        android:background="@android:color/black" />
+                        android:background="@color/colorPrimaryDark" />
 
                     <com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/stepsChart"
@@ -239,12 +244,11 @@
 
 
             <TextView
-                android:background="#0006FF"
                 android:id="@+id/dataTv"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
                 android:textSize="20dp"
-                android:textColor="#FFFFFF"
+                android:textColor="#000000"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"

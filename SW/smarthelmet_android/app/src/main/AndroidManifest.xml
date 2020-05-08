@@ -8,7 +8,7 @@
     <!-- If your app targets Android 9 or lower, you can declare
          ACCESS_COARSE_LOCATION instead. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -28,20 +28,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".BTService"
+        <service
+            android:name=".BTService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
-          <receiver
-        android:name=".ServiceKillNotificationHandler"
-        android:enabled="true"
-        android:exported="true"
-        android:label="RestartServiceWhenStopped">
-        <intent-filter>
-            <action android:name="stop"/>
-            <action android:name="start"/>
-        </intent-filter>
-    </receiver>
+        <receiver
+            android:name=".ServiceKillNotificationHandler"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="stop" />
+                <action android:name="start" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

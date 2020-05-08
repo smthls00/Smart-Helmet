@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 public class ServiceKillNotificationHandler extends BroadcastReceiver {
 
     public final String stopService = "stopServiceIntent";
@@ -23,11 +21,11 @@ public class ServiceKillNotificationHandler extends BroadcastReceiver {
         context.sendBroadcast(stopServiceIntent);
     }
 
-    public void performAction1(){
+    public void performAction1() {
 
     }
 
-    public void performAction2(){
+    public void performAction2() {
 
     }
 

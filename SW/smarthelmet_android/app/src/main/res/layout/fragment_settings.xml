@@ -1,14 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.SettingsFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <RelativeLayout
+            android:padding="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Switch
+                android:checked="true"
+                android:id="@+id/acelSwitch"
+                android:layout_width="wrap_content"
+                android:padding="10dp"
+                android:layout_height="wrap_content"
+>
+
+            </Switch>
+
+            <TextView
+                android:id="@+id/acelTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_toRightOf="@id/acelSwitch"
+                android:text="BNO055">
+
+            </TextView>
+
+            <Switch
+                android:checked="true"
+                android:id="@+id/bpmSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_below="@id/acelSwitch">
+
+            </Switch>
+
+            <TextView
+                android:checked="true"
+                android:id="@+id/bpmTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_toRightOf="@id/bpmSwitch"
+                android:layout_below="@id/acelTv"
+                android:text="MAX30102">
+
+            </TextView>
+
+            <Switch
+                android:checked="true"
+                android:id="@+id/gasSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_below="@id/bpmSwitch">
+
+            </Switch>
+
+            <TextView
+                android:checked="true"
+                android:id="@+id/gasTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_toEndOf="@id/gasSwitch"
+                android:layout_below="@id/bpmTv"
+                android:text="MQ-2">
+
+            </TextView>
+
+            <Switch
+                android:checked="true"
+                android:id="@+id/tempSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_below="@id/gasSwitch">
+
+            </Switch>
+
+            <TextView
+                android:id="@+id/tempTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_toEndOf="@id/tempSwitch"
+                android:layout_below="@id/gasTv"
+                android:text="TEMP">
+
+            </TextView>
+
+            <Switch
+                android:checked="true"
+                android:id="@+id/humSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_below="@id/tempSwitch">
+
+            </Switch>
+
+            <TextView
+                android:id="@+id/humTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_toEndOf="@id/humSwitch"
+                android:layout_below="@id/tempTv"
+                android:text="BME680">
+            </TextView>
+        </RelativeLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

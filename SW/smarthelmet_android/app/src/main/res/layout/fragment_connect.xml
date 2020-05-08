@@ -40,7 +40,7 @@
         android:id="@+id/connectTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#00000000"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:fontFamily="monospace"
         android:gravity="center"

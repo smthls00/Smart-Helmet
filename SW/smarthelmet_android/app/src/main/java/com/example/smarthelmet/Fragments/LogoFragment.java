@@ -41,7 +41,7 @@ public class LogoFragment extends Fragment {
                         .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
                         .commitAllowingStateLoss();
             }
-        }, 500);
+        }, 1000);
 
         return view;
     }
