@@ -265,7 +265,7 @@
                         android:layout_toStartOf="@id/presTv"
                         android:padding="15dp"
                         android:paddingEnd="0dp"
-                        android:src="@drawable/ic_filter_hdr_black_24dp"
+                        android:src="@drawable/ic_vertical_align_bottom_black_24dp"
                         tools:ignore="RtlSymmetry">
 
                     </ImageView>
@@ -306,7 +306,6 @@
                 android:layout_height="300dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="25dp"
-                android:layout_marginBottom="60dp"
                 app:cardCornerRadius="4dp"
                 app:contentPadding="5dp"
                 app:cardElevation="6dp"
@@ -353,6 +352,64 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_below="@id/humDivider"
+                        android:layout_margin="7dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/altCard"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="60dp"
+                app:cardCornerRadius="4dp"
+                app:contentPadding="5dp"
+                app:cardElevation="6dp"
+                app:cardMaxElevation="10dp"
+                app:layout_constraintTop_toTopOf="@id/humDivider">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/altTv"
+                        android:padding="15dp"
+                        android:paddingEnd="0dp"
+                        android:src="@drawable/ic_filter_hdr_black_24dp"
+                        tools:ignore="RtlSymmetry">
+
+                    </ImageView>
+
+                    <TextView
+                        android:id="@+id/altTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:padding="12dp"
+                        android:text="Altitude"
+                        android:textColor="@color/textColor"
+                        android:fontFamily="monospace"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/altDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/altTv"
+                        android:layout_margin="4dp"
+                        android:background="@color/textColor" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/altChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@id/altDivider"
                         android:layout_margin="7dp" />
 
                 </RelativeLayout>

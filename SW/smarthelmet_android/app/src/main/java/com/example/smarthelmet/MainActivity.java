@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.smarthelmet.Fragments.ChatFragment;
@@ -46,48 +47,48 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
+
+            Fragment fragment = null;
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_container);
+
             switch (item.getItemId()) {
                 case R.id.connection:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new ConnectFragment()) // replace flContainer
-                            .commitAllowingStateLoss();
-                    return true;
+                    if (!(currentFragment instanceof ConnectFragment)) {
+                        fragment = new ConnectFragment();
+                    }
+                    break;
 
                 case R.id.user:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new UserFragment()) // replace flContainer
-                            .commitAllowingStateLoss();
-                    return true;
-
-                case R.id.settings:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new SettingsFragment()) // replace flContainer
-                            .commitAllowingStateLoss();
-                    return true;
-
-                case R.id.chat:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new ChatFragment()) // replace flContainer
-                            .commitAllowingStateLoss();
-                    return true;
+                    if (!(currentFragment instanceof UserFragment)) {
+                        fragment = new UserFragment();
+                    }
+                    break;
 
                 case R.id.environment:
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                            .replace(R.id.frame_container, new EnvironmentFragment()) // replace flContainer
-                            .commitAllowingStateLoss();
-                    return true;
+                    if (!(currentFragment instanceof EnvironmentFragment)) {
+                        fragment = new EnvironmentFragment();
+                    }
+                    break;
+
+                case R.id.chat:
+                    if (!(currentFragment instanceof ChatFragment)) {
+                        fragment = new ChatFragment();
+                    }
+                    break;
+
+                case R.id.settings:
+                    if (!(currentFragment instanceof SettingsFragment)) {
+                        fragment = new SettingsFragment();
+                    }
+                    break;
             }
-            return false;
+            if (fragment != null)
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                        .replace(R.id.frame_container, fragment) // replace flContainer
+                        .commitAllowingStateLoss();
+            return true;
         }
     };
 

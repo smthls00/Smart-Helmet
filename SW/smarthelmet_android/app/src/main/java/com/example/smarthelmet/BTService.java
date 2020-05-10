@@ -15,13 +15,10 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.example.smarthelmet.Fragments.ConnectFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,7 +89,7 @@ public class BTService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();;
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         registerReceiver(scannerReceiver, scannerFilter);
         registerReceiver(btStateReceiver, btStateFilter);
@@ -215,7 +212,7 @@ public class BTService extends Service {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                     //Indicates the local Bluetooth adapter is connected.
                     Log.d("BTService", "ACTION_ACL_CONNECTED");
-                    if(!isConnected) {
+                    if (!isConnected) {
                         broadcastIntent(BTStateIntent, BTOn);
                         isConnected = true;
                     }
@@ -229,7 +226,7 @@ public class BTService extends Service {
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                     //Indicates the local Bluetooth adapter is turning off. Local clients should immediately attempt graceful disconnection of any remote links.
                     Log.d("BTService", "ACTION_ACL_DISCONNECTED");
-                    if(isConnected) {
+                    if (isConnected) {
                         broadcastIntent(BTStateIntent, BTOff);
                         isConnected = false;
 
@@ -432,7 +429,7 @@ public class BTService extends Service {
 
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
-            if(!isConnected) {
+            if (!isConnected) {
                 broadcastIntent(BTStateIntent, BTOn);
                 isConnected = true;
             }
@@ -500,7 +497,7 @@ public class BTService extends Service {
 
                         StringBuilder sb = new StringBuilder();
                         for (int i = 0; i < numBytes; i++) {
-                            if(mmBuffer[i] == 0x00)
+                            if (mmBuffer[i] == 0x00)
                                 break;
                             sb.append(String.format("%02X ", mmBuffer[i]));
                         }

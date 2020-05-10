@@ -360,7 +360,7 @@ float tmp006_read(){
       sprintf(tmpBT, "tmp:%.1f", tmpVal);
       SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
 
-      delay(1000);
+      delay(100);
     }
 }
 
