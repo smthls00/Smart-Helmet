@@ -58,7 +58,7 @@ BluetoothSerial SerialBT;
 
 MAX30105 particleSensor;
 
-
+long tmpMillis = 0;
 /*
  * Global variables for MAX30102 Sensor
  */
@@ -355,12 +355,14 @@ float tmp006_read(){
 //  float diet = tmp006.readDieTempC();
 //  Serial.print("Die Temperature: "); Serial.print(diet); Serial.println("*C");
 
-  if (SerialBT.available()) {
+  if (SerialBT.available() && (millis() - tmpMillis >= 100)) {
       char tmpBT[16];
       sprintf(tmpBT, "tmp:%.1f", tmpVal);
       SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
 
-      delay(100);
+      tmpMillis = millis();
+
+      //delay(100);
     }
 }
 

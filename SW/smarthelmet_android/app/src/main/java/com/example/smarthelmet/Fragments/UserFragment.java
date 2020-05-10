@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -40,10 +41,19 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -57,14 +67,15 @@ public class UserFragment extends Fragment {
     PieChart actChart;
     BarChart stepsChart;
 
-    LineChart bpmChart;
-    LineDataSet bpmSet;
-    LineData bpmData;
 
-    LineChart tmpChart;
-    LineDataSet tmpSet;
-    LineData tmpData;
+    GraphView tmpChart;
+    LineGraphSeries<DataPoint> tmpSeries;
 
+    GraphView bpmChart;
+    LineGraphSeries<DataPoint> bpmSeries;
+
+    double bpmMinute = 1;
+    double tmpMinute = 1;
 
 
     @Override
@@ -87,6 +98,24 @@ public class UserFragment extends Fragment {
         actChart = view.findViewById(R.id.actChart);
         tmpChart = view.findViewById(R.id.tmpChart);
 
+        tmpSeries = new LineGraphSeries<>();
+        bpmSeries = new LineGraphSeries<>();
+
+
+        tmpSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(tmpChart.getContext(), String.format("%.1f", dataPoint.getY()) + "°C", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        bpmSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(bpmChart.getContext(), String.format("%.0f", dataPoint.getY()) + " BPM", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         bpmChart_create();
         stepsChart_create();
         actChart_create();
@@ -107,16 +136,17 @@ public class UserFragment extends Fragment {
             try {
                 String opCode = message.substring(0, 3);
 
-                float opVal = Float.parseFloat(message.substring(message.indexOf(":") + 1));
+                final float opVal = Float.parseFloat(message.substring(message.indexOf(":") + 1));
 
                 Log.d("receiver", "Got opCode: " + opCode + ", opVal: " + opVal);
 
+
                 switch (opCode) {
                     case "bpm":
-                        bpmUpdate(opVal);
+                        bpmSeries.appendData(new DataPoint(bpmSeries.getHighestValueX() + 1, opVal), true, 60);
                         break;
                     case "tmp":
-                        tmpUpdate(opVal);
+                        tmpSeries.appendData(new DataPoint(tmpSeries.getHighestValueX() + 1, opVal), true, 60);
                         break;
                 }
 
@@ -130,93 +160,42 @@ public class UserFragment extends Fragment {
     };
 
 
-    private void bpmUpdate(final float bpmVal) {
-        int bpmMinute = bpmSet.getEntryCount();
+    private void tmpChart_create(){
+        tmpSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorTmp));
+        tmpSeries.setThickness(6);
+        tmpChart.addSeries(tmpSeries);
 
-        if (bpmMinute >= 60) {
-
-            bpmMinute = 60;
-            bpmSet.removeFirst();
-            for (Entry entry : bpmSet.getValues())
-                entry.setX(entry.getX() - 1);
-        }
-
-        bpmSet.addEntry(new Entry(bpmMinute, bpmVal));
-
-        Log.d("subVal", "Got subValTemp: " + bpmVal + ", per Hour: " + bpmMinute);
-
-        bpmData.addDataSet(bpmSet);
-        bpmChart.notifyDataSetChanged();
-        bpmChart.moveViewToX(bpmMinute);
+        tmpChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        tmpChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        tmpChart.getGridLabelRenderer().setTextSize(35f);
+        //tmpChart.getViewport().setScalable(true);
+        //tmpChart.getViewport().setScalableY(true);
+        tmpChart.getViewport().setDrawBorder(true);
+        tmpChart.getViewport().setXAxisBoundsManual(true);
+        tmpChart.getViewport().setMinX(0);
+        tmpChart.getViewport().setMaxX(60);
+        tmpChart.getViewport().setYAxisBoundsManual(true);
+        tmpChart.getViewport().setMaxY(45);
+        tmpChart.getViewport().setMinY(25);
     }
 
-    private void tmpUpdate(final float tmpVal) {
-        int tmpHour = tmpSet.getEntryCount();
+    private void bpmChart_create(){
+        bpmSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorBPM));
+        bpmSeries.setThickness(6);
+        bpmChart.addSeries(bpmSeries);
 
-        if (tmpHour >= 30) {
-
-            tmpHour = 30;
-            tmpSet.removeFirst();
-            for (Entry entry : tmpSet.getValues())
-                entry.setX(entry.getX() - 1);
-        }
-
-        tmpSet.addEntry(new Entry(tmpHour, tmpVal));
-
-        Log.d("subVal", "Got subValTemp: " + tmpVal + ", per Hour: " + tmpHour);
-
-        tmpData.addDataSet(tmpSet);
-        tmpChart.notifyDataSetChanged();
-        tmpChart.moveViewToX(tmpHour);
-    }
-
-    private void tmpChart_create() {
-
-            tmpSet = new LineDataSet(null, "TMP");
-            tmpSet.setColor(getContext().getColor(R.color.colorTmp));
-            tmpSet.setDrawCircles(false);
-            tmpSet.setLineWidth(2f);
-            tmpSet.setDrawValues(false);
-            tmpSet.setDrawVerticalHighlightIndicator(false);
-            tmpData = new LineData(tmpSet);
-
-            tmpChart.setDrawBorders(false);
-            tmpChart.setData(tmpData);
-            tmpChart.setTouchEnabled(true);
-            tmpChart.setPinchZoom(false);
-            tmpChart.setDescription(null);
-            tmpChart.setDoubleTapToZoomEnabled(false);
-
-            IMarker markerOnTap = new MarkerOnTapTemp(getActivity(), R.layout.graph_content_viewer);
-            tmpChart.setMarker(markerOnTap);
-            tmpChart.setHighlightPerTapEnabled(true);
-
-
-            XAxis xAxis = tmpChart.getXAxis();
-            xAxis.setDrawLabels(false);
-            xAxis.setDrawGridLines(false);
-            xAxis.setAxisMinimum(0);
-            xAxis.setAxisMaximum(30);
-            xAxis.setEnabled(false);
-            xAxis.setValueFormatter(new TimeFormatter());
-
-            YAxis yAxis = tmpChart.getAxisLeft();
-            yAxis.setAxisMaximum(45f);
-            yAxis.setAxisMinimum(25f);
-            yAxis.setDrawGridLines(false);
-            yAxis.setDrawLabels(true);
-            yAxis.setEnabled(true);
-            yAxis.setValueFormatter(new TemperatureFormatter());
-            yAxis.setTextColor(getContext().getColor(R.color.textColor));
-
-            YAxis yAxis2 = tmpChart.getAxisRight();
-            yAxis2.setDrawLabels(false);
-            yAxis2.setDrawGridLines(false);
-            yAxis2.setEnabled(false);
-
-            //Legend
-            tmpChart.getLegend().setEnabled(false);
-            tmpChart.fitScreen();
+        bpmChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        bpmChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        bpmChart.getGridLabelRenderer().setTextSize(35f);
+        //bpmChart.getViewport().setScalable(true);
+        //bpmChart.getViewport().setScalableY(true);
+        bpmChart.getViewport().setDrawBorder(true);
+        bpmChart.getViewport().setXAxisBoundsManual(true);
+        bpmChart.getViewport().setMinX(0);
+        bpmChart.getViewport().setMaxX(60);
+        bpmChart.getViewport().setYAxisBoundsManual(true);
+        bpmChart.getViewport().setMaxY(180);
+        bpmChart.getViewport().setMinY(30);
     }
 
 
@@ -315,52 +294,6 @@ public class UserFragment extends Fragment {
         }
     }
 
-    private void bpmChart_create() {
-            bpmSet = new LineDataSet(null, "BPM");
-            bpmSet.setColor(getContext().getColor(R.color.colorBPM));
-            bpmSet.setDrawCircles(false);
-            bpmSet.setLineWidth(2f);
-            bpmSet.setDrawValues(false);
-            bpmSet.setDrawVerticalHighlightIndicator(false);
-            bpmData = new LineData(bpmSet);
-
-            bpmChart.setDrawBorders(false);
-            bpmChart.setData(bpmData);
-            bpmChart.setTouchEnabled(true);
-            bpmChart.setPinchZoom(false);
-            bpmChart.setDescription(null);
-            bpmChart.setDoubleTapToZoomEnabled(false);
-
-            IMarker markerOnTap = new MarkerOnTap(getActivity(), R.layout.graph_content_viewer);
-            bpmChart.setMarker(markerOnTap);
-            bpmChart.setHighlightPerTapEnabled(true);
-
-            XAxis xAxis = bpmChart.getXAxis();
-            xAxis.setDrawLabels(false);
-            xAxis.setDrawGridLines(false);
-            xAxis.setAxisMinimum(0);
-            xAxis.setAxisMaximum(60);
-            xAxis.setEnabled(false);
-            xAxis.setValueFormatter(new TimeFormatter());
-
-            YAxis yAxis = bpmChart.getAxisLeft();
-            yAxis.setAxisMaximum(180);
-            yAxis.setAxisMinimum(30);
-            yAxis.setDrawGridLines(false);
-            yAxis.setDrawLabels(true);
-            yAxis.setEnabled(true);
-            yAxis.setValueFormatter(new IntegerFormatter());
-            yAxis.setTextColor(getContext().getColor(R.color.textColor));
-
-            YAxis yAxis2 = bpmChart.getAxisRight();
-            yAxis2.setDrawLabels(false);
-            yAxis2.setDrawGridLines(false);
-            yAxis2.setEnabled(false);
-
-            //Legend
-            bpmChart.getLegend().setEnabled(false);
-    }
-
     private void actChart_create() {
 
         ArrayList<PieEntry> entries = new ArrayList<>();
@@ -388,44 +321,7 @@ public class UserFragment extends Fragment {
         //actChart.animateXY(5000, 5000);
     }
 
-    public class TimeFormatter extends ValueFormatter {
 
-        private DecimalFormat mFormat;
-
-        public TimeFormatter() {
-
-            // format values to 1 decimal digit
-            mFormat = new DecimalFormat("###,###,##0");
-        }
-
-
-        @Override
-        public String getFormattedValue(float value) {
-            // "value" represents the position of the label on the axis (x or y)
-            if (value >= 0 && value < 10)
-                return '0' + mFormat.format(value) + ":00";
-            else
-                return mFormat.format(value) + ":00";
-        }
-    }
-
-    public class TemperatureFormatter extends ValueFormatter {
-
-        private DecimalFormat mFormat;
-
-        public TemperatureFormatter() {
-
-            // format values to 1 decimal digit
-            mFormat = new DecimalFormat("###,###,##0");
-        }
-
-
-        @Override
-        public String getFormattedValue(float value) {
-            // "value" represents the position of the label on the axis (x or y)
-            return mFormat.format(value) + "°C";
-        }
-    }
 
     public class PercentFormatter extends ValueFormatter {
 
@@ -464,76 +360,4 @@ public class UserFragment extends Fragment {
     }
 
 
-    public class MarkerOnTap extends MarkerView {
-
-        private TextView tvContent;
-        private MPPointF mOffset;
-
-        public MarkerOnTap(Context context, int layoutResource) {
-            super(context, layoutResource);
-
-            // find your layout components
-            tvContent = findViewById(R.id.tvContent);
-        }
-
-        // callbacks everytime the MarkerView is redrawn, can be used to update the
-// content (user-interface)
-        @Override
-        public void refreshContent(Entry e, Highlight highlight) {
-
-            tvContent.setText("" + (int) e.getY());
-
-            // this will perform necessary layouting
-            super.refreshContent(e, highlight);
-        }
-
-        @Override
-        public MPPointF getOffset() {
-
-            if (mOffset == null) {
-                // center the marker horizontally and vertically
-                mOffset = new MPPointF(-(getWidth() / 2), -getHeight());
-            }
-
-            return mOffset;
-        }
-    }
-
-    public class MarkerOnTapTemp extends MarkerView {
-
-        private TextView tvContent;
-        private MPPointF mOffset;
-
-        public MarkerOnTapTemp(Context context, int layoutResource) {
-            super(context, layoutResource);
-
-            // find your layout components
-            tvContent = findViewById(R.id.tvContent);
-        }
-
-        // callbacks everytime the MarkerView is redrawn, can be used to update the
-// content (user-interface)
-        @Override
-        public void refreshContent(Entry e, Highlight highlight) {
-
-            if (e.getX() >= 0 && e.getX() < 10)
-                tvContent.setText("" + e.getY() + "°C" + "; 0" + (int) e.getX() + ":00");
-            else
-                tvContent.setText("" + e.getY() + "°C" + "; " + (int) e.getX() + ":00");
-
-            // this will perform necessary layouting
-            super.refreshContent(e, highlight);
-        }
-
-        @Override
-        public MPPointF getOffset() {
-
-            if (mOffset == null) {
-                // center the marker horizontally and vertically
-                mOffset = new MPPointF(-(getWidth() / 2), -getHeight());
-            }
-
-            return mOffset;
-        }
-    }
 }
