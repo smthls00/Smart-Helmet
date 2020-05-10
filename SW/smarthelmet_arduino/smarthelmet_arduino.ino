@@ -28,6 +28,7 @@
 #include <Adafruit_VCNL4040.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
+#include <Adafruit_TMP006.h>
 
 #include <MAX30105.h>
 #include <heartRate.h>
@@ -41,7 +42,7 @@
  * Defines
  */
 #define SEALEVELPRESSURE_HPA (1013.25)
-#define LONG_RANGE
+#define LONG_RANGE 1
 
 
 /*
@@ -50,6 +51,7 @@
 Adafruit_BME680 bme;
 Adafruit_VL53L0X lox;
 Adafruit_VCNL4040 vcnl4040;
+Adafruit_TMP006 tmp006;
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
 BluetoothSerial SerialBT;
@@ -67,7 +69,6 @@ long lastBeat = 0; //Time at which the last beat occurred
 
 float beatsPerMinute;
 int beatAvg;
-
 
 /*
  * BME680 Init
@@ -97,7 +98,7 @@ void bme680_init(){
 void bme680_read(){
   Serial.println("BME680");
   
-  if (! bme.performReading()) {
+  if (!bme.performReading()) {
     Serial.println("BME680 Fail");
     while (1);
   }
@@ -264,6 +265,7 @@ void printEvent(sensors_event_t* event) {
  */
 void max30102_init(){
   Serial.println("MAX30102 Init");
+
   
   if (!particleSensor.begin(Wire)) //Use default I2C port, 400kHz speed
   {
@@ -285,7 +287,7 @@ void max30102_init(){
  * MAX30102 Read
  */
 void max30102_read(){
-  Serial.print("MAX30102");
+  Serial.println("MAX30102");
   
   long irValue = particleSensor.getIR();
 
@@ -323,6 +325,45 @@ void max30102_read(){
   Serial.println();
 }
 
+/*
+ * TMP006 Init
+ */
+void tmp006_init(){
+  Serial.println("TMP006 Init");
+
+  
+  if (!tmp006.begin()) {
+    Serial.println("TMP006 Fail");
+    while (1);
+  }
+
+  tmp006.wake();
+
+  Serial.println("TMP006 Done");
+}
+
+
+/*
+ * MAX30102 Read
+ */
+float tmp006_read(){
+  //Serial.println("TMP006");
+  
+  // Grab temperature measurements and print them.
+  float tmpVal = tmp006.readObjTempC();
+  //Serial.print("Object Temperature: "); Serial.print(objt); Serial.println("*C");
+//  float diet = tmp006.readDieTempC();
+//  Serial.print("Die Temperature: "); Serial.print(diet); Serial.println("*C");
+
+  if (SerialBT.available()) {
+      char tmpBT[16];
+      sprintf(tmpBT, "tmp:%.1f", tmpVal);
+      SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
+
+      delay(1000);
+    }
+}
+
 
 /*
  * Debugging
@@ -338,22 +379,24 @@ void debug(){
  */
 void setup() {
   Serial.begin(115200);
-
+  Serial1.begin(115200);
+  
    while (! Serial) {
     delay(1);
   }
 
   Serial.println("Initialization");
 
-//  //bme680_init();
-//  vl53l0x_init();
-//  vcnl4040_init();
-//  bno055_init();
-//  max30102_init();
+  bme680_init();
+  vl53l0x_init();
+  vcnl4040_init();
+  bno055_init();
+  tmp006_init();
+  //max30102_init();
 
   SerialBT.begin("ESP32_SmartHelmet");
 
-  delay(2000);
+  delay(200);
 }
 
 
@@ -373,7 +416,40 @@ void loop() {
 //
 //  bno055_read();
 //  debug();
-//
+   tmp006_read();
+//   debug();
+
+if(Serial1.available()){
+  
+  char c = Serial1.read();
+
+  Serial.print("char: ");
+  Serial.println(c);
+    if(c == 'Y'){
+
+    char bpmVal[10];
+    byte k = 0;
+
+    c = Serial1.read();
+    while(Serial1.available() && c != '\n' && k < 10){
+      bpmVal[k++] = c;
+
+      c = Serial1.read();
+    }
+
+
+    Serial.print("string: ");
+    Serial.println(bpmVal);
+
+    if (SerialBT.available()) {
+      char bpmBT[16];
+      sprintf(bpmBT, "bpm:%s", bpmVal);
+      SerialBT.write((uint8_t*)bpmBT, strlen(bpmBT));
+    }
+  }
+
+ }
+
 //  max30102_read();
 //  debug();
 
@@ -383,12 +459,13 @@ void loop() {
 //  if (SerialBT.available()) {
 //    Serial.write(SerialBT.read());
 //  }
-if(SerialBT.available()){
-    char str[] = "hello";
-    for(int i = 0; i < strlen(str); i++)
-      SerialBT.write(str[i]);
-}
+//if(SerialBT.available()){
+//    char str[] = "hello!";
+//    for(int i = 0; i < strlen(str); i++)
+//      SerialBT.write(str[i]);
+//}
 
-delay(5000);
+//delay(5000);
+//delay(900);
   
 }

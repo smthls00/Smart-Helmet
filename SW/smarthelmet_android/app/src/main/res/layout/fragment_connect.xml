@@ -26,7 +26,7 @@
         android:layout_width="400dp"
         android:layout_height="400dp"
         android:indeterminate="true"
-        android:indeterminateTint="@color/colorPrimary"
+        android:indeterminateTint="@color/colorAccent"
         android:maxWidth="1dp"
         android:maxHeight="1dp"
         android:visibility="gone"

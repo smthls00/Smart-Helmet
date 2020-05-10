@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.smarthelmet.Fragments.ChatFragment;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         navigation.setVisibility(View.GONE);
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorAccent));
 
         getSupportFragmentManager()
                 .beginTransaction()

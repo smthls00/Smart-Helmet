@@ -92,7 +92,7 @@ public class BTService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        bluetoothAdapter = ConnectFragment.get_btAdapter();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();;
 
         registerReceiver(scannerReceiver, scannerFilter);
         registerReceiver(btStateReceiver, btStateFilter);
@@ -153,6 +153,7 @@ public class BTService extends Service {
             bluetoothAdapter.cancelDiscovery();
 
             broadcastIntent(BTScanIntent, scannerTimeOut);
+            fgKill();
         }
     };
 
@@ -493,17 +494,18 @@ public class BTService extends Service {
                     if (numBytes != 0) {
 
                         mmBuffer = new byte[1024];
-                        SystemClock.sleep(25);
-                        numBytes = mmInStream.available();
+                        //SystemClock.sleep(25);
 
                         numBytes = mmInStream.read(mmBuffer, 0, numBytes);
 
                         StringBuilder sb = new StringBuilder();
                         for (int i = 0; i < numBytes; i++) {
+                            if(mmBuffer[i] == 0x00)
+                                break;
                             sb.append(String.format("%02X ", mmBuffer[i]));
                         }
 
-                        Log.d(TAG, "datahex = " + sb);
+                        Log.d(TAG, "datahex = " + sb + ", length = " + numBytes);
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);
