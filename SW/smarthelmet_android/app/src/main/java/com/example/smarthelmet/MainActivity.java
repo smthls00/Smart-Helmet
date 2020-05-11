@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                .replace(R.id.frame_container, new LogoFragment())
+                //.replace(R.id.frame_container, new LogoFragment())
+                .replace(R.id.frame_container, new ConnectFragment())
                 .commitAllowingStateLoss();
     }
 

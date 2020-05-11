@@ -1,271 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".Fragments.UserFragment">
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/bpmCard"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/bpmCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/actCard"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/tmpCard">
+
+            <RelativeLayout
+                android:id="@+id/bpmLayout"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="25dp"
-                app:cardCornerRadius="4dp"
-                app:contentPadding="5dp"
-                app:cardElevation="6dp"
-                app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent">
 
-                <RelativeLayout
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toStartOf="@id/bpmTv"
+                    android:src="@drawable/ic_favorite_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/bpmTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="6dp"
+                    android:text="@string/heartRate"
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/bpmDivider"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="1dp"
+                    android:layout_below="@id/bpmTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@id/bpmTv"
-                        android:padding="15dp"
-                        android:paddingEnd="0dp"
-                        android:src="@drawable/ic_favorite_black_24dp"
-                        tools:ignore="RtlSymmetry">
+                <com.jjoe64.graphview.GraphView
+                    android:clickable="true"
+                    android:id="@+id/bpmChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/bpmDivider" />
 
-                    </ImageView>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:id="@+id/bpmTv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:padding="12dp"
-                        android:text="Heart Rate"
-                        android:textColor="@color/textColor"
-                        android:fontFamily="monospace"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/tmpCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/bpmCard"
+            app:layout_constraintBottom_toTopOf="@id/stepsCard"
+            app:layout_constraintRight_toRightOf="parent">
 
-                    <View
-                        android:id="@+id/bpmDivider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@id/bpmTv"
-                        android:layout_margin="4dp"
-                        android:background="@color/textColor" />
-
-                    <com.jjoe64.graphview.GraphView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/bpmDivider"
-                        android:layout_margin="7dp"
-                        android:id="@+id/bpmChart" />
-
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
-
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/tmpCard"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="25dp"
-                app:cardCornerRadius="4dp"
-                app:contentPadding="5dp"
-                app:cardElevation="6dp"
-                app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toBottomOf="@id/bpmCard">
+                android:layout_height="match_parent">
 
-                <RelativeLayout
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toStartOf="@id/tmpTv"
+                    android:src="@drawable/ic_ac_unit_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/tmpTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="6dp"
+                    android:text="@string/temperature"
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/tmpDivider"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="1dp"
+                    android:layout_below="@id/tmpTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@id/tmpTv"
-                        android:padding="15dp"
-                        android:paddingEnd="0dp"
-                        android:src="@drawable/ic_ac_unit_black_24dp"
-                        tools:ignore="RtlSymmetry">
 
-                    </ImageView>
+                <com.jjoe64.graphview.GraphView
+                    android:clickable="true"
+                    android:id="@+id/tmpChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/tmpDivider" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:id="@+id/tmpTv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:padding="12dp"
-                        android:text="Skin Temperature"
-                        android:textColor="@color/textColor"
-                        android:fontFamily="monospace"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/actCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            android:layout_marginBottom="25dp"
+            app:layout_constraintTop_toBottomOf="@id/bpmCard"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/stepsCard">
 
-                    <View
-                        android:id="@+id/tmpDivider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@id/tmpTv"
-                        android:layout_margin="4dp"
-                        android:background="@color/textColor" />
-
-<!--                    <com.github.mikephil.charting.charts.LineChart-->
-<!--                        android:id="@+id/tmpChart"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:layout_below="@id/tmpDivider"-->
-<!--                        android:layout_margin="7dp" />-->
-
-                    <com.jjoe64.graphview.GraphView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/tmpDivider"
-                        android:layout_margin="7dp"
-                        android:id="@+id/tmpChart" />
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/actCard"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="25dp"
-                app:cardCornerRadius="4dp"
-                app:contentPadding="5dp"
-                app:cardElevation="6dp"
-                app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toTopOf="@id/tempCard">
+                android:layout_height="match_parent">
 
-                <RelativeLayout
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toStartOf="@id/actTv"
+                    android:src="@drawable/ic_star_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/actTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="6dp"
+                    android:text="@string/activities"
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/actDivider"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="1dp"
+                    android:layout_below="@id/actTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@id/actTv"
-                        android:padding="15dp"
-                        android:paddingEnd="0dp"
-                        android:src="@drawable/ic_star_black_24dp"
-                        tools:ignore="RtlSymmetry">
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/actChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/actDivider" />
 
-                    </ImageView>
-
-                    <TextView
-                        android:id="@+id/actTv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:padding="12dp"
-                        android:text="Activities"
-                        android:textColor="@color/textColor"
-                        android:fontFamily="monospace"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:id="@+id/actDivider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@id/actTv"
-                        android:layout_margin="4dp"
-                        android:background="@color/textColor" />
-
-                    <com.github.mikephil.charting.charts.PieChart
-                        android:id="@+id/actChart"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_below="@id/actDivider"
-                        android:layout_margin="7dp" />
-
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
 
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/stepsCard"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/stepsCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            android:layout_marginBottom="25dp"
+            app:layout_constraintTop_toBottomOf="@id/tmpCard"
+            app:layout_constraintLeft_toRightOf="@id/actCard"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="25dp"
-                android:layout_marginBottom="60dp"
-                app:cardCornerRadius="4dp"
-                app:contentPadding="5dp"
-                app:cardElevation="6dp"
-                app:cardMaxElevation="10dp"
-                app:layout_constraintTop_toTopOf="@id/actCard">
+                android:layout_height="match_parent">
 
-                <RelativeLayout
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toStartOf="@id/stepsTv"
+                    android:src="@drawable/ic_directions_walk_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/stepsTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="6dp"
+                    android:text="@string/steps"
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/stepsDivider"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="1dp"
+                    android:layout_below="@id/stepsTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@id/stepsTv"
-                        android:padding="15dp"
-                        android:paddingEnd="0dp"
-                        android:src="@drawable/ic_directions_walk_black_24dp"
-                        tools:ignore="RtlSymmetry">
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/stepsChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/stepsDivider" />
 
-                    </ImageView>
+            </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/stepsTv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:padding="12dp"
-                        android:text="Steps"
-                        android:textColor="@color/textColor"
-                        android:fontFamily="monospace"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
 
-                    <View
-                        android:id="@+id/stepsDivider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@id/stepsTv"
-                        android:layout_margin="4dp"
-                        android:background="@color/textColor" />
+<!--        <Space-->
+<!--            android:id="@+id/space"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="40dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/stepsCard"/>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <com.github.mikephil.charting.charts.BarChart
-                        android:id="@+id/stepsChart"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_below="@id/stepsDivider"
-                        android:layout_margin="7dp" />
-
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
-
-
-<!--            <EditText-->
-<!--                android:id="@+id/dataTv"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="150dp"-->
-<!--                android:text="debugging data: "-->
-<!--                android:textSize="20sp"-->
-<!--                android:textColor="#000000"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintLeft_toLeftOf="parent"-->
-<!--                app:layout_constraintRight_toRightOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@+id/chart" />-->
-        </LinearLayout>
-
-    </ScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

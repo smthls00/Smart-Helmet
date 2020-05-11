@@ -6,66 +6,40 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.smarthelmet.R;
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.IMarker;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.MarkerView;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.MPPointF;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.ValueDependentColor;
+import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
-
-public class UserFragment extends Fragment {
+public class UserFragment extends Fragment implements View.OnClickListener {
 
     private final String BTDataIntent = "BTDataIntent";
 
-    //TextView dataTv;
+    GraphView actChart;
+    BarGraphSeries<DataPoint> actSeries;
 
-
-    PieChart actChart;
-    BarChart stepsChart;
+    GraphView stepsChart;
+    BarGraphSeries<DataPoint> stepsSeries;
 
 
     GraphView tmpChart;
@@ -91,7 +65,9 @@ public class UserFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_user, container, false);
-        //dataTv = view.findViewById(R.id.dataTv);
+
+        BottomNavigationView navigation = getActivity().findViewById(R.id.navigation);
+        navigation.setVisibility(View.VISIBLE);
 
         bpmChart = view.findViewById(R.id.bpmChart);
         stepsChart = view.findViewById(R.id.stepsChart);
@@ -101,19 +77,23 @@ public class UserFragment extends Fragment {
         tmpSeries = new LineGraphSeries<>();
         bpmSeries = new LineGraphSeries<>();
 
-
-        tmpSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(tmpChart.getContext(), String.format("%.1f", dataPoint.getY()) + "°C", Toast.LENGTH_SHORT).show();
-            }
+        actSeries = new BarGraphSeries<>(new DataPoint[]{
+                new DataPoint(1, 14),
+                new DataPoint(2, 20),
+                new DataPoint(3, 50),
+                new DataPoint(4, 5),
+                new DataPoint(5, 5),
+                new DataPoint(6, 6),
         });
 
-        bpmSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series series, DataPointInterface dataPoint) {
-                Toast.makeText(bpmChart.getContext(), String.format("%.0f", dataPoint.getY()) + " BPM", Toast.LENGTH_SHORT).show();
-            }
+        stepsSeries = new BarGraphSeries<>(new DataPoint[]{
+                new DataPoint(1, 155),
+                new DataPoint(2, 78),
+                new DataPoint(3, 35),
+                new DataPoint(4, 289),
+                new DataPoint(5, 191),
+                new DataPoint(6, 205),
+                new DataPoint(7, 62)
         });
 
         bpmChart_create();
@@ -121,8 +101,42 @@ public class UserFragment extends Fragment {
         actChart_create();
         tmpChart_create();
 
+
+//        tmpSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+//            @Override
+//            public void onTap(Series series, DataPointInterface dataPoint) {
+//                Toast.makeText(tmpChart.getContext(), String.format("%.1f", dataPoint.getY()) + "°C", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        bpmSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+//            @Override
+//            public void onTap(Series series, DataPointInterface dataPoint) {
+//                Toast.makeText(bpmChart.getContext(), String.format("%.0f", dataPoint.getY()) + " BPM", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+
+        actSeries.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+            @Override
+            public int get(DataPoint data) {
+                return Color.rgb((int) data.getX() * 255 / 4, (int) Math.abs(data.getY() * 255 / 6), 100);
+            }
+        });
+
+        stepsSeries.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+            @Override
+            public int get(DataPoint data) {
+                return Color.rgb((int) data.getX() * 255 / 4, (int) Math.abs(data.getY() * 255 / 6), 100);
+            }
+        });
+
+        tmpChart.setOnClickListener(this);
+        bpmChart.setOnClickListener(this);
+
         return view;
     }
+
 
     private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
         @Override
@@ -140,13 +154,13 @@ public class UserFragment extends Fragment {
 
                 Log.d("receiver", "Got opCode: " + opCode + ", opVal: " + opVal);
 
-
                 switch (opCode) {
                     case "bpm":
-                        bpmSeries.appendData(new DataPoint(bpmSeries.getHighestValueX() + 1, opVal), true, 60);
+                        bpmSeries.appendData(new DataPoint(bpmSeries.getHighestValueX() + 0.1, opVal), true, 60 * 10);
                         break;
                     case "tmp":
-                        tmpSeries.appendData(new DataPoint(tmpSeries.getHighestValueX() + 1, opVal), true, 60);
+                        tmpSeries.appendData(new DataPoint(tmpSeries.getHighestValueX() + 0.1, opVal), true, 60 * 10);
+                        //Log.d("appendData", "getHighestValueX() " + tmpSeries.getHighestValueX());
                         break;
                 }
 
@@ -160,204 +174,143 @@ public class UserFragment extends Fragment {
     };
 
 
-    private void tmpChart_create(){
-        tmpSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorTmp));
-        tmpSeries.setThickness(6);
-        tmpChart.addSeries(tmpSeries);
+    private void stepsChart_create() {
+        stepsSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorSteps));
+        stepsSeries.setSpacing(30);
 
-        tmpChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-        tmpChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-        tmpChart.getGridLabelRenderer().setTextSize(35f);
+        //stepsChart.getViewport().setScalable(true);
+        //stepsChart.getViewport().setScalableY(true);
+
+        stepsChart.getGridLabelRenderer().setNumHorizontalLabels(7);
+        stepsChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        stepsChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        stepsChart.getGridLabelRenderer().setTextSize(25f);
+
+
+        stepsChart.getViewport().setXAxisBoundsManual(true);
+        stepsChart.getViewport().setMinX(1);
+        stepsChart.getViewport().setMaxX(7);
+        stepsChart.getViewport().setYAxisBoundsManual(true);
+        stepsChart.getViewport().setMaxY(300);
+        stepsChart.getViewport().setMinY(0);
+
+        stepsChart.addSeries(stepsSeries);
+    }
+
+    private void actChart_create() {
+        actSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorAct));
+        actSeries.setSpacing(30);
+
+        //actChart.getViewport().setScalable(true);
+        //actChart.getViewport().setScalableY(true);
+
+        actChart.getGridLabelRenderer().setNumHorizontalLabels(6);
+        actChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        actChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        actChart.getGridLabelRenderer().setTextSize(25f);
+
+        actChart.getViewport().setXAxisBoundsManual(true);
+        actChart.getViewport().setMinX(1);
+        actChart.getViewport().setMaxX(6);
+        actChart.getViewport().setYAxisBoundsManual(true);
+        actChart.getViewport().setMaxY(100);
+        actChart.getViewport().setMinY(0);
+
+        actChart.addSeries(actSeries);
+
+    }
+
+
+    private void tmpChart_create() {
+        tmpSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorTmp));
+        tmpSeries.setThickness(4);
+
         //tmpChart.getViewport().setScalable(true);
         //tmpChart.getViewport().setScalableY(true);
-        tmpChart.getViewport().setDrawBorder(true);
+
+        tmpChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        tmpChart.getGridLabelRenderer().setNumVerticalLabels(10);
+        tmpChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        tmpChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        tmpChart.getGridLabelRenderer().setTextSize(25f);
+
         tmpChart.getViewport().setXAxisBoundsManual(true);
         tmpChart.getViewport().setMinX(0);
         tmpChart.getViewport().setMaxX(60);
         tmpChart.getViewport().setYAxisBoundsManual(true);
         tmpChart.getViewport().setMaxY(45);
-        tmpChart.getViewport().setMinY(25);
+        tmpChart.getViewport().setMinY(0);
+
+        tmpChart.addSeries(tmpSeries);
     }
 
-    private void bpmChart_create(){
+    private void bpmChart_create() {
         bpmSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorBPM));
-        bpmSeries.setThickness(6);
-        bpmChart.addSeries(bpmSeries);
+        bpmSeries.setThickness(4);
 
         bpmChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-        bpmChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
-        bpmChart.getGridLabelRenderer().setTextSize(35f);
+        bpmChart.getGridLabelRenderer().setNumVerticalLabels(10);
+        bpmChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        bpmChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        bpmChart.getGridLabelRenderer().setTextSize(25f);
+        bpmChart.getGridLabelRenderer().reloadStyles();
+
         //bpmChart.getViewport().setScalable(true);
         //bpmChart.getViewport().setScalableY(true);
-        bpmChart.getViewport().setDrawBorder(true);
+
         bpmChart.getViewport().setXAxisBoundsManual(true);
         bpmChart.getViewport().setMinX(0);
         bpmChart.getViewport().setMaxX(60);
         bpmChart.getViewport().setYAxisBoundsManual(true);
         bpmChart.getViewport().setMaxY(180);
-        bpmChart.getViewport().setMinY(30);
+        bpmChart.getViewport().setMinY(0);
+
+        bpmChart.addSeries(bpmSeries);
     }
 
-
-    private void stepsChart_create() {
-        stepsChart.setDrawBarShadow(false);
-        stepsChart.setDrawValueAboveBar(true);
-        stepsChart.setTouchEnabled(false);
-        stepsChart.setDoubleTapToZoomEnabled(false);
-
-        stepsChart.getDescription().setEnabled(false);
-
-        // if more than 60 entries are displayed in the chart, no values will be
-        // drawn
-        stepsChart.setMaxVisibleValueCount(60);
-
-        // scaling can now only be done on x- and y-axis separately
-        stepsChart.setPinchZoom(false);
-
-        stepsChart.setDrawGridBackground(false);
-        stepsChart.getLegend().setEnabled(false);
-
-        // chart.setDrawYLabels(false);
+    @Override
+    public void onClick(View v) {
+        Log.d("onClickUserFragment", "onClick");
+        switch (v.getId()) {
 
 
-        XAxis xAxis = stepsChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        //xAxis.setEnabled(false);
-        xAxis.setGranularity(1f); // only intervals of 1 day
-        xAxis.setLabelCount(7);
-        xAxis.setTextColor(getContext().getColor(R.color.textColor));
+            case R.id.bpmChart:
+                Bundle bpmBundle = new Bundle();
+                bpmBundle.putString("zoomMessage", "bpm");
+                Fragment zoomFragmentBPM = new ZoomFragment();
+                zoomFragmentBPM.setArguments(bpmBundle);;
+
+                getActivity().getSupportFragmentManager().
+                        beginTransaction().
+                        replace(R.id.frame_container, zoomFragmentBPM).
+                        addToBackStack("userFragment").
+                        commitAllowingStateLoss();
+                break;
+
+            case R.id.tmpChart:
+                Bundle tmpBundle = new Bundle();
+                tmpBundle.putString("zoomMessage", "tmp");
+                Fragment zoomFragmentTmp = new ZoomFragment();
+                zoomFragmentTmp.setArguments(tmpBundle);;
+
+                getActivity().getSupportFragmentManager().
+                        beginTransaction().
+                        replace(R.id.frame_container, zoomFragmentTmp).
+                        addToBackStack("userFragment").
+                        commitAllowingStateLoss();
+                break;
+
+            case R.id.actCard:
+                // do your code
+                break;
+
+            case R.id.stepsCard:
+                // do your code
+                break;
 
 
-        YAxis leftAxis = stepsChart.getAxisLeft();
-        leftAxis.setLabelCount(8, false);
-        leftAxis.setValueFormatter(new IntegerFormatter());
-        leftAxis.setEnabled(false);
-        leftAxis.setSpaceTop(15f);
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-
-        YAxis rightAxis = stepsChart.getAxisRight();
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setLabelCount(8, false);
-        rightAxis.setValueFormatter(new IntegerFormatter());
-        rightAxis.setEnabled(false);
-        rightAxis.setSpaceTop(15f);
-        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-
-        Legend l = stepsChart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
-        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l.setDrawInside(false);
-        l.setForm(Legend.LegendForm.SQUARE);
-        l.setFormSize(9f);
-        l.setTextSize(11f);
-        l.setXEntrySpace(4f);
-
-        ArrayList<BarEntry> values = new ArrayList<>();
-
-        values.add(new BarEntry(15, 60));
-        values.add(new BarEntry(16, 77));
-        values.add(new BarEntry(17, 120));
-        values.add(new BarEntry(18, 60));
-        values.add(new BarEntry(19 + 1, 55));
-        values.add(new BarEntry(20 + 2, 97));
-        values.add(new BarEntry(21 + 3, 59));
-
-        BarDataSet set1;
-
-        if (stepsChart.getData() != null &&
-                stepsChart.getData().getDataSetCount() > 0) {
-            set1 = (BarDataSet) stepsChart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            stepsChart.getData().notifyDataChanged();
-            stepsChart.notifyDataSetChanged();
-
-        } else {
-            set1 = new BarDataSet(values, "Steps");
-
-            set1.setDrawIcons(false);
-            set1.setColor(Color.MAGENTA);
-            set1.setValueFormatter(new IntegerFormatter());
-            set1.setGradientColor(ContextCompat.getColor(getActivity(), R.color.colorStartSteps), ContextCompat.getColor(getActivity(), R.color.colorEndSteps));
-            set1.setValueTextColor(getContext().getColor(R.color.textColor));
-
-
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-
-            BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
-            data.setBarWidth(0.9f);
-
-            stepsChart.setData(data);
+            default:
+                break;
         }
     }
-
-    private void actChart_create() {
-
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(55, "Walking"));
-        entries.add(new PieEntry(5, "Jogging"));
-        entries.add(new PieEntry(18, "Upstairs"));
-        entries.add(new PieEntry(12, "Downstairs"));
-        entries.add(new PieEntry(5, "Sitting"));
-        entries.add(new PieEntry(15, "Standing"));
-
-        PieDataSet pieDataSet = new PieDataSet(entries, "Inducesmile");
-        pieDataSet.setValueTextSize(10);
-        pieDataSet.setValueFormatter(new PercentFormatter());
-        pieDataSet.setValueTextColor(getContext().getColor(R.color.textColor));
-        pieDataSet.setColors(ColorTemplate.PASTEL_COLORS);
-        pieDataSet.setValueTextColor(getContext().getColor(R.color.textColor));
-        PieData pieData = new PieData(pieDataSet);
-
-        actChart.setData(pieData);
-        actChart.setEntryLabelColor(getContext().getColor(R.color.textColor));
-        actChart.setEntryLabelTextSize(10f);
-        actChart.setHoleColor(Color.TRANSPARENT);
-        actChart.getLegend().setEnabled(false);
-        actChart.getDescription().setEnabled(false);
-        //actChart.animateXY(5000, 5000);
-    }
-
-
-
-    public class PercentFormatter extends ValueFormatter {
-
-        private DecimalFormat mFormat;
-
-        public PercentFormatter() {
-
-            // format values to 1 decimal digit
-            mFormat = new DecimalFormat("###,###,##0");
-        }
-
-
-        @Override
-        public String getFormattedValue(float value) {
-            // "value" represents the position of the label on the axis (x or y)
-            return mFormat.format(value) + '%';
-        }
-    }
-
-    public class IntegerFormatter extends ValueFormatter {
-
-        private DecimalFormat mFormat;
-
-        public IntegerFormatter() {
-
-            // format values to 1 decimal digit
-            mFormat = new DecimalFormat("###,###,##0");
-        }
-
-
-        @Override
-        public String getFormattedValue(float value) {
-            // "value" represents the position of the label on the axis (x or y)
-            return mFormat.format(value);
-        }
-    }
-
-
 }

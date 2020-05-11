@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.SettingsFragment">
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,8 +20,7 @@
                 android:id="@+id/acelSwitch"
                 android:layout_width="wrap_content"
                 android:padding="10dp"
-                android:layout_height="wrap_content"
->
+                android:layout_height="wrap_content">
 
             </Switch>
 
@@ -117,8 +116,7 @@
                 android:padding="10dp"
                 android:layout_toEndOf="@id/humSwitch"
                 android:layout_below="@id/tempTv"
-                android:text="BME680">
-            </TextView>
+                android:text="BME680"></TextView>
         </RelativeLayout>
 
     </ScrollView>

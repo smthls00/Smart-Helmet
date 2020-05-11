@@ -141,7 +141,6 @@ public class ConnectFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_connect, container, false);
 
         BottomNavigationView navigation = getActivity().findViewById(R.id.navigation);
-
         navigation.setVisibility(View.VISIBLE);
 
         connectText = view.findViewById(R.id.connectTv);

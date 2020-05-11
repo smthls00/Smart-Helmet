@@ -418,9 +418,10 @@ void loop() {
 //
 //  bno055_read();
 //  debug();
-   tmp006_read();
+//   tmp006_read();
 //   debug();
-
+  tmp006_read();
+  
 if(Serial1.available()){
   
   char c = Serial1.read();
@@ -447,6 +448,7 @@ if(Serial1.available()){
       char bpmBT[16];
       sprintf(bpmBT, "bpm:%s", bpmVal);
       SerialBT.write((uint8_t*)bpmBT, strlen(bpmBT));
+
     }
   }
 
