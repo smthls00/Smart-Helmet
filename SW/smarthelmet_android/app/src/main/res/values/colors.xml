@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#90CAF9</color>
+    <color name="colorPrimary">#00B0FF</color>
     <color name="colorPrimaryDark">#64B5F6</color>
 
     <color name="colorTmp">#7986CB</color>
@@ -20,8 +20,8 @@
     <color name="colorEndSteps">#80CBC4</color>
 
     <color name="colorAccent">#64B5F6</color>
-    <color name="colorSuccess">#21e6c1</color>
-    <color name="textColor">#808080</color>
+    <color name="colorSuccess">#1DE9B6</color>
+    <color name="textColor">#505050</color>
     <color name="lightColor">#88C6F0</color>
 
     <color name="colorTransparent">#CC797979</color>

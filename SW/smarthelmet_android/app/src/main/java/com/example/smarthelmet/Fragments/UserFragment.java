@@ -30,8 +30,8 @@ import static com.example.smarthelmet.Constants.BTUserIntent;
 import static com.example.smarthelmet.Constants.actCommand;
 import static com.example.smarthelmet.Constants.bpmCommand;
 import static com.example.smarthelmet.Constants.stepsCommand;
-import static com.example.smarthelmet.Constants.utpCommand;
 import static com.example.smarthelmet.Constants.userFragmentTag;
+import static com.example.smarthelmet.Constants.utpCommand;
 import static com.example.smarthelmet.Constants.zoomMessageBundle;
 import static com.example.smarthelmet.Constants.zoomSeriesBundle;
 
@@ -94,7 +94,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         stepsChart = view.findViewById(R.id.stepsChart);
         actChart = view.findViewById(R.id.actChart);
         tmpChart = view.findViewById(R.id.tmpChart);
-
 
         bpmChart_create();
         stepsChart_create();
@@ -328,5 +327,15 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onDestroy() {
+
+        Log.d(userFragmentTag, "onDestroy");
+
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(BTDataReceiver);
+
+        super.onDestroy();
     }
 }

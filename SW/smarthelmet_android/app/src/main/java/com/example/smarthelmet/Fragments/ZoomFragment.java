@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
 import com.example.smarthelmet.SeriesDataHolder;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,10 +36,8 @@ import static com.example.smarthelmet.Constants.actCommand;
 import static com.example.smarthelmet.Constants.altCommand;
 import static com.example.smarthelmet.Constants.bpmCommand;
 import static com.example.smarthelmet.Constants.co2Command;
-import static com.example.smarthelmet.Constants.connectIntent;
 import static com.example.smarthelmet.Constants.gasCommand;
 import static com.example.smarthelmet.Constants.humCommand;
-import static com.example.smarthelmet.Constants.onStopSearching;
 import static com.example.smarthelmet.Constants.otpCommand;
 import static com.example.smarthelmet.Constants.prsCommand;
 import static com.example.smarthelmet.Constants.smkCommand;
@@ -202,7 +199,7 @@ public class ZoomFragment extends Fragment {
                         break;
                 }
 
-                if(val != 0)
+                if (val != 0)
                     zoomSeries.appendData(new DataPoint(zoomSeries.getHighestValueX() + 0.1, val), true, 60 * 10);
 
             } catch (Exception e) {
@@ -349,9 +346,6 @@ public class ZoomFragment extends Fragment {
     public void onResume() {
         Log.d("zoomFragment", "onResume");
 
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BTDataReceiver,
-                new IntentFilter(BTDataIntent));
-
         super.onResume();
     }
 
@@ -359,8 +353,15 @@ public class ZoomFragment extends Fragment {
     public void onPause() {
         Log.d("zoomFragment", "onResume");
 
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("zoomFragment", "onDestroy");
+
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(BTDataReceiver);
 
-        super.onPause();
+        super.onDestroy();
     }
 }

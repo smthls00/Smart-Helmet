@@ -21,4 +21,13 @@
     <string name="cantFind">Can\'t find a helmet</string>
     <string name="btOnPls">Please, turn on BT first</string>
     <string name="notSupported">Your smartphone doesn\'t support BT</string>
+
+    <string name="disconnected">Smart Helmet Disconnected</string>
+    <string name="notConnected">You are not connected anymore</string>
+
+    <string name="connectFirst">Connect to a helmet first</string>
+
+    <string name="backgroundProcessing">Background data processing</string>
+    <string name="backgroundData">Data is received and processed in background"</string>
+    <string name="serviceStop">STOP</string>
 </resources>

@@ -6,6 +6,7 @@ public final class Constants {
     public static final String BTDataIntent = "BTDataIntent";
     public static final String BTUserIntent = "BTUserIntent";
     public static final String BTEnvIntent = "BTEnvIntent";
+    public static final String BTCommandIntent = "BTCommandIntent";
     public static final String connectIntent = "connectIntent";
     public static final String BTOff = "BTOff";
     public static final String BTOn = "BTOn";
@@ -13,6 +14,9 @@ public final class Constants {
     public static final String stopService = "stopServiceIntent";
     public static final String stopOKService = "OK";
     public static final String onStopSearching = "onStop";
+
+    public static final String deviceName = "ESP32_SmartHelmet";
+
 
     public final static String zoomMessageBundle = "zoomMessage";
     public final static String zoomSeriesBundle = "zoomSeries";

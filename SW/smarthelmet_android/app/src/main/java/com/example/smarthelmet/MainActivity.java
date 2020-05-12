@@ -16,7 +16,6 @@ import com.example.smarthelmet.Fragments.ConnectFragment;
 import com.example.smarthelmet.Fragments.EnvironmentFragment;
 import com.example.smarthelmet.Fragments.SettingsFragment;
 import com.example.smarthelmet.Fragments.UserFragment;
-import com.example.smarthelmet.Fragments.ZoomFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import static com.example.smarthelmet.Constants.chatFragmentTag;

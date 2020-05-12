@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static android.content.ContentValues.TAG;
+import static com.example.smarthelmet.Constants.BTCommandIntent;
 import static com.example.smarthelmet.Constants.BTDataIntent;
 import static com.example.smarthelmet.Constants.BTEnvIntent;
 import static com.example.smarthelmet.Constants.BTOff;
@@ -55,6 +56,8 @@ public class BTService extends Service {
     IntentFilter stopServerFilter;
 
     static boolean isConnected;
+
+    private String channelID = "0";
 
 
     @Override
@@ -99,12 +102,17 @@ public class BTService extends Service {
         registerReceiver(btActionReceiver, btActionFilter);
         registerReceiver(serviceKillReceiver, stopServerFilter);
 
-        scannerHandler.postDelayed(scannerRunnable, 15000);
+        int scannerDelay = 15000;
+
+        scannerHandler.postDelayed(scannerRunnable, scannerDelay);
 
         bluetoothAdapter.startDiscovery();
 
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(connectReceiver,
                 new IntentFilter(connectIntent));
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(commandReceiver,
+                new IntentFilter(BTCommandIntent));
 
 
         return START_STICKY;
@@ -141,6 +149,23 @@ public class BTService extends Service {
 
                     fgKill();
                 }
+            }
+        }
+    };
+
+    private BroadcastReceiver commandReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("connectOnStop", intent.getAction());
+
+            String message = intent.getStringExtra(BTCommandIntent);
+
+            if (message == null)
+                return;
+
+            if (isConnected && (rxtxThread != null)) {
+                rxtxThread.write(message.getBytes());
             }
         }
     };
@@ -254,7 +279,7 @@ public class BTService extends Service {
                 String deviceHardwareAddress = device.getAddress(); // MAC address
                 if (deviceName != null) {
                     Log.d("BTService", deviceName);
-                    if (deviceName.equals("ESP32_SmartHelmet")) {
+                    if (deviceName.equals(deviceName)) {
                         bluetoothAdapter.cancelDiscovery();
                         scannerHandler.removeCallbacks(scannerRunnable);
 
@@ -273,8 +298,8 @@ public class BTService extends Service {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "1")
                 .setSmallIcon(R.drawable.ic_build_black_24dp)
-                .setContentTitle("Smart Helmet Disconnected")
-                .setContentText("You are not connected anymore")
+                .setContentTitle(getResources().getString(R.string.disconnected))
+                .setContentText(getResources().getString(R.string.notConnected))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
@@ -284,15 +309,15 @@ public class BTService extends Service {
 
     public void makeForegroundNotification() {
         Intent notificationIntent = new Intent(getApplicationContext(), ServiceKillNotificationHandler.class);
-        notificationIntent.setAction("stop");
+        notificationIntent.setAction(getResources().getString(R.string.serviceStop));
 
         PendingIntent pendingIntentKill = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        Notification builder = new NotificationCompat.Builder(this, "0")
+        Notification builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.ic_build_black_24dp)
-                .setContentTitle("Background data processing")
-                .setContentText("Data is received and processed in background")
-                .addAction(R.drawable.rectangle_button, "stop", pendingIntentKill)
+                .setContentTitle(getResources().getString(R.string.backgroundProcessing))
+                .setContentText(getResources().getString(R.string.backgroundData))
+                .addAction(R.drawable.rectangle_button, getResources().getString(R.string.serviceStop), pendingIntentKill)
                 .setOngoing(true)
                 .build();
 
@@ -361,10 +386,10 @@ public class BTService extends Service {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "FgNotifications";
-            String description = "ForegroundServiceNOtification";
+            CharSequence name = getResources().getString(R.string.backgroundProcessing);
+            String description = getResources().getString(R.string.backgroundData);
             int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel("0", name, importance);
+            NotificationChannel channel = new NotificationChannel(channelID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -377,10 +402,10 @@ public class BTService extends Service {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Disconnect";
-            String description = "Disconnected";
+            CharSequence name = getResources().getString(R.string.disconnected);
+            String description = getResources().getString(R.string.disconnected);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("1", name, importance);
+            NotificationChannel channel = new NotificationChannel(channelID + 1, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -505,7 +530,7 @@ public class BTService extends Service {
                             sb.append(String.format("%02X ", mmBuffer[i]));
                         }
 
-                        Log.d(TAG, "datahex = " + sb + ", length = " + numBytes);
+                        Log.d(TAG, "dataHex = " + sb + ", length = " + numBytes);
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);

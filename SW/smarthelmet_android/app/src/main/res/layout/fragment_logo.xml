@@ -26,7 +26,7 @@
         android:shadowRadius="2"
         android:text="Smart Helmet"
         android:textColor="@color/textColor"
-        android:textSize="40dp"
+        android:textSize="45sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@id/logoImg"
         app:layout_constraintRight_toRightOf="@id/logoImg"

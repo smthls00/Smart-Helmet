@@ -122,7 +122,6 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
             // Get extra data included in the Intent
             String message = intent.getStringExtra(BTEnvIntent);
 
-
             if (message == null)
                 return;
 
@@ -330,8 +329,6 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        Log.d("onClickUserFragment", "onClick");
-
         Bundle zoomBundle = new Bundle();
         Fragment zoomFragment = new ZoomFragment();
 
@@ -423,6 +420,15 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
             default:
                 break;
         }
+    }
 
+    @Override
+    public void onDestroy() {
+
+        Log.d(environmentFragmentTag, "onDestroy");
+
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(BTDataReceiver);
+
+        super.onDestroy();
     }
 }
