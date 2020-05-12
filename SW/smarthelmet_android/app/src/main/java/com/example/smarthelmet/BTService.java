@@ -25,19 +25,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static android.content.ContentValues.TAG;
+import static com.example.smarthelmet.Constants.BTDataIntent;
+import static com.example.smarthelmet.Constants.BTEnvIntent;
+import static com.example.smarthelmet.Constants.BTOff;
+import static com.example.smarthelmet.Constants.BTOn;
+import static com.example.smarthelmet.Constants.BTScanIntent;
+import static com.example.smarthelmet.Constants.BTStateIntent;
+import static com.example.smarthelmet.Constants.BTUserIntent;
+import static com.example.smarthelmet.Constants.connectIntent;
+import static com.example.smarthelmet.Constants.onStopSearching;
+import static com.example.smarthelmet.Constants.scannerTimeOut;
+import static com.example.smarthelmet.Constants.stopOKService;
+import static com.example.smarthelmet.Constants.stopService;
 
 public class BTService extends Service {
 
-    private final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
-    private final String BTScanIntent = "BTScanIntent";
-    private final String BTStateIntent = "BTStateIntent";
-    private final String BTDataIntent = "BTDataIntent";
-    private final String connectIntent = "connectIntent";
-    private final String BTOff = "BTOff";
-    private final String BTOn = "BTOn";
-    private final String scannerTimeOut = "TimeOut";
-    public final String stopService = "stopServiceIntent";
-
+    private static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     ConnectThread connectThread;
     RxTxThread rxtxThread;
@@ -111,11 +114,11 @@ public class BTService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            Log.d("btservice", "servicekiller");
+            Log.d("btService", "serviceKiller");
 
             String message = intent.getStringExtra(stopService);
 
-            if (message.equals("OK")) {
+            if (message.equals(stopOKService)) {
                 fgKill();
             }
         }
@@ -129,7 +132,7 @@ public class BTService extends Service {
 
             String message = intent.getStringExtra(connectIntent);
 
-            if (message.equals("onStop")) {
+            if (message.equals(onStopSearching)) {
                 if (!isConnected) {
                     Log.d("stopDiscoveringOnStop", intent.getAction());
 
@@ -336,15 +339,15 @@ public class BTService extends Service {
 
 
     public void broadcastIntent(String TAG, String data) {
-        String message = TAG;
         switch (TAG) {
+            case BTUserIntent:
+            case BTEnvIntent:
+                btDataIntent.putExtra(TAG, data);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
+                break;
             case BTScanIntent:
                 btScanIntent.putExtra(TAG, data);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btScanIntent);
-                break;
-            case BTDataIntent:
-                btDataIntent.putExtra(TAG, data);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
                 break;
             case BTStateIntent:
                 btStateIntent.putExtra(TAG, data);
@@ -506,7 +509,15 @@ public class BTService extends Service {
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);
-                        broadcastIntent(BTDataIntent, dataRx);
+                        if (dataRx.charAt(0) == 't') {
+                            broadcastIntent(BTEnvIntent, dataRx);
+
+                            Log.d(TAG, "actualDataT = " + dataRx);
+                        } else if (dataRx.charAt(0) == 'u') {
+                            broadcastIntent(BTUserIntent, dataRx);
+
+                            Log.d(TAG, "actualDataU = " + dataRx);
+                        }
                     }
 
                 } catch (IOException e) {

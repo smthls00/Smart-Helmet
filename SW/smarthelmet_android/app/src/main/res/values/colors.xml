@@ -5,14 +5,22 @@
 
     <color name="colorTmp">#7986CB</color>
     <color name="colorBPM">#E57373</color>
-
     <color name="colorSteps">#A1887F</color>
     <color name="colorAct">#FDD835</color>
+
+    <color name="colorGas">#FFB74D</color>
+    <color name="colorCo2">#AED581</color>
+    <color name="colorSmoke">#4DD0E1</color>
+    <color name="colorPressure">#FF8A65</color>
+    <color name="colorHumidity">#64B5F6</color>
+    <color name="colorAltitude">#9575CD</color>
+
 
     <color name="colorStartSteps">#009688</color>
     <color name="colorEndSteps">#80CBC4</color>
 
-    <color name="colorAccent">#21e6c1</color>
+    <color name="colorAccent">#64B5F6</color>
+    <color name="colorSuccess">#21e6c1</color>
     <color name="textColor">#808080</color>
     <color name="lightColor">#88C6F0</color>
 

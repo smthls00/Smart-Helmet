@@ -5,120 +5,120 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.SettingsFragment">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<!--    <ScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
 
-        <RelativeLayout
-            android:padding="30dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+<!--        <RelativeLayout-->
+<!--            android:padding="30dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical">-->
 
-            <Switch
-                android:checked="true"
-                android:id="@+id/acelSwitch"
-                android:layout_width="wrap_content"
-                android:padding="10dp"
-                android:layout_height="wrap_content">
+<!--            <Switch-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/acelSwitch"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_height="wrap_content">-->
 
-            </Switch>
+<!--            </Switch>-->
 
-            <TextView
-                android:id="@+id/acelTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_toRightOf="@id/acelSwitch"
-                android:text="BNO055">
+<!--            <TextView-->
+<!--                android:id="@+id/acelTv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_toRightOf="@id/acelSwitch"-->
+<!--                android:text="BNO055">-->
 
-            </TextView>
+<!--            </TextView>-->
 
-            <Switch
-                android:checked="true"
-                android:id="@+id/bpmSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_below="@id/acelSwitch">
+<!--            <Switch-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/bpmSwitch"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_below="@id/acelSwitch">-->
 
-            </Switch>
+<!--            </Switch>-->
 
-            <TextView
-                android:checked="true"
-                android:id="@+id/bpmTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_toRightOf="@id/bpmSwitch"
-                android:layout_below="@id/acelTv"
-                android:text="MAX30102">
+<!--            <TextView-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/bpmTv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_toRightOf="@id/bpmSwitch"-->
+<!--                android:layout_below="@id/acelTv"-->
+<!--                android:text="MAX30102">-->
 
-            </TextView>
+<!--            </TextView>-->
 
-            <Switch
-                android:checked="true"
-                android:id="@+id/gasSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_below="@id/bpmSwitch">
+<!--            <Switch-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/gasSwitch"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_below="@id/bpmSwitch">-->
 
-            </Switch>
+<!--            </Switch>-->
 
-            <TextView
-                android:checked="true"
-                android:id="@+id/gasTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_toEndOf="@id/gasSwitch"
-                android:layout_below="@id/bpmTv"
-                android:text="MQ-2">
+<!--            <TextView-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/gasTv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_toEndOf="@id/gasSwitch"-->
+<!--                android:layout_below="@id/bpmTv"-->
+<!--                android:text="MQ-2">-->
 
-            </TextView>
+<!--            </TextView>-->
 
-            <Switch
-                android:checked="true"
-                android:id="@+id/tempSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_below="@id/gasSwitch">
+<!--            <Switch-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/tempSwitch"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_below="@id/gasSwitch">-->
 
-            </Switch>
+<!--            </Switch>-->
 
-            <TextView
-                android:id="@+id/tempTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_toEndOf="@id/tempSwitch"
-                android:layout_below="@id/gasTv"
-                android:text="TEMP">
+<!--            <TextView-->
+<!--                android:id="@+id/tempTv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_toEndOf="@id/tempSwitch"-->
+<!--                android:layout_below="@id/gasTv"-->
+<!--                android:text="TEMP">-->
 
-            </TextView>
+<!--            </TextView>-->
 
-            <Switch
-                android:checked="true"
-                android:id="@+id/humSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_below="@id/tempSwitch">
+<!--            <Switch-->
+<!--                android:checked="true"-->
+<!--                android:id="@+id/humSwitch"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_below="@id/tempSwitch">-->
 
-            </Switch>
+<!--            </Switch>-->
 
-            <TextView
-                android:id="@+id/humTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_toEndOf="@id/humSwitch"
-                android:layout_below="@id/tempTv"
-                android:text="BME680"></TextView>
-        </RelativeLayout>
+<!--            <TextView-->
+<!--                android:id="@+id/humTv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="10dp"-->
+<!--                android:layout_toEndOf="@id/humSwitch"-->
+<!--                android:layout_below="@id/tempTv"-->
+<!--                android:text="BME680"></TextView>-->
+<!--        </RelativeLayout>-->
 
-    </ScrollView>
+<!--    </ScrollView>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

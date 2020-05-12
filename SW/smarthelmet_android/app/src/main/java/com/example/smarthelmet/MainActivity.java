@@ -9,18 +9,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.smarthelmet.Fragments.ChatFragment;
 import com.example.smarthelmet.Fragments.ConnectFragment;
 import com.example.smarthelmet.Fragments.EnvironmentFragment;
-import com.example.smarthelmet.Fragments.LogoFragment;
 import com.example.smarthelmet.Fragments.SettingsFragment;
 import com.example.smarthelmet.Fragments.UserFragment;
+import com.example.smarthelmet.Fragments.ZoomFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import static com.example.smarthelmet.Constants.chatFragmentTag;
+import static com.example.smarthelmet.Constants.connectFragmentTag;
+import static com.example.smarthelmet.Constants.environmentFragmentTag;
+import static com.example.smarthelmet.Constants.settingsFragmentTag;
+import static com.example.smarthelmet.Constants.userFragmentTag;
 
 public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager;
+
+    private ConnectFragment connectFragment;
+    private EnvironmentFragment environmentFragment;
+    private UserFragment userFragment;
+    private ChatFragment chatFragment;
+    private SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +44,16 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        connectFragment = new ConnectFragment();
+        environmentFragment = new EnvironmentFragment();
+        userFragment = new UserFragment();
+        settingsFragment = new SettingsFragment();
+        chatFragment = new ChatFragment();
+
         navigation.setVisibility(View.GONE);
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorAccent));
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                //.replace(R.id.frame_container, new LogoFragment())
-                .replace(R.id.frame_container, new ConnectFragment())
-                .commitAllowingStateLoss();
+        changeFragment(connectFragment, connectFragmentTag);
     }
 
 
@@ -49,49 +63,54 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
 
-            Fragment fragment = null;
-            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_container);
-
             switch (item.getItemId()) {
                 case R.id.connection:
-                    if (!(currentFragment instanceof ConnectFragment)) {
-                        fragment = new ConnectFragment();
-                    }
+                    changeFragment(connectFragment, connectFragmentTag);
                     break;
 
                 case R.id.user:
-                    if (!(currentFragment instanceof UserFragment)) {
-                        fragment = new UserFragment();
-                    }
+                    changeFragment(userFragment, userFragmentTag);
                     break;
 
                 case R.id.environment:
-                    if (!(currentFragment instanceof EnvironmentFragment)) {
-                        fragment = new EnvironmentFragment();
-                    }
+                    changeFragment(environmentFragment, environmentFragmentTag);
                     break;
 
                 case R.id.chat:
-                    if (!(currentFragment instanceof ChatFragment)) {
-                        fragment = new ChatFragment();
-                    }
+                    changeFragment(chatFragment, chatFragmentTag);
                     break;
 
                 case R.id.settings:
-                    if (!(currentFragment instanceof SettingsFragment)) {
-                        fragment = new SettingsFragment();
-                    }
+                    changeFragment(settingsFragment, settingsFragmentTag);
                     break;
             }
-            if (fragment != null)
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        //.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                        .replace(R.id.frame_container, fragment) // replace flContainer
-                        .commitAllowingStateLoss();
+
             return true;
         }
     };
+
+    public void changeFragment(Fragment fragment, String tagFragmentName) {
+
+        FragmentManager mFragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+
+        Fragment currentFragment = mFragmentManager.getPrimaryNavigationFragment();
+        if (currentFragment != null) {
+            fragmentTransaction.detach(currentFragment);
+        }
+
+        Fragment fragmentTemp = mFragmentManager.findFragmentByTag(tagFragmentName);
+        if (fragmentTemp == null) {
+            fragmentTemp = fragment;
+            fragmentTransaction.add(R.id.frame_container, fragmentTemp, tagFragmentName);
+        } else {
+            fragmentTransaction.attach(fragmentTemp);
+        }
+
+        fragmentTransaction.setPrimaryNavigationFragment(fragmentTemp);
+        fragmentTransaction.setReorderingAllowed(true);
+        fragmentTransaction.commitNowAllowingStateLoss();
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

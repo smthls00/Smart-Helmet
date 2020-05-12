@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import static com.example.smarthelmet.Constants.stopOKService;
+import static com.example.smarthelmet.Constants.stopService;
+
 public class ServiceKillNotificationHandler extends BroadcastReceiver {
 
-    public final String stopService = "stopServiceIntent";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -17,7 +19,7 @@ public class ServiceKillNotificationHandler extends BroadcastReceiver {
         //String action = intent.getStringExtra("action");
 
         Intent stopServiceIntent = new Intent(stopService);
-        stopServiceIntent.putExtra(stopService, "OK");
+        stopServiceIntent.putExtra(stopService, stopOKService);
         context.sendBroadcast(stopServiceIntent);
     }
 

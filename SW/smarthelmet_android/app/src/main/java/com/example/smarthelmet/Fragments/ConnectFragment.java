@@ -22,17 +22,19 @@ import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import static com.example.smarthelmet.Constants.BTOff;
+import static com.example.smarthelmet.Constants.BTOn;
+import static com.example.smarthelmet.Constants.BTScanIntent;
+import static com.example.smarthelmet.Constants.BTStateIntent;
+import static com.example.smarthelmet.Constants.connectIntent;
+import static com.example.smarthelmet.Constants.onStopSearching;
+import static com.example.smarthelmet.Constants.scannerTimeOut;
+
 public class ConnectFragment extends Fragment {
 
 
     private static final int REQUEST_ENABLE_BT = 3;
     private static final int ACTION_REQUEST_MULTIPLE_PERMISSION = 2;
-    private final String BTScanIntent = "BTScanIntent";
-    private final String BTStateIntent = "BTStateIntent";
-    private final String connectIntent = "connectIntent";
-    public final String BTOff = "BTOff";
-    public final String BTOn = "BTOn";
-    public final String scannerTimeOut = "TimeOut";
 
     int REQUEST_ACCESS_COARSE_LOCATION = 1;
     ProgressBar connectProgress;
@@ -50,7 +52,7 @@ public class ConnectFragment extends Fragment {
         connectFragmentIntent = new Intent(connectIntent);
 
         if (bluetoothAdapter == null) {
-            Toast.makeText(getActivity(), "Your smartphone doesn't support BT", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.notSupported, Toast.LENGTH_SHORT).show();
         }
 
         if (!bluetoothAdapter.isEnabled()) {
@@ -88,51 +90,6 @@ public class ConnectFragment extends Fragment {
                 new IntentFilter(BTStateIntent));
     }
 
-    private BroadcastReceiver btScanReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            Log.d("ConnectBTEvent", intent.getAction());
-
-            String message = intent.getStringExtra(BTScanIntent);
-
-            if (message.equals(scannerTimeOut)) {
-                connectProgressInd.setVisibility(View.GONE);
-                connectText.setText("Tap to connect");
-                connectText.setClickable(true);
-
-                if (getContext() != null)
-                    Toast.makeText(getContext(), "Can't find a helmet", Toast.LENGTH_LONG).show();
-            }
-        }
-    };
-
-    private BroadcastReceiver btStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            Log.d("ConnectBTEvent", intent.getAction());
-
-            String message = intent.getStringExtra(BTStateIntent);
-
-            connectProgressInd.setVisibility(View.GONE);
-
-            if (message.equals(BTOff)) {
-                connectProgress.setProgress(0);
-                connectText.setText("Tap to connect");
-                connectText.setClickable(true);
-            } else if (message.equals(BTOn)) {
-                connectProgress.setProgress(100);
-                connectText.setText("Connected");
-                connectText.setClickable(false);
-            }
-        }
-    };
-
-
-    public static BluetoothAdapter get_btAdapter() {
-        return bluetoothAdapter;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -153,26 +110,64 @@ public class ConnectFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!bluetoothAdapter.isEnabled()) {
-                    Toast.makeText(getActivity(), "Please, turn on BT first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.btOnPls, Toast.LENGTH_SHORT).show();
                 } else {
                     getActivity().startForegroundService(new Intent(getActivity(), BTService.class));
 
                     connectProgressInd.setVisibility(View.VISIBLE);
-                    connectText.setText("Looking \n for a helmet");
+                    connectText.setText(R.string.searching);
                     connectText.setClickable(false);
                 }
             }
         });
 
-        if (BTService.getConnectionStatus()) {
-            connectProgress.setProgress(100);
-            connectText.setText("Connected");
-            connectText.setClickable(false);
-        }
-
         // Inflate the layout for this fragment
         return view;
     }
+
+
+    private BroadcastReceiver btScanReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("ConnectBTEvent", intent.getAction());
+
+            String message = intent.getStringExtra(BTScanIntent);
+
+            if (message.equals(scannerTimeOut)) {
+                connectProgressInd.setVisibility(View.GONE);
+                connectProgress.setProgress(0);
+                connectText.setText(R.string.connect);
+                connectText.setClickable(true);
+
+                if (getContext() != null)
+
+                    Toast.makeText(getContext(), R.string.cantFind, Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
+    private BroadcastReceiver btStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("ConnectBTEvent", intent.getAction());
+
+            String message = intent.getStringExtra(BTStateIntent);
+
+            connectProgressInd.setVisibility(View.GONE);
+
+            if (message.equals(BTOff)) {
+                connectProgress.setProgress(0);
+                connectText.setText(R.string.connect);
+                connectText.setClickable(true);
+            } else if (message.equals(BTOn)) {
+                connectProgress.setProgress(100);
+                connectText.setText(R.string.connected);
+                connectText.setClickable(false);
+            }
+        }
+    };
 
     @Override
     public void onStop() {
@@ -189,9 +184,26 @@ public class ConnectFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        Log.d("ConnectFragment", "OnStart");
+
+        if (BTService.getConnectionStatus()) {
+            connectProgress.setProgress(100);
+            connectText.setText(R.string.connected);
+            connectText.setClickable(false);
+        } else {
+            connectProgress.setProgress(0);
+            connectText.setText(R.string.connect);
+            connectText.setClickable(true);
+        }
+
+        super.onResume();
+    }
+
+    @Override
     public void onPause() {
 
-        connectFragmentIntent.putExtra(connectIntent, "onStop");
+        connectFragmentIntent.putExtra(connectIntent, onStopSearching);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(connectFragmentIntent);
 
         super.onPause();

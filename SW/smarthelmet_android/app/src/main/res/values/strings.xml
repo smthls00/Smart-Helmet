@@ -2,10 +2,23 @@
     <string name="app_name">SmartHelmet</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="temperature">Temperature</string>
-    <string name="heartRate">Heart Rate</string>
-
+    <string name="temperature">Temperature (°C)</string>
+    <string name="heartRate">Heart Rate (BPM)</string>
     <string name="steps">Steps</string>
     <string name="activities">Activities</string>
 
+    <string name="gasResistance">Gas (kOhm)</string>
+    <string name="co2">CO² (ppm)</string>
+    <string name="smoke">Smoke (ppm)</string>
+    <string name="pressure">Pressure (hPa)</string>
+    <string name="humidity">Humidity (%)</string>
+    <string name="altitude">Altitude (m)</string>
+
+    <string name="connect">Tap to connect</string>
+    <string name="connected">Connected</string>
+    <string name="searching">Looking\nfor a helmet</string>
+
+    <string name="cantFind">Can\'t find a helmet</string>
+    <string name="btOnPls">Please, turn on BT first</string>
+    <string name="notSupported">Your smartphone doesn\'t support BT</string>
 </resources>

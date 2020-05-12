@@ -1,0 +1,58 @@
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.preference.PreferenceCategory
+        android:key="generalCategory"
+        android:title="General">
+
+        <androidx.preference.EditTextPreference
+            android:key="sendPreference"
+            android:title="Custom command"
+            android:summary="Send a custom command to your device"
+            android:defaultValue=" "
+            android:dialogTitle="Please, type a command here"
+            />
+
+        <androidx.preference.CheckBoxPreference
+            android:key="receivePreference"
+            android:title="Receive data"
+            android:defaultValue="true"/>
+
+<!--        <EditTextPreference-->
+<!--            android:key="edittext_preference"-->
+<!--            android:title=""-->
+<!--            android:summary="@string/summary_edittext_preference"-->
+<!--            android:dialogTitle="@string/dialog_title_edittext_preference"-->
+<!--            android:dependency="checkbox_preference" />-->
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:key="sensorsCategory"
+        android:title="Sensors">
+
+        <androidx.preference.CheckBoxPreference
+            android:key="bpmPreference"
+            android:title="MAX30102"
+            android:defaultValue="true"/>
+
+        <androidx.preference.CheckBoxPreference
+            android:key="utpPreference"
+            android:title="TMP006"
+            android:defaultValue="true"/>
+
+        <androidx.preference.CheckBoxPreference
+            android:key="bme680Preference"
+            android:title="BME680"
+            android:defaultValue="true"/>
+
+<!--        <ListPreference-->
+<!--            android:key="list_preference"-->
+<!--            android:title="@string/title_list_preference"-->
+<!--            android:dialogTitle="@string/dialog_title_list_preference"-->
+<!--            android:entries="@array/entries_list_preference"-->
+<!--            android:entryValues="@array/entryvalues_list_preference" />-->
+
+    </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

@@ -59,6 +59,7 @@ BluetoothSerial SerialBT;
 MAX30105 particleSensor;
 
 long tmpMillis = 0;
+long bmeMillis = 0;
 /*
  * Global variables for MAX30102 Sensor
  */
@@ -96,31 +97,47 @@ void bme680_init(){
  * BME680 Read
  */
 void bme680_read(){
-  Serial.println("BME680");
-  
-  if (!bme.performReading()) {
-    Serial.println("BME680 Fail");
-    while (1);
-  }
-  Serial.print("TMP = ");
-  Serial.print(bme.temperature);
-  Serial.println(" *C");
+//  Serial.println("BME680");
+//  
+//  if (!bme.performReading()) {
+//    Serial.println("BME680 Fail");
+//    while (1);
+//  }
+//  Serial.print("TMP = ");
+//  Serial.print(bme.temperature);
+//  Serial.println(" *C");
+//
+//  Serial.print("PRS = ");
+//  Serial.print(bme.pressure / 100.0);
+//  Serial.println(" hPa");
+//
+//  Serial.print("HMT = ");
+//  Serial.print(bme.humidity);
+//  Serial.println(" %");
+//
+//  Serial.print("GAS = ");
+//  Serial.print(bme.gas_resistance / 1000.0);
+//  Serial.println(" KOhms");
+//
+//  Serial.print("ALT = ");
+//  Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+//  Serial.println(" m");
 
-  Serial.print("PRS = ");
-  Serial.print(bme.pressure / 100.0);
-  Serial.println(" hPa");
 
-  Serial.print("HMT = ");
-  Serial.print(bme.humidity);
-  Serial.println(" %");
+  if (SerialBT.available() && (millis() - bmeMillis >= 1)) {
 
-  Serial.print("GAS = ");
-  Serial.print(bme.gas_resistance / 1000.0);
-  Serial.println(" KOhms");
+      if (!bme.performReading()) {
+        Serial.println("BME680 Fail");
+        while (1);
+      }
 
-  Serial.print("ALT = ");
-  Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-  Serial.println(" m");
+      
+      char bmeBT[255];
+      sprintf(bmeBT, "t%.1fp%.1fh%.1fg%.1fa%.1f", bme.temperature, (bme.pressure / 100.0), bme.humidity, (bme.gas_resistance / 1000.0), bme.readAltitude(SEALEVELPRESSURE_HPA));
+      SerialBT.write((uint8_t*)bmeBT, strlen(bmeBT));
+
+      bmeMillis = millis();
+    }
 
 }
 
@@ -357,7 +374,7 @@ float tmp006_read(){
 
   if (SerialBT.available() && (millis() - tmpMillis >= 100)) {
       char tmpBT[16];
-      sprintf(tmpBT, "tmp:%.1f", tmpVal);
+      sprintf(tmpBT, "u:%.1f", tmpVal);
       SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
 
       tmpMillis = millis();
@@ -420,7 +437,9 @@ void loop() {
 //  debug();
 //   tmp006_read();
 //   debug();
-  tmp006_read();
+
+  //tmp006_read();
+  bme680_read();
   
 if(Serial1.available()){
   
@@ -445,9 +464,9 @@ if(Serial1.available()){
     Serial.println(bpmVal);
 
     if (SerialBT.available()) {
-      char bpmBT[16];
-      sprintf(bpmBT, "bpm:%s", bpmVal);
-      SerialBT.write((uint8_t*)bpmBT, strlen(bpmBT));
+      char userBT[40];
+      sprintf(userBT, "u%.1fb%s", tmp006.readObjTempC(), bpmVal);
+      SerialBT.write((uint8_t*)userBT, strlen(userBT));
 
     }
   }
