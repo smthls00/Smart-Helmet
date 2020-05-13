@@ -33,6 +33,7 @@ import static com.example.smarthelmet.Constants.BTOn;
 import static com.example.smarthelmet.Constants.BTScanIntent;
 import static com.example.smarthelmet.Constants.BTStateIntent;
 import static com.example.smarthelmet.Constants.BTUserIntent;
+import static com.example.smarthelmet.Constants.BTdeviceName;
 import static com.example.smarthelmet.Constants.connectIntent;
 import static com.example.smarthelmet.Constants.onStopSearching;
 import static com.example.smarthelmet.Constants.scannerTimeOut;
@@ -279,7 +280,7 @@ public class BTService extends Service {
                 String deviceHardwareAddress = device.getAddress(); // MAC address
                 if (deviceName != null) {
                     Log.d("BTService", deviceName);
-                    if (deviceName.equals(deviceName)) {
+                    if (deviceName.equals(BTdeviceName)) {
                         bluetoothAdapter.cancelDiscovery();
                         scannerHandler.removeCallbacks(scannerRunnable);
 

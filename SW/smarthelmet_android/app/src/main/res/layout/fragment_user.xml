@@ -32,9 +32,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/bpmTv"
                     android:src="@drawable/ic_favorite_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -46,10 +45,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/heartRate"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -61,6 +60,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:id="@+id/bpmChart"
                     android:layout_width="match_parent"
@@ -89,9 +89,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/tmpTv"
                     android:src="@drawable/ic_ac_unit_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -103,10 +102,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/temperature"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -119,6 +118,7 @@
 
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:id="@+id/tmpChart"
                     android:layout_width="match_parent"
@@ -146,9 +146,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/actTv"
                     android:src="@drawable/ic_star_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -160,10 +159,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/activities"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -175,6 +174,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:id="@+id/actChart"
                     android:layout_width="match_parent"
@@ -204,9 +204,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/stepsTv"
                     android:src="@drawable/ic_directions_walk_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -218,10 +217,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/steps"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -233,6 +232,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:id="@+id/stepsChart"
                     android:layout_width="match_parent"

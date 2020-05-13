@@ -1,16 +1,23 @@
 package com.example.smarthelmet.Fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -50,6 +57,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     GraphView bpmChart;
     LineGraphSeries<DataPoint> bpmSeries;
 
+//    int height;
+//    int width;
+//    int minHeight;
+//    int minWidth;
+//
+//    CardView bpmCard;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +92,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 new DataPoint(7, 62)
         });
 
+
+//        WindowManager windowmanager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
+//        DisplayMetrics dimension = new DisplayMetrics();
+//        windowmanager.getDefaultDisplay().getMetrics(dimension);
+//        height = dimension.heightPixels;
+//        width = dimension.widthPixels;
+
         super.onCreate(savedInstanceState);
     }
 
@@ -100,6 +121,24 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         actChart_create();
         tmpChart_create();
 
+//        bpmCard = view.findViewById(R.id.bpmCard);
+//
+//        bpmCard.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                bpmCard.getViewTreeObserver().removeOnPreDrawListener(this);
+//                minHeight = bpmCard.getHeight();
+//                minWidth = bpmCard.getWidth();
+//                ViewGroup.LayoutParams layoutParams = bpmCard.getLayoutParams();
+//                layoutParams.height = minHeight;
+//                layoutParams.width = minWidth;
+//
+//                bpmCard.setLayoutParams(layoutParams);
+//
+//                return true;
+//            }
+//        });
+
 
 //        tmpSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
 //            @Override
@@ -119,14 +158,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         actSeries.setValueDependentColor(new ValueDependentColor<DataPoint>() {
             @Override
             public int get(DataPoint data) {
-                return Color.rgb((int) Math.abs(data.getY() * 255 / 8), 240, (int) Math.abs(data.getY() * 255 / 2));
+                return Color.rgb((int) Math.abs(data.getY() * 255 / 2), 200, (int) Math.abs(data.getY() * 255 / 4));
             }
         });
 
         stepsSeries.setValueDependentColor(new ValueDependentColor<DataPoint>() {
             @Override
             public int get(DataPoint data) {
-                return Color.rgb((int) Math.abs(data.getY() * 255 / 8), 120, 255);
+                return Color.rgb((int) Math.abs(data.getY() * 255 / 8), 140, 255);
             }
         });
 
@@ -137,6 +176,81 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
         return view;
     }
+
+
+
+//    private void toggleCardViewnHeight(int height) {
+//
+//        if (bpmCard.getHeight() == minHeight) {
+//            // expand
+//
+//            expandView(height); //'height' is the height of screen which we have measured already.
+//
+//        } else {
+//            // collapse
+//            collapseView();
+//
+//        }
+//    }
+//
+//    public void collapseView() {
+//
+//        ValueAnimator anim = ValueAnimator.ofInt(bpmCard.getMeasuredHeightAndState(),
+//                minHeight);
+//        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+//                int val = (Integer) valueAnimator.getAnimatedValue();
+//                ViewGroup.LayoutParams layoutParams = bpmCard.getLayoutParams();
+//                layoutParams.height = val;
+//                bpmCard.setLayoutParams(layoutParams);
+//
+//            }
+//        });
+//        anim.start();
+//    }
+//    public void expandView(int height) {
+//
+//        ValueAnimator anim = ValueAnimator.ofInt(bpmCard.getMeasuredHeightAndState(),
+//                height);
+//        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+//                int val = (Integer) valueAnimator.getAnimatedValue();
+//                ViewGroup.LayoutParams layoutParams = bpmCard.getLayoutParams();
+//                layoutParams.height = val;
+//                bpmCard.setLayoutParams(layoutParams);
+//            }
+//        });
+//        anim.start();
+//    }
+//
+//    private Animator getViewScaleAnimator() {
+//        // height resize animation
+//        AnimatorSet animatorSet = new AnimatorSet();
+//        ValueAnimator heightAnimator = ValueAnimator.ofInt(minHeight, height);
+//        heightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                ViewGroup.LayoutParams params = bpmCard.getLayoutParams();
+//                params.height = (int) animation.getAnimatedValue();
+//                bpmCard.setLayoutParams(params);
+//            }
+//        });
+//        animatorSet.play(heightAnimator);
+//
+//        ValueAnimator widthAnimator = ValueAnimator.ofInt(minWidth, width);
+//        widthAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                ViewGroup.LayoutParams params = bpmCard.getLayoutParams();
+//                params.width = (int) animation.getAnimatedValue();
+//                bpmCard.setLayoutParams(params);
+//            }
+//        });
+//        animatorSet.play(widthAnimator);
+//        return animatorSet;
+//    }
 
 
     private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
@@ -278,14 +392,16 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
 
             case R.id.bpmChart:
+                //toggleCardViewnHeight(height);
+                //getViewScaleAnimator().setDuration(100).start();
                 zoomBundle.putString(zoomMessageBundle, bpmCommand);
                 zoomBundle.putSerializable(zoomSeriesBundle, new SeriesDataHolder(bpmSeries));
                 zoomFragment.setArguments(zoomBundle);
 
                 getActivity().getSupportFragmentManager().
                         beginTransaction().
-                        replace(R.id.frame_container, zoomFragment).
                         addToBackStack(userFragmentTag).
+                        replace(R.id.frame_container, zoomFragment).
                         commitAllowingStateLoss();
                 break;
 

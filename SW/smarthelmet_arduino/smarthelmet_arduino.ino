@@ -1,25 +1,25 @@
 /*
- * 
- * Smart helmet code for HUZZAH32
- * 
- * 
- * 
- * MCU: ESP32/Huzzah Board
- * 
- * I2C Sensors: VCNL4040, BME680, VL53L0X, BNO055, MAX30102, TMP006
- * 
- * 
- * Author: Anar Aliyev
- * 
- * 
- * 
- * 
- */
+
+   Smart helmet code for HUZZAH32
+
+
+
+   MCU: ESP32/Huzzah Board
+
+   I2C Sensors: VCNL4040, BME680, VL53L0X, BNO055, MAX30102, TMP006
+
+
+   Author: Anar Aliyev
+
+
+
+
+*/
 
 
 /*
- * Includes
- */
+   Includes
+*/
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
@@ -29,6 +29,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <Adafruit_TMP006.h>
+#include <Adafruit_VEML6070.h>
+#include <Adafruit_NeoPixel.h>
+#include <Adafruit_DRV2605.h>
 
 #include <MAX30105.h>
 #include <heartRate.h>
@@ -39,20 +42,24 @@
 
 
 /*
- * Defines
- */
+   Defines
+*/
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define LONG_RANGE 1
 
-
+#define NEOPIXELPIN        21
+#define NUMPIXELS 8
 /*
- * Global sensors objects
- */
+   Global sensors objects
+*/
 Adafruit_BME680 bme;
 Adafruit_VL53L0X lox;
 Adafruit_VCNL4040 vcnl4040;
 Adafruit_TMP006 tmp006;
+Adafruit_VEML6070 uv = Adafruit_VEML6070();
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+Adafruit_DRV2605 drv;
+Adafruit_NeoPixel pixels(NUMPIXELS, NEOPIXELPIN, NEO_GRB + NEO_KHZ800);
 
 BluetoothSerial SerialBT;
 
@@ -60,9 +67,11 @@ MAX30105 particleSensor;
 
 long tmpMillis = 0;
 long bmeMillis = 0;
+long ambientMillis = 0;
+
 /*
- * Global variables for MAX30102 Sensor
- */
+   Global variables for MAX30102 Sensor
+*/
 const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
 byte rates[RATE_SIZE]; //Array of heart rates
 byte rateSpot = 0;
@@ -72,11 +81,11 @@ float beatsPerMinute;
 int beatAvg;
 
 /*
- * BME680 Init
- */
-void bme680_init(){
+   BME680 Init
+*/
+void bme680_init() {
   Serial.println("BME680 Init");
-  
+
   if (!bme.begin()) {
     Serial.println("BME680 Fail");
     while (1);
@@ -94,63 +103,63 @@ void bme680_init(){
 
 
 /*
- * BME680 Read
- */
-void bme680_read(){
-//  Serial.println("BME680");
-//  
-//  if (!bme.performReading()) {
-//    Serial.println("BME680 Fail");
-//    while (1);
-//  }
-//  Serial.print("TMP = ");
-//  Serial.print(bme.temperature);
-//  Serial.println(" *C");
-//
-//  Serial.print("PRS = ");
-//  Serial.print(bme.pressure / 100.0);
-//  Serial.println(" hPa");
-//
-//  Serial.print("HMT = ");
-//  Serial.print(bme.humidity);
-//  Serial.println(" %");
-//
-//  Serial.print("GAS = ");
-//  Serial.print(bme.gas_resistance / 1000.0);
-//  Serial.println(" KOhms");
-//
-//  Serial.print("ALT = ");
-//  Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-//  Serial.println(" m");
+   BME680 Read
+*/
+void bme680_read() {
+  //  Serial.println("BME680");
+  //
+  //  if (!bme.performReading()) {
+  //    Serial.println("BME680 Fail");
+  //    while (1);
+  //  }
+  //  Serial.print("TMP = ");
+  //  Serial.print(bme.temperature);
+  //  Serial.println(" *C");
+  //
+  //  Serial.print("PRS = ");
+  //  Serial.print(bme.pressure / 100.0);
+  //  Serial.println(" hPa");
+  //
+  //  Serial.print("HMT = ");
+  //  Serial.print(bme.humidity);
+  //  Serial.println(" %");
+  //
+  //  Serial.print("GAS = ");
+  //  Serial.print(bme.gas_resistance / 1000.0);
+  //  Serial.println(" KOhms");
+  //
+  //  Serial.print("ALT = ");
+  //  Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+  //  Serial.println(" m");
 
 
   if (SerialBT.available() && (millis() - bmeMillis >= 1)) {
 
-      if (!bme.performReading()) {
-        Serial.println("BME680 Fail");
-        while (1);
-      }
-
-      
-      char bmeBT[255];
-      sprintf(bmeBT, "t%.1fp%.1fh%.1fg%.1fa%.1f", bme.temperature, (bme.pressure / 100.0), bme.humidity, (bme.gas_resistance / 1000.0), bme.readAltitude(SEALEVELPRESSURE_HPA));
-      SerialBT.write((uint8_t*)bmeBT, strlen(bmeBT));
-
-      bmeMillis = millis();
+    if (!bme.performReading()) {
+      Serial.println("BME680 Fail");
+      while (1);
     }
+
+
+    char bmeBT[255];
+    sprintf(bmeBT, "t%.1fp%.1fh%.1fg%.1fa%.1f", bme.temperature, (bme.pressure / 100.0), bme.humidity, (bme.gas_resistance / 1000.0), bme.readAltitude(SEALEVELPRESSURE_HPA));
+    SerialBT.write((uint8_t*)bmeBT, strlen(bmeBT));
+
+    bmeMillis = millis();
+  }
 
 }
 
 
 /*
- * VL53L0X Init
- */
-void vl53l0x_init(){
+   VL53L0X Init
+*/
+void vl53l0x_init() {
   Serial.println("VL53L0X Init");
-  
+
   if (!lox.begin()) {
     Serial.println("VL53L0X Fail");
-    while(1);
+    while (1);
   }
 
 
@@ -159,13 +168,13 @@ void vl53l0x_init(){
 
 
 /*
- * VL53L0X Read
- */
-void vl53l0x_read(){
+   VL53L0X Read
+*/
+void vl53l0x_read() {
   VL53L0X_RangingMeasurementData_t measure;
-    
+
   Serial.println("VL53L0X");
-  
+
   lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
@@ -177,53 +186,53 @@ void vl53l0x_read(){
 
 
 /*
- * VCNL4040 Init
- */
-void vcnl4040_init(){
+   VCNL4040 Init
+*/
+void vcnl4040_init() {
   Serial.println("VCNL4040 Init");
-  
+
   if (!vcnl4040.begin()) {
     Serial.println("VCNL4040 Fail");
     while (1);
   }
-  
+
   Serial.println("VCNL4040 Done");
 }
 
 
 /*
- * VCNL4040 Read
- */
-void vcnl4040_read(){
+   VCNL4040 Read
+*/
+void vcnl4040_read() {
   Serial.println("VCNL4040");
-  
+
   Serial.print("Proximity:"); Serial.println(vcnl4040.getProximity());
   Serial.print("Ambient light:"); Serial.println(vcnl4040.getAmbientLight());
-  Serial.print("White light:"); Serial.println(vcnl4040.getWhiteLight());  
+  Serial.print("White light:"); Serial.println(vcnl4040.getWhiteLight());
 }
 
 
 /*
- * BNO055 Init
- */
-void bno055_init(){
+   BNO055 Init
+*/
+void bno055_init() {
   Serial.println("BNO055 Init");
-  
+
   if (!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.println("BNO055 Fail");
     while (1);
-  }  
+  }
 
   Serial.println("BNO055 Done");
 }
 
 
 /*
- * BNO055 Sensor Read
- */
-void bno055_read(){
+   BNO055 Sensor Read
+*/
+void bno055_read() {
   sensors_event_t orientationData , angVelocityData , linearAccelData;
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
@@ -234,15 +243,15 @@ void bno055_read(){
   printEvent(&linearAccelData);
 
 
-//  int8_t boardTemp = bno.getTemp();
-//  Serial.print(F("temperature: "));
-//  Serial.println(boardTemp);
+  //  int8_t boardTemp = bno.getTemp();
+  //  Serial.print(F("temperature: "));
+  //  Serial.println(boardTemp);
 }
 
 
 /*
- * BNO055 Printing
- */
+   BNO055 Printing
+*/
 void printEvent(sensors_event_t* event) {
   Serial.println();
   Serial.print(event->type);
@@ -278,18 +287,18 @@ void printEvent(sensors_event_t* event) {
 
 
 /*
- * MAX30102 Init
- */
-void max30102_init(){
+   MAX30102 Init
+*/
+void max30102_init() {
   Serial.println("MAX30102 Init");
 
-  
+
   if (!particleSensor.begin(Wire)) //Use default I2C port, 400kHz speed
   {
     Serial.println("MAX30102 Fail");
     while (1);
   }
-  
+
   //Serial.println("Place your index finger on the sensor with steady pressure.");
 
   particleSensor.setup(); //Configure sensor with default settings
@@ -301,11 +310,11 @@ void max30102_init(){
 
 
 /*
- * MAX30102 Read
- */
-void max30102_read(){
+   MAX30102 Read
+*/
+void max30102_read() {
   Serial.println("MAX30102");
-  
+
   long irValue = particleSensor.getIR();
 
   if (checkForBeat(irValue) == true)
@@ -343,12 +352,12 @@ void max30102_read(){
 }
 
 /*
- * TMP006 Init
- */
-void tmp006_init(){
+   TMP006 Init
+*/
+void tmp006_init() {
   Serial.println("TMP006 Init");
 
-  
+
   if (!tmp006.begin()) {
     Serial.println("TMP006 Fail");
     while (1);
@@ -361,46 +370,193 @@ void tmp006_init(){
 
 
 /*
- * MAX30102 Read
- */
-float tmp006_read(){
+   MAX30102 Read
+*/
+float tmp006_read() {
   //Serial.println("TMP006");
-  
+
   // Grab temperature measurements and print them.
   float tmpVal = tmp006.readObjTempC();
   //Serial.print("Object Temperature: "); Serial.print(objt); Serial.println("*C");
-//  float diet = tmp006.readDieTempC();
-//  Serial.print("Die Temperature: "); Serial.print(diet); Serial.println("*C");
+  //  float diet = tmp006.readDieTempC();
+  //  Serial.print("Die Temperature: "); Serial.print(diet); Serial.println("*C");
 
   if (SerialBT.available() && (millis() - tmpMillis >= 100)) {
-      char tmpBT[16];
-      sprintf(tmpBT, "u:%.1f", tmpVal);
-      SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
+    char tmpBT[16];
+    sprintf(tmpBT, "u:%.1f", tmpVal);
+    SerialBT.write((uint8_t*)tmpBT, strlen(tmpBT));
 
-      tmpMillis = millis();
+    tmpMillis = millis();
 
-      //delay(100);
-    }
+    //delay(100);
+  }
 }
 
 
 /*
- * Debugging
+   VEML6070 Init
+*/
+void veml6070_init(){
+  Serial.println("VEML6070 Init");
+  uv.begin(VEML6070_1_T);  // pass in the integration time constant
+}
+
+
+/*
+   VEML6070 Read
+*/
+void veml6070_read(){
+  uint16_t ambientLight = uv.readUV();
+
+  if(millis() - ambientMillis >= 500){
+
+      if(ambientLight == 0)
+      neopixel_set(true);
+    else
+      neopixel_set(false);
+  }
+}
+
+
+/*
+   NEOPIXEL Init
+*/
+void neopixel_init(){
+  pixels.begin();
+  pixels.clear();
+
+
+  pixels.show();
+}
+
+
+/*
+   NEOPIXEL Set
+*/
+void neopixel_set(bool flag){
+  
+  if(flag){
+      for(int i=0; i<NUMPIXELS; i++)
+        pixels.setPixelColor(i, pixels.Color(0, 0, 200));
+    }
+  else
+    pixels.clear();
+
+
+    pixels.show();
+}
+
+/*
+ * Read Incoming BT Data
  */
-void debug(){
+void bt_serial_read(){
+    if (SerialBT.available()) {
+      
+    char c = SerialBT.read();
+     if (c == 'C') {
+  
+      char command[10];
+      byte k = 0;
+  
+      c = SerialBT.read();
+      while (SerialBT.available() && c != 'X' && k < 10) {
+        command[k++] = c;
+        c = SerialBT.read();
+      }
+  
+      Serial.print("string: ");
+      Serial.println(command);
+
+      if(command[0] == 'v'){
+        drv2605l_set();
+      }
+    }
+  }  
+}
+
+
+/*
+ * DRV2605L Init
+ */
+void drv2605l_init(){
+  Serial.println("DRV2605L Init");
+  
+  drv.begin();
+  
+  drv.selectLibrary(1);
+  
+  // I2C trigger by sending 'go' command 
+  // default, internal trigger when sending GO command
+  drv.setMode(DRV2605_MODE_INTTRIG); 
+}
+
+
+/*
+ * DRV2605L Set
+ */
+void drv2605l_set(){
+  // set the effect to play
+  drv.setWaveform(0, 16);  // play effect 
+  drv.setWaveform(1, 0);   // end waveform
+
+  // play the effect!
+  drv.go();
+}
+
+
+/*
+   Debugging
+*/
+void debug() {
   Serial.println("*******************************");
   delay(1000);
 }
 
 
 /*
- * Initialization
- */
+   Read Serial
+*/
+void serial_read() {
+  if (Serial1.available()) {
+    
+    char c = Serial1.read();
+    Serial.print("char: ");
+    Serial.println(c);
+    
+    if (c == 'Y') {
+
+      char bpmVal[10];
+      byte k = 0;
+
+      c = Serial1.read();
+      while (Serial1.available() && c != '\n' && k < 10) {
+        bpmVal[k++] = c;
+
+        c = Serial1.read();
+      }
+
+      Serial.print("string: ");
+      Serial.println(bpmVal);
+
+      if (SerialBT.available()) {
+        char userBT[40];
+        sprintf(userBT, "u%.1fb%s", tmp006.readObjTempC(), bpmVal);
+        SerialBT.write((uint8_t*)userBT, strlen(userBT));
+
+      }
+    }
+  }
+}
+
+
+/*
+   Initialization
+*/
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
-  
-   while (! Serial) {
+
+  while (! Serial) {
     delay(1);
   }
 
@@ -411,6 +567,9 @@ void setup() {
   vcnl4040_init();
   bno055_init();
   tmp006_init();
+  veml6070_init();
+  neopixel_init();
+  drv2605l_init();
   //max30102_init();
 
   SerialBT.begin("ESP32_SmartHelmet");
@@ -420,75 +579,46 @@ void setup() {
 
 
 /*
- * Main Loop
- */
+   Main Loop
+*/
 void loop() {
-  
-//  bme680_read();
-//  debug();
-//  
-//  vl53l0x_read();
-//  debug();
-//
-//  vcnl4040_read();
-//  debug();
-//
-//  bno055_read();
-//  debug();
-//   tmp006_read();
-//   debug();
 
-  //tmp006_read();
+  //  bme680_read();
+  //  debug();
+  //
+  //  vl53l0x_read();
+  //  debug();
+  //
+  //  vcnl4040_read();
+  //  debug();
+  //
+  //  bno055_read();
+  //  debug();
+  //   tmp006_read();
+  //   debug();
+
+  tmp006_read();
   bme680_read();
-  
-if(Serial1.available()){
-  
-  char c = Serial1.read();
+  //serial_read();
 
-  Serial.print("char: ");
-  Serial.println(c);
-    if(c == 'Y'){
-
-    char bpmVal[10];
-    byte k = 0;
-
-    c = Serial1.read();
-    while(Serial1.available() && c != '\n' && k < 10){
-      bpmVal[k++] = c;
-
-      c = Serial1.read();
-    }
+  veml6070_read();
+  bt_serial_read();
 
 
-    Serial.print("string: ");
-    Serial.println(bpmVal);
 
-    if (SerialBT.available()) {
-      char userBT[40];
-      sprintf(userBT, "u%.1fb%s", tmp006.readObjTempC(), bpmVal);
-      SerialBT.write((uint8_t*)userBT, strlen(userBT));
+  //  max30102_read();
+  //  debug();
 
-    }
-  }
+  //if (Serial.available()) {
+  //    SerialBT.write(Serial.read());
+  //  }
+  //if(SerialBT.available()){
+  //    char str[] = "hello!";
+  //    for(int i = 0; i < strlen(str); i++)
+  //      SerialBT.write(str[i]);
+  //}
 
- }
+  //delay(5000);
+  //delay(900);
 
-//  max30102_read();
-//  debug();
-
-//if (Serial.available()) {
-//    SerialBT.write(Serial.read());
-//  }
-//  if (SerialBT.available()) {
-//    Serial.write(SerialBT.read());
-//  }
-//if(SerialBT.available()){
-//    char str[] = "hello!";
-//    for(int i = 0; i < strlen(str); i++)
-//      SerialBT.write(str[i]);
-//}
-
-//delay(5000);
-//delay(900);
-  
 }

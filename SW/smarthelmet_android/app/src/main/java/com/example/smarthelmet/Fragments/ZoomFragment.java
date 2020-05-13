@@ -153,6 +153,13 @@ public class ZoomFragment extends Fragment {
             }
         });
 
+        zoomSeriesBar.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                Toast.makeText(zoomChart.getContext(), String.format("%.0f", dataPoint.getY()), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return view;
     }
 

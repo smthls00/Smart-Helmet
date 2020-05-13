@@ -15,7 +15,7 @@ public final class Constants {
     public static final String stopOKService = "OK";
     public static final String onStopSearching = "onStop";
 
-    public static final String deviceName = "ESP32_SmartHelmet";
+    public static final String BTdeviceName = "ESP32_SmartHelmet";
 
 
     public final static String zoomMessageBundle = "zoomMessage";

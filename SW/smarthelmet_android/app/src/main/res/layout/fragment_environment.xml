@@ -30,10 +30,9 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/gasTv"
-                    android:layout_marginTop="2dp"
                     android:src="@drawable/ic_local_gas_station_black_24dp"
                     tools:ignore="RtlSymmetry">
 
@@ -44,10 +43,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/gasResistance"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -59,6 +58,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -88,9 +88,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/co2Tv"
                     android:src="@drawable/ic_local_florist_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -103,9 +102,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -117,6 +116,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -144,9 +144,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/smokeTv"
                     android:src="@drawable/ic_cloud_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -158,10 +157,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/smoke"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -173,6 +172,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/smokeDivider"
@@ -201,9 +201,8 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/outTempTv"
                     android:src="@drawable/ic_ac_unit_black_24dp"
                     tools:ignore="RtlSymmetry">
@@ -215,10 +214,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/temperature"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -230,6 +229,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/outTempDivider"
@@ -257,10 +257,9 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/presTv"
-                    android:layout_marginTop="2dp"
                     android:src="@drawable/ic_vertical_align_bottom_black_24dp"
                     tools:ignore="RtlSymmetry">
 
@@ -271,10 +270,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/pressure"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -286,6 +285,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/presDivider"
@@ -313,10 +313,9 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/humTv"
-                    android:layout_marginTop="2dp"
                     android:src="@drawable/ic_opacity_black_24dp">
 
                 </ImageView>
@@ -326,10 +325,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/humidity"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -341,6 +340,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/humDivider"
@@ -370,10 +370,9 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_toStartOf="@id/altTv"
-                    android:layout_marginTop="2dp"
                     android:src="@drawable/ic_filter_hdr_black_24dp"
                     tools:ignore="RtlSymmetry">
 
@@ -384,10 +383,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:padding="6dp"
+                    android:padding="4dp"
                     android:text="@string/altitude"
                     android:textColor="@color/textColor"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <View
@@ -399,6 +398,7 @@
                     android:background="@color/textColor" />
 
                 <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/altDivider"
