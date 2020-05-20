@@ -13,6 +13,9 @@
     <string name="pressure">Pressure (hPa)</string>
     <string name="humidity">Humidity (%)</string>
     <string name="altitude">Altitude (m)</string>
+    <string name="co">CO (ppm)</string>
+    <string name="tvop">TVOP (ppm)</string>
+    <string name="lpg">LPG (ppm)</string>
 
     <string name="connect">Tap to connect</string>
     <string name="connected">Connected</string>

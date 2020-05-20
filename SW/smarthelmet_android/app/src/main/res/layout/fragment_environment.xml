@@ -304,8 +304,9 @@
             app:cardElevation="10dp"
             app:cardMaxElevation="10dp"
             app:contentPadding="4dp"
-            app:layout_constraintTop_toBottomOf="@id/outTempCard"
             app:layout_constraintLeft_toRightOf="@id/presCard"
+            app:layout_constraintBottom_toTopOf="@id/coCard"
+            app:layout_constraintTop_toBottomOf="@id/outTempCard"
             app:layout_constraintRight_toRightOf="parent">
 
             <RelativeLayout
@@ -355,15 +356,14 @@
             android:layout_width="150dp"
             android:layout_height="250dp"
             android:layout_marginTop="25dp"
-            android:layout_marginBottom="70dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="10dp"
             app:cardMaxElevation="10dp"
             app:contentPadding="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/presCard"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/humCard">
+            app:layout_constraintBottom_toTopOf="@id/tvopCard"
+            app:layout_constraintRight_toLeftOf="@id/coCard">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -404,6 +404,179 @@
                     android:layout_below="@id/altDivider"
                     android:clickable="true"
                     android:id="@+id/altChart" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/coCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            app:layout_constraintTop_toBottomOf="@id/humCard"
+            app:layout_constraintLeft_toRightOf="@id/altCard"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_toStartOf="@id/coTv"
+                    android:src="@drawable/ic_filter_hdr_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/coTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="4dp"
+                    android:text="@string/co"
+                    android:textColor="@color/textColor"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/coDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/coTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
+
+                <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/coDivider"
+                    android:clickable="true"
+                    android:id="@+id/coChart" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/tvopCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="70dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/altCard"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/lpgCard">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_toStartOf="@id/tvopTv"
+                    android:src="@drawable/ic_filter_hdr_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/tvopTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="4dp"
+                    android:text="@string/tvop"
+                    android:textColor="@color/textColor"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/tvopDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/tvopTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
+
+                <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/tvopDivider"
+                    android:clickable="true"
+                    android:id="@+id/tvopChart" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/lpgCard"
+            android:layout_width="150dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="70dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="10dp"
+            app:contentPadding="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/coCard"
+            app:layout_constraintLeft_toRightOf="@id/tvopCard"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_toStartOf="@id/lpgTv"
+                    android:src="@drawable/ic_filter_hdr_black_24dp"
+                    tools:ignore="RtlSymmetry">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/lpgTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:padding="4dp"
+                    android:text="@string/lpg"
+                    android:textColor="@color/textColor"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/lpgDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/lpgTv"
+                    android:layout_margin="2dp"
+                    android:background="@color/textColor" />
+
+                <com.jjoe64.graphview.GraphView
+                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/lpgDivider"
+                    android:clickable="true"
+                    android:id="@+id/lpgChart" />
 
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
