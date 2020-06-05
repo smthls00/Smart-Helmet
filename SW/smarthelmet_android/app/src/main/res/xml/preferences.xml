@@ -5,16 +5,31 @@
         android:title="General">
 
         <androidx.preference.CheckBoxPreference
-            android:key="receivePreference"
+            android:key="@string/receivePreference"
             android:title="Receive data"
             android:defaultValue="true" />
 
+        <androidx.preference.CheckBoxPreference
+            android:key="@string/thresholdNotificationPreference"
+            android:title="Threshold notifications"
+            android:defaultValue="true" />
+
+        <androidx.preference.CheckBoxPreference
+            android:key="@string/loggingPreference"
+            android:title="Log data"
+            android:defaultValue="false" />
+
         <androidx.preference.EditTextPreference
-            android:key="sendPreference"
+            android:key="@string/sendPreference"
             android:title="Custom command"
             android:summary="Send a custom command to your device"
             android:defaultValue=" "
             android:dialogTitle="Type a command here" />
+
+
+        <Preference android:title="Export data"
+            android:key="@string/exportPreference"
+            android:summary="Export logged data from sensors"/>
 
         <!--        <EditTextPreference-->
         <!--            android:key="edittext_preference"-->
@@ -27,37 +42,79 @@
 
     <androidx.preference.PreferenceCategory
         android:key="sensorsCategory"
-        android:title="Sensors">
+        android:title="Thresholds">
 
-        <androidx.preference.CheckBoxPreference
-            android:key="bpmPreference"
-            android:title="MAX30102"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/bpmPreference"
+            android:title="@string/heartRate"
+            android:defaultValue="@string/bpmThreshold"
+            android:dialogTitle="@string/enterThresholdPreference" />
 
-        <androidx.preference.CheckBoxPreference
-            android:key="utpPreference"
-            android:title="TMP006"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/utpPreference"
+            android:title="@string/bodyTemperature"
+            android:defaultValue="@string/utpThreshold"
+            android:dialogTitle="@string/enterThresholdPreference" />
 
-        <androidx.preference.CheckBoxPreference
-            android:key="bme680Preference"
-            android:title="BME680"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/gasPreference"
+            android:title="@string/gasResistance"
+            android:defaultValue="@string/gasThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
 
-        <androidx.preference.CheckBoxPreference
-            android:key="bno055Preference"
-            android:title="BNO055"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/co2Preference"
+            android:title="@string/co2"
+            android:defaultValue="@string/co2Threshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
 
-        <androidx.preference.CheckBoxPreference
-            android:key="vcnl4040Preference"
-            android:title="VCNL4040"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/smokePreference"
+            android:title="@string/smoke"
+            android:defaultValue="@string/smokeThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
 
-        <androidx.preference.CheckBoxPreference
-            android:key="vl53l0xPreference"
-            android:title="VL53L0X"
-            android:defaultValue="true" />
+        <androidx.preference.EditTextPreference
+            android:key="@string/otpPreference"
+            android:title="@string/temperature"
+            android:defaultValue="@string/otpThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/pressurePreference"
+            android:title="@string/pressure"
+            android:defaultValue="@string/pressureThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/humidityPreference"
+            android:title="@string/humidity"
+            android:defaultValue="@string/humidityThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/altitudePreference"
+            android:title="@string/altitude"
+            android:defaultValue="@string/altitudeThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/coPreference"
+            android:title="@string/co"
+            android:defaultValue="@string/coThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/tvocPreference"
+            android:title="@string/tvoc"
+            android:defaultValue="@string/tvocThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
+
+        <androidx.preference.EditTextPreference
+            android:key="@string/lpgPreference"
+            android:title="@string/lpg"
+            android:defaultValue="@string/lpgThreshold"
+            android:dialogTitle="@string/enterThresholdPreference"/>
 
         <!--        <ListPreference-->
         <!--            android:key="list_preference"-->
@@ -73,18 +130,18 @@
         android:title="Proximity Sensors">
 
         <androidx.preference.EditTextPreference
-            android:key="forwardSensorPreference"
+            android:key="@string/forwardDistancePreference"
             android:title="Forward Sensor"
             android:summary="Distance notification"
-            android:defaultValue="200m"
-            android:dialogTitle="Type a distance" />
+            android:defaultValue="1000"
+            android:dialogTitle="Type a distance between 0 and 1500mm" />
 
         <androidx.preference.EditTextPreference
-            android:key="backwardSensorPreference"
+            android:key="@string/backwardDistancePreference"
             android:title="Backward Sensor"
             android:summary="Distance notification"
-            android:defaultValue="200cm"
-            android:dialogTitle="Please, type a command here" />
+            android:defaultValue="1000"
+            android:dialogTitle="Type a distance between 0 and 1500mm" />
 
     </androidx.preference.PreferenceCategory>
 

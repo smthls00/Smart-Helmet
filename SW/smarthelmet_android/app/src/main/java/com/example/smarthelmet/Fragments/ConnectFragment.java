@@ -65,9 +65,13 @@ public class ConnectFragment extends Fragment {
         pCheck += getActivity().checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
         pCheck += getActivity().checkSelfPermission("Manifest.permission.BLUETOOTH_ADMIN");
         pCheck += getActivity().checkSelfPermission("Manifest.permission.BLUETOOTH");
+        pCheck += getActivity().checkSelfPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE");
+        pCheck += getActivity().checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
         if (pCheck != 0) {
             this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH}, ACTION_REQUEST_MULTIPLE_PERMISSION);
+                            Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}
+                    , ACTION_REQUEST_MULTIPLE_PERMISSION);
         }
 //        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
 //        if( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {

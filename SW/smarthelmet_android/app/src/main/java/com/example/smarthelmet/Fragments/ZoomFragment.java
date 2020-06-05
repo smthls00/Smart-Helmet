@@ -36,12 +36,15 @@ import static com.example.smarthelmet.Constants.actCommand;
 import static com.example.smarthelmet.Constants.altCommand;
 import static com.example.smarthelmet.Constants.bpmCommand;
 import static com.example.smarthelmet.Constants.co2Command;
+import static com.example.smarthelmet.Constants.coCommand;
 import static com.example.smarthelmet.Constants.gasCommand;
 import static com.example.smarthelmet.Constants.humCommand;
+import static com.example.smarthelmet.Constants.lpgCommand;
 import static com.example.smarthelmet.Constants.otpCommand;
 import static com.example.smarthelmet.Constants.prsCommand;
 import static com.example.smarthelmet.Constants.smkCommand;
 import static com.example.smarthelmet.Constants.stepsCommand;
+import static com.example.smarthelmet.Constants.tvocCommand;
 import static com.example.smarthelmet.Constants.utpCommand;
 import static com.example.smarthelmet.Constants.zoomMessageBundle;
 import static com.example.smarthelmet.Constants.zoomSeriesBundle;
@@ -98,7 +101,6 @@ public class ZoomFragment extends Fragment {
         else
             currIntent = BTEnvIntent;
 
-
         switch (currChart) {
             case utpCommand:
             case otpCommand:
@@ -142,6 +144,21 @@ public class ZoomFragment extends Fragment {
                 presChart_create();
                 break;
 
+            case coCommand:
+                coUIUpdate();
+                coChart_create();
+                break;
+
+            case tvocCommand:
+                tvocUIUPdate();
+                tvocChart_create();
+                break;
+
+            case lpgCommand:
+                lpgUIUpdate();
+                lpgChart_create();
+                break;
+
             default:
                 break;
         }
@@ -180,21 +197,19 @@ public class ZoomFragment extends Fragment {
 
                 switch (currChart) {
                     case bpmCommand:
-                        val = Float.parseFloat(message.substring(message.indexOf(bpmCommand) + 1));
+                        val = Float.parseFloat(message.substring(message.indexOf(bpmCommand) + 1, message.indexOf(utpCommand)));
                         break;
                     case utpCommand:
-                        val = Float.parseFloat(message.substring(message.indexOf(utpCommand) + 1, message.indexOf(bpmCommand)));
+                        val = Float.parseFloat(message.substring(message.indexOf(utpCommand) + 1));
                         break;
-                    case otpCommand:
-                        val = Float.parseFloat(message.substring(message.indexOf(otpCommand) + 1, message.indexOf(prsCommand)));
+                    case co2Command:
+                        val = Float.parseFloat(message.substring(message.indexOf(coCommand) + 1, message.indexOf(tvocCommand)));
+                        break;
+                    case tvocCommand:
+                        val = Float.parseFloat(message.substring(message.indexOf(tvocCommand) + 1, message.indexOf(prsCommand)));
                         break;
                     case prsCommand:
                         val = Float.parseFloat(message.substring(message.indexOf(prsCommand) + 1, message.indexOf(humCommand)));
-                        break;
-                    case smkCommand:
-                        break;
-                    case altCommand:
-                        val = Float.parseFloat(message.substring(message.indexOf(altCommand) + 1));
                         break;
                     case humCommand:
                         val = Float.parseFloat(message.substring(message.indexOf(humCommand) + 1, message.indexOf(gasCommand)));
@@ -202,7 +217,14 @@ public class ZoomFragment extends Fragment {
                     case gasCommand:
                         val = Float.parseFloat(message.substring(message.indexOf(gasCommand) + 1, message.indexOf(altCommand)));
                         break;
-                    case co2Command:
+                    case altCommand:
+                        val = Float.parseFloat(message.substring(message.indexOf(altCommand) + 1, message.indexOf(lpgCommand)));
+                        break;
+                    case lpgCommand:
+                        val = Float.parseFloat(message.substring(message.indexOf(lpgCommand) + 1, message.indexOf(coCommand)));
+                        break;
+                    case smkCommand:
+                        val = Float.parseFloat(message.substring(message.indexOf(smkCommand)));
                         break;
                 }
 
@@ -240,7 +262,7 @@ public class ZoomFragment extends Fragment {
 
     private void gasUIUpdate() {
         zoomTv.setText(R.string.gasResistance);
-        zoomIv.setImageResource(R.drawable.ic_local_gas_station_black_24dp);
+        zoomIv.setImageResource(R.drawable.ic_bubble_chart_black_24dp);
     }
 
     private void smokeUIUpdate() {
@@ -266,6 +288,21 @@ public class ZoomFragment extends Fragment {
     private void altUIUpdate() {
         zoomTv.setText(R.string.altitude);
         zoomIv.setImageResource(R.drawable.ic_filter_hdr_black_24dp);
+    }
+
+    private void coUIUpdate() {
+        zoomTv.setText(R.string.co);
+        zoomIv.setImageResource(R.drawable.ic_whatshot_black_24dp);
+    }
+
+    private void tvocUIUPdate() {
+        zoomTv.setText(R.string.tvoc);
+        zoomIv.setImageResource(R.drawable.ic_grain_black_24dp);
+    }
+
+    private void lpgUIUpdate() {
+        zoomTv.setText(R.string.lpg);
+        zoomIv.setImageResource(R.drawable.ic_local_gas_station_black_24dp);
     }
 
     private void zoomChartCommon_create() {
@@ -306,6 +343,18 @@ public class ZoomFragment extends Fragment {
     }
 
     private void smokeChart_create() {
+        zoomChart.getViewport().setMaxY(10000);
+    }
+
+    private void coChart_create() {
+        zoomChart.getViewport().setMaxY(10000);
+    }
+
+    private void tvocChart_create() {
+        zoomChart.getViewport().setMaxY(10000);
+    }
+
+    private void lpgChart_create() {
         zoomChart.getViewport().setMaxY(10000);
     }
 

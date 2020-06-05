@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
 import com.example.smarthelmet.R;
 import com.example.smarthelmet.SeriesDataHolder;
@@ -24,27 +26,42 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import static com.example.smarthelmet.Constants.BTDataIntent;
 import static com.example.smarthelmet.Constants.BTEnvIntent;
+import static com.example.smarthelmet.Constants.BTWarningIntent;
 import static com.example.smarthelmet.Constants.altCommand;
 import static com.example.smarthelmet.Constants.co2Command;
+import static com.example.smarthelmet.Constants.coCommand;
+import static com.example.smarthelmet.Constants.envPreferenceIntent;
 import static com.example.smarthelmet.Constants.environmentFragmentTag;
 import static com.example.smarthelmet.Constants.gasCommand;
 import static com.example.smarthelmet.Constants.humCommand;
+import static com.example.smarthelmet.Constants.lpgCommand;
 import static com.example.smarthelmet.Constants.otpCommand;
 import static com.example.smarthelmet.Constants.prsCommand;
 import static com.example.smarthelmet.Constants.smkCommand;
+import static com.example.smarthelmet.Constants.tvocCommand;
 import static com.example.smarthelmet.Constants.zoomMessageBundle;
 import static com.example.smarthelmet.Constants.zoomSeriesBundle;
 
 public class EnvironmentFragment extends Fragment implements View.OnClickListener {
+
+    int gasThreshold;
+    int co2Threshold;
+    int smkThreshold;
+    int otpThreshold;
+    int prsThreshold;
+    int humThreshold;
+    int altThreshold;
+    int coThreshold;
+    int tvocThreshold;
+    int lpgThreshold;
+
+    Intent warningIntent;
 
     GraphView gasChart;
     LineGraphSeries<DataPoint> gasSeries;
 
     GraphView co2Chart;
     LineGraphSeries<DataPoint> co2Series;
-
-    GraphView smokeChart;
-    LineGraphSeries<DataPoint> smokeSeries;
 
     GraphView outTempChart;
     LineGraphSeries<DataPoint> outTempSeries;
@@ -58,10 +75,43 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
     GraphView altChart;
     LineGraphSeries<DataPoint> altSeries;
 
+    GraphView coChart;
+    LineGraphSeries<DataPoint> coSeries;
+
+    GraphView lpgChart;
+    LineGraphSeries<DataPoint> lpgSeries;
+
+    GraphView smokeChart;
+    LineGraphSeries<DataPoint> smokeSeries;
+
+    GraphView tvocChart;
+    LineGraphSeries<DataPoint> tvocSeries;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BTDataReceiver,
                 new IntentFilter(BTDataIntent));
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(PreferenceReceiver,
+                new IntentFilter(envPreferenceIntent));
+
+        warningIntent = new Intent(BTWarningIntent);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        gasThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.gasPreference), getString(R.string.gasThreshold)));
+        co2Threshold = Integer.parseInt(sharedPref.getString(getString(R.string.co2Preference), getString(R.string.co2Threshold)));
+        smkThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.smokePreference), getString(R.string.smokeThreshold)));
+        otpThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.otpPreference), getString(R.string.otpThreshold)));
+        prsThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.pressurePreference), getString(R.string.pressureThreshold)));
+        humThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.humidityPreference), getString(R.string.humidityThreshold)));
+        altThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.altitudePreference), getString(R.string.altitudeThreshold)));
+        coThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.coPreference), getString(R.string.coThreshold)));
+        tvocThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.tvocPreference), getString(R.string.tvocThreshold)));
+        lpgThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.lpgPreference), getString(R.string.lpgThreshold)));
+
+        Log.d(environmentFragmentTag, "humThreshold " + humThreshold);
+
 
         gasSeries = new LineGraphSeries<>();
         co2Series = new LineGraphSeries<>();
@@ -70,7 +120,9 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
         presSeries = new LineGraphSeries<>();
         humSeries = new LineGraphSeries<>();
         altSeries = new LineGraphSeries<>();
-
+        coSeries = new LineGraphSeries<>();
+        tvocSeries = new LineGraphSeries<>();
+        lpgSeries = new LineGraphSeries<>();
 
         Log.d("envFragment", "onCreate");
 
@@ -94,6 +146,10 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
         presChart = view.findViewById(R.id.presChart);
         humChart = view.findViewById(R.id.humChart);
         altChart = view.findViewById(R.id.altChart);
+        coChart = view.findViewById(R.id.coChart);
+        tvocChart = view.findViewById(R.id.tvocChart);
+        lpgChart = view.findViewById(R.id.lpgChart);
+
 
         gasChart_create();
         co2Chart_create();
@@ -102,6 +158,9 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
         presChart_create();
         humChart_create();
         altChart_create();
+        coChart_create();
+        tvocChart_create();
+        lpgChart_create();
 
 
         gasChart.setOnClickListener(this);
@@ -111,10 +170,64 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
         presChart.setOnClickListener(this);
         humChart.setOnClickListener(this);
         altChart.setOnClickListener(this);
-
-
+        coChart.setOnClickListener(this);
+        tvocChart.setOnClickListener(this);
+        lpgChart.setOnClickListener(this);
         return view;
     }
+
+    private BroadcastReceiver PreferenceReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra(envPreferenceIntent);
+
+            if (message == null)
+                return;
+
+            Log.d("preferenceEnv", "message: " + message);
+
+
+            try {
+                String thresholdCommand = String.valueOf(message.charAt(0));
+                int thresholdValue = Integer.parseInt(message.substring(1));
+
+                switch (thresholdCommand){
+                    case gasCommand:
+                        gasThreshold = thresholdValue;
+                        break;
+                    case co2Command:
+                        co2Threshold = thresholdValue;
+                        break;
+                    case smkCommand:
+                        smkThreshold = thresholdValue;
+                        break;
+                    case otpCommand:
+                        otpThreshold = thresholdValue;
+                        break;
+                    case prsCommand:
+                        prsThreshold = thresholdValue;
+                        break;
+                    case humCommand:
+                        Log.d(environmentFragmentTag, "humThresholdUpdated " + thresholdValue);
+                        humThreshold = thresholdValue;
+                        break;
+                    case coCommand:
+                        coThreshold = thresholdValue;
+                        break;
+                    case tvocCommand:
+                        tvocThreshold = thresholdValue;
+                        break;
+                    case lpgCommand:
+                        lpgThreshold = thresholdValue;
+                        break;
+                }
+
+            } catch (Exception e) {
+                Log.d("exceptionEnvFragmentBT", e.toString());
+            }
+        }
+    };
 
     private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
         @Override
@@ -128,28 +241,95 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
             Log.d("receiverEnv", "message: " + message);
 
             try {
-                float tmpVal = Float.parseFloat(message.substring(message.indexOf(otpCommand) + 1, message.indexOf(prsCommand)));
-                float co2Val = 0;//Float.parseFloat(message.substring(message.indexOf(":") + 1, message.indexOf("p")));
-                float smokeVal = 0;
-                float presVal = Float.parseFloat(message.substring(message.indexOf(prsCommand) + 1, message.indexOf(humCommand)));
-                float humVal = Float.parseFloat(message.substring(message.indexOf(humCommand) + 1, message.indexOf(gasCommand)));
-                float gasVal = Float.parseFloat(message.substring(message.indexOf(gasCommand) + 1, message.indexOf(altCommand)));
-                float altVal = Float.parseFloat(message.substring(message.indexOf(altCommand) + 1));
+                int co2Index = message.indexOf(co2Command);
+                int tvocIndex = message.indexOf(tvocCommand);
+                int otpIndex = message.indexOf(otpCommand);
+                int prsIndex = message.indexOf(prsCommand);
+                int humIndex = message.indexOf(humCommand);
+                int gasIndex = message.indexOf(gasCommand);
+                int altIndex = message.indexOf(altCommand);
+                int lpgIndex = message.indexOf(lpgCommand);
+                int coIndex = message.indexOf(coCommand);
+                int smkIndex = message.indexOf(smkCommand);
 
+                float co2Val = Float.parseFloat(message.substring(co2Index + 1, tvocIndex));
+                float tvocVal = Float.parseFloat(message.substring(tvocIndex + 1, otpIndex));
+                float otpVal = Float.parseFloat(message.substring(otpIndex + 1, prsIndex));
+                float presVal = Float.parseFloat(message.substring(prsIndex + 1, humIndex));
+                float humVal = Float.parseFloat(message.substring(humIndex + 1, gasIndex));
+                float gasVal = Float.parseFloat(message.substring(gasIndex + 1, altIndex));
+                float altVal = Float.parseFloat(message.substring(altIndex + 1, lpgIndex));
+                float lpgVal = Float.parseFloat(message.substring(lpgIndex + 1, coIndex));
+                float coVal = Float.parseFloat(message.substring(coIndex + 1, smkIndex));
+                float smkVal = Float.parseFloat(message.substring(smkIndex + 1));
 
-                outTempSeries.appendData(new DataPoint(outTempSeries.getHighestValueX() + 0.1, tmpVal), true, 60 * 10);
-                //smokeSeries.appendData(new DataPoint(smokeSeries.getHighestValueX() + 0.5, smokeVal), true, 60 * 2);
-                //co2Series.appendData(new DataPoint(co2Series.getHighestValueX() + 0.5, co2Val), true, 60 * 2);
+                co2Series.appendData(new DataPoint(co2Series.getHighestValueX() + 0.1, co2Val), true, 60 * 10);
+                tvocSeries.appendData(new DataPoint(tvocSeries.getHighestValueX() + 0.1, tvocVal), true, 60 * 10);
+                outTempSeries.appendData(new DataPoint(outTempSeries.getHighestValueX() + 0.1, otpVal), true, 60 * 10);
                 presSeries.appendData(new DataPoint(presSeries.getHighestValueX() + 0.1, presVal), true, 60 * 10);
                 humSeries.appendData(new DataPoint(humSeries.getHighestValueX() + 0.1, humVal), true, 60 * 10);
                 gasSeries.appendData(new DataPoint(gasSeries.getHighestValueX() + 0.1, gasVal), true, 60 * 10);
                 altSeries.appendData(new DataPoint(altSeries.getHighestValueX() + 0.1, altVal), true, 60 * 10);
+                lpgSeries.appendData(new DataPoint(lpgSeries.getHighestValueX() + 0.1, lpgVal), true, 60 * 10);
+                coSeries.appendData(new DataPoint(coSeries.getHighestValueX() + 0.1, coVal), true, 60 * 10);
+                smokeSeries.appendData(new DataPoint(smokeSeries.getHighestValueX() + 0.1, smkVal), true, 60 * 10);
+
+
+
+                if(co2Val > co2Threshold){
+                    warningIntent.putExtra(BTWarningIntent, "CO² level is above " + co2Threshold + "ppm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(gasVal > gasThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Gas Resistance level is above " + gasThreshold + "kOhm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(smkVal > smkThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Smoke level is above " + smkThreshold + "ppm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(otpVal > otpThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Temperature level is above " + otpThreshold + "°C");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(presVal > prsThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Pressure level is above " + prsThreshold + "hPa");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(humVal > humThreshold){
+                    Log.d(environmentFragmentTag, "humThresholdWarning " + humThreshold);
+                    warningIntent.putExtra(BTWarningIntent, "Humidity level is above " + humThreshold + "%");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(altVal > altThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Altitude level is above " + altThreshold + "m");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(coVal > coThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "CO level is above " + coThreshold + "ppm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(tvocVal > tvocThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "TVOC level is above " + tvocThreshold + "ppm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(lpgVal > lpgThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "LPG level is above " + lpgThreshold + "ppm");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
 
             } catch (Exception e) {
                 Log.d("exceptionEnvFragmentBT", e.toString());
             }
-
-
         }
     };
 
@@ -327,6 +507,81 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
         altChart.getViewport().scrollToEnd();
     }
 
+    private void lpgChart_create() {
+        lpgSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorLpg));
+        lpgSeries.setThickness(6);
+
+        //stepsChart.getViewport().setScalable(true);
+        //stepsChart.getViewport().setScalableY(true);
+
+        lpgChart.getViewport().setXAxisBoundsManual(true);
+        lpgChart.getViewport().setMinX(0);
+        lpgChart.getViewport().setMaxX(6);
+        lpgChart.getViewport().setYAxisBoundsManual(true);
+        lpgChart.getViewport().setMaxY(10000);
+        lpgChart.getViewport().setMinY(0);
+
+        lpgChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        lpgChart.getGridLabelRenderer().setNumVerticalLabels(10);
+        lpgChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        lpgChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        lpgChart.getGridLabelRenderer().setTextSize(25f);
+
+        lpgChart.addSeries(lpgSeries);
+
+        lpgChart.getViewport().scrollToEnd();
+    }
+
+    private void coChart_create() {
+        coSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorCo));
+        coSeries.setThickness(6);
+
+        //stepsChart.getViewport().setScalable(true);
+        //stepsChart.getViewport().setScalableY(true);
+
+        coChart.getViewport().setXAxisBoundsManual(true);
+        coChart.getViewport().setMinX(0);
+        coChart.getViewport().setMaxX(6);
+        coChart.getViewport().setYAxisBoundsManual(true);
+        coChart.getViewport().setMaxY(10000);
+        coChart.getViewport().setMinY(0);
+
+        coChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        coChart.getGridLabelRenderer().setNumVerticalLabels(10);
+        coChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        coChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        coChart.getGridLabelRenderer().setTextSize(25f);
+
+        coChart.addSeries(coSeries);
+
+        coChart.getViewport().scrollToEnd();
+    }
+
+    private void tvocChart_create() {
+        tvocSeries.setColor(ContextCompat.getColor(getActivity(), R.color.colorTvoc));
+        tvocSeries.setThickness(6);
+
+        //stepsChart.getViewport().setScalable(true);
+        //stepsChart.getViewport().setScalableY(true);
+
+        tvocChart.getViewport().setXAxisBoundsManual(true);
+        tvocChart.getViewport().setMinX(0);
+        tvocChart.getViewport().setMaxX(6);
+        tvocChart.getViewport().setYAxisBoundsManual(true);
+        tvocChart.getViewport().setMaxY(10000);
+        tvocChart.getViewport().setMinY(0);
+
+        tvocChart.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        tvocChart.getGridLabelRenderer().setNumVerticalLabels(10);
+        tvocChart.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        tvocChart.getGridLabelRenderer().setGridColor(ContextCompat.getColor(getActivity(), R.color.textColor));
+        tvocChart.getGridLabelRenderer().setTextSize(25f);
+
+        tvocChart.addSeries(tvocSeries);
+
+        tvocChart.getViewport().scrollToEnd();
+    }
+
     @Override
     public void onClick(View v) {
         Bundle zoomBundle = new Bundle();
@@ -409,6 +664,42 @@ public class EnvironmentFragment extends Fragment implements View.OnClickListene
             case R.id.co2Chart:
                 zoomBundle.putString(zoomMessageBundle, co2Command);
                 zoomBundle.putSerializable(zoomSeriesBundle, new SeriesDataHolder(co2Series));
+                zoomFragment.setArguments(zoomBundle);
+
+                getActivity().getSupportFragmentManager().
+                        beginTransaction().
+                        replace(R.id.frame_container, zoomFragment).
+                        addToBackStack(environmentFragmentTag).
+                        commitAllowingStateLoss();
+                break;
+
+            case R.id.coChart:
+                zoomBundle.putString(zoomMessageBundle, coCommand);
+                zoomBundle.putSerializable(zoomSeriesBundle, new SeriesDataHolder(coSeries));
+                zoomFragment.setArguments(zoomBundle);
+
+                getActivity().getSupportFragmentManager().
+                        beginTransaction().
+                        replace(R.id.frame_container, zoomFragment).
+                        addToBackStack(environmentFragmentTag).
+                        commitAllowingStateLoss();
+                break;
+
+            case R.id.lpgChart:
+                zoomBundle.putString(zoomMessageBundle, lpgCommand);
+                zoomBundle.putSerializable(zoomSeriesBundle, new SeriesDataHolder(lpgSeries));
+                zoomFragment.setArguments(zoomBundle);
+
+                getActivity().getSupportFragmentManager().
+                        beginTransaction().
+                        replace(R.id.frame_container, zoomFragment).
+                        addToBackStack(environmentFragmentTag).
+                        commitAllowingStateLoss();
+                break;
+
+            case R.id.tvocChart:
+                zoomBundle.putString(zoomMessageBundle, tvocCommand);
+                zoomBundle.putSerializable(zoomSeriesBundle, new SeriesDataHolder(tvocSeries));
                 zoomFragment.setArguments(zoomBundle);
 
                 getActivity().getSupportFragmentManager().

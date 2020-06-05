@@ -3,6 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="temperature">Temperature (°C)</string>
+    <string name="bodyTemperature">Body temperature (°C)</string>
     <string name="heartRate">Heart Rate (BPM)</string>
     <string name="steps">Steps</string>
     <string name="activities">Activities</string>
@@ -14,16 +15,59 @@
     <string name="humidity">Humidity (%)</string>
     <string name="altitude">Altitude (m)</string>
     <string name="co">CO (ppm)</string>
-    <string name="tvop">TVOP (ppm)</string>
+    <string name="tvoc">TVOC (ppm)</string>
     <string name="lpg">LPG (ppm)</string>
 
     <string name="connect">Tap to connect</string>
     <string name="connected">Connected</string>
     <string name="searching">Looking\nfor a helmet</string>
 
+    <string name="enterThresholdPreference">Enter a threshold value</string>
+
+    <string name="bpmPreference">bpmPreference</string>
+    <string name="utpPreference">utpPreference</string>
+
+    <string name="otpPreference">otpPreference</string>
+    <string name="gasPreference">gasPreference</string>
+    <string name="co2Preference">co2Preference</string>
+    <string name="smokePreference">smokePreference</string>
+    <string name="pressurePreference">pressurePreference</string>
+    <string name="humidityPreference">humidityPreference</string>
+    <string name="altitudePreference">altitudePreference</string>
+    <string name="coPreference">coPreference</string>
+    <string name="tvocPreference">tvocPreference</string>
+    <string name="lpgPreference">lpgPreference</string>
+
+    <string name="hi">hello</string>
+
+    <string name="bpmThreshold">180</string>
+    <string name="utpThreshold">40</string>
+
+    <string name="otpThreshold">40</string>
+    <string name="gasThreshold">8000</string>
+    <string name="co2Threshold">2000</string>
+    <string name="smokeThreshold">400</string>
+    <string name="pressureThreshold">6000</string>
+    <string name="humidityThreshold">60</string>
+    <string name="altitudeThreshold">900</string>
+    <string name="coThreshold">100</string>
+    <string name="tvocThreshold">500</string>
+    <string name="lpgThreshold">2000</string>
+
+
+    <string name="thresholdNotificationPreference">thresholdNotificationPreference</string>
+    <string name="receivePreference">receivePreference</string>
+    <string name="sendPreference">sendPreference</string>
+    <string name="loggingPreference">loggingPreference</string>
+    <string name="exportPreference">exportPreference</string>
+    <string name="forwardDistancePreference">forwardDistancePreference</string>
+    <string name="backwardDistancePreference">backwardDistancePreference</string>
+
     <string name="cantFind">Can\'t find a helmet</string>
     <string name="btOnPls">Please, turn on BT first</string>
     <string name="notSupported">Your smartphone doesn\'t support BT</string>
+
+    <string name="warning">Warning!</string>
 
     <string name="disconnected">Smart Helmet Disconnected</string>
     <string name="notConnected">You are not connected anymore</string>

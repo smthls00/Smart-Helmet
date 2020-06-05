@@ -19,7 +19,11 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,18 +31,29 @@ import java.io.OutputStream;
 import static android.content.ContentValues.TAG;
 import static com.example.smarthelmet.Constants.BTCommandIntent;
 import static com.example.smarthelmet.Constants.BTDataIntent;
+import static com.example.smarthelmet.Constants.BTDataLogIntent;
+import static com.example.smarthelmet.Constants.BTDataReceiveIntent;
 import static com.example.smarthelmet.Constants.BTEnvIntent;
 import static com.example.smarthelmet.Constants.BTOff;
 import static com.example.smarthelmet.Constants.BTOn;
 import static com.example.smarthelmet.Constants.BTScanIntent;
 import static com.example.smarthelmet.Constants.BTStateIntent;
+import static com.example.smarthelmet.Constants.BTThresholdNotificationIntent;
 import static com.example.smarthelmet.Constants.BTUserIntent;
+import static com.example.smarthelmet.Constants.BTWarningIntent;
 import static com.example.smarthelmet.Constants.BTdeviceName;
+import static com.example.smarthelmet.Constants.bpmCommand;
+import static com.example.smarthelmet.Constants.co2Command;
 import static com.example.smarthelmet.Constants.connectIntent;
+import static com.example.smarthelmet.Constants.continueBTCommand;
+import static com.example.smarthelmet.Constants.logDataPath;
+import static com.example.smarthelmet.Constants.logFileName;
 import static com.example.smarthelmet.Constants.onStopSearching;
 import static com.example.smarthelmet.Constants.scannerTimeOut;
+import static com.example.smarthelmet.Constants.stopBTCommand;
 import static com.example.smarthelmet.Constants.stopOKService;
 import static com.example.smarthelmet.Constants.stopService;
+import static com.example.smarthelmet.Constants.vibrateBTCommand;
 
 public class BTService extends Service {
 
@@ -56,9 +71,14 @@ public class BTService extends Service {
     Handler scannerHandler;
     IntentFilter stopServerFilter;
 
+    String lastWarningMessage;
+
     static boolean isConnected;
 
     private String channelID = "0";
+
+    boolean logFlag;
+    boolean thresholdNotificationFlag;
 
 
     @Override
@@ -87,10 +107,14 @@ public class BTService extends Service {
 
         isConnected = false;
 
+        lastWarningMessage = "someText";
+
+        logFlag = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.loggingPreference), false);
+        thresholdNotificationFlag = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getString(R.string.thresholdNotificationPreference), true);
+
         createNotificationDisconnectChannel();
         createNotificationFgChannel();
-
-        makeForegroundNotification();
+        createNotificationWarningChannel();
     }
 
     @Override
@@ -115,7 +139,20 @@ public class BTService extends Service {
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(commandReceiver,
                 new IntentFilter(BTCommandIntent));
 
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(dataLogReceiver,
+                new IntentFilter(BTDataLogIntent));
 
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(dataReceiveReceiver,
+                new IntentFilter(BTDataReceiveIntent));
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(warningReceiver,
+                new IntentFilter(BTWarningIntent));
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(thresholdReceiver,
+                new IntentFilter(BTThresholdNotificationIntent));
+
+
+        makeForegroundNotification();
         return START_STICKY;
     }
 
@@ -127,11 +164,42 @@ public class BTService extends Service {
 
             String message = intent.getStringExtra(stopService);
 
+            if(message == null)
+                return;
+
             if (message.equals(stopOKService)) {
                 fgKill();
             }
         }
     };
+
+    private BroadcastReceiver thresholdReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d("btService", "thresholdReceiver");
+
+            thresholdNotificationFlag = intent.getBooleanExtra(BTThresholdNotificationIntent, true);
+        }
+    };
+
+    private BroadcastReceiver dataReceiveReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            boolean receivePreference = intent.getBooleanExtra(BTDataReceiveIntent, false);
+
+            Log.d("btDataReceiverReceiver", "flag" + receivePreference);
+
+            if (!receivePreference) {
+                writeBTMessage(stopBTCommand);
+            } else {
+                writeBTMessage(continueBTCommand);
+            }
+        }
+    };
+
+
 
     private BroadcastReceiver connectReceiver = new BroadcastReceiver() {
         @Override
@@ -140,6 +208,9 @@ public class BTService extends Service {
             Log.d("connectOnStop", intent.getAction());
 
             String message = intent.getStringExtra(connectIntent);
+
+            if(message == null)
+                return;
 
             if (message.equals(onStopSearching)) {
                 if (!isConnected) {
@@ -154,22 +225,76 @@ public class BTService extends Service {
         }
     };
 
+    private BroadcastReceiver warningReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+
+            String message = intent.getStringExtra(BTWarningIntent);
+
+            if(message == null || message.equals(lastWarningMessage) || !thresholdNotificationFlag)
+                return;
+
+            lastWarningMessage = message;
+
+            Log.d("warningReceiver ", message);
+
+            makeWarningNotification(message);
+
+            writeBTMessage(vibrateBTCommand);
+        }
+    };
+
+
+    private void writeBTMessage(String message){
+        if (isConnected && (rxtxThread != null)) {
+            rxtxThread.write(message.getBytes());
+        }
+    }
+
     private BroadcastReceiver commandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            Log.d("connectOnStop", intent.getAction());
 
             String message = intent.getStringExtra(BTCommandIntent);
 
             if (message == null)
                 return;
 
-            if (isConnected && (rxtxThread != null)) {
-                rxtxThread.write(message.getBytes());
-            }
+            writeBTMessage(message);
         }
     };
+
+    private BroadcastReceiver dataLogReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+
+            logFlag = intent.getBooleanExtra(BTDataLogIntent, false);
+        }
+    };
+
+
+    private void appendLogsToFile(String logs) {
+        File logFile = new File(logDataPath, logFileName);
+
+        try {
+
+            if (!logFile.exists()) {
+                Log.d("btService", "fileNotThere");
+                logFile.createNewFile();
+            }
+
+            BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile, true));
+            logWriter.append(logs);
+            logWriter.newLine();
+            logWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     Runnable scannerRunnable = new Runnable() {
         @Override
@@ -297,10 +422,26 @@ public class BTService extends Service {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "1")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID + 1)
                 .setSmallIcon(R.drawable.ic_build_black_24dp)
                 .setContentTitle(getResources().getString(R.string.disconnected))
                 .setContentText(getResources().getString(R.string.notConnected))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(0, builder.build());
+    }
+
+    public void makeWarningNotification(String message) {
+        Intent notificationIntent = new Intent();
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, notificationIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID + 2)
+                .setSmallIcon(R.drawable.ic_build_black_24dp)
+                .setContentTitle(getResources().getString(R.string.warning))
+                .setContentText(message)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
@@ -415,6 +556,22 @@ public class BTService extends Service {
         }
     }
 
+    private void createNotificationWarningChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getResources().getString(R.string.warning);
+            String description = getResources().getString(R.string.warning);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelID + 2, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     public class ConnectThread extends Thread {
 
@@ -503,9 +660,13 @@ public class BTService extends Service {
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
 
-
-            String data = "hello";
-            write(data.getBytes());
+            boolean receivePreference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("receivePreference", false);
+            Log.d(TAG, "shittyshit" + receivePreference);
+            if (!receivePreference) {
+                writeBTMessage(stopBTCommand);
+            } else {
+                writeBTMessage(continueBTCommand);
+            }
         }
 
         public void run() {
@@ -535,15 +696,25 @@ public class BTService extends Service {
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);
-                        if (dataRx.charAt(0) == 't') {
+
+                        Log.d(TAG, "DataRx = " + dataRx);
+
+                        if (logFlag) {
+                            Log.d(TAG, "logFlag = " + logFlag);
+                            appendLogsToFile(dataRx);
+                        }
+
+
+                        if (dataRx.charAt(0) == co2Command.charAt(0)) {
                             broadcastIntent(BTEnvIntent, dataRx);
 
-                            Log.d(TAG, "actualDataT = " + dataRx);
-                        } else if (dataRx.charAt(0) == 'u') {
+                            Log.d(TAG, "envData = " + dataRx);
+                        } else if (dataRx.charAt(0) == bpmCommand.charAt(0)) {
                             broadcastIntent(BTUserIntent, dataRx);
 
-                            Log.d(TAG, "actualDataU = " + dataRx);
+                            Log.d(TAG, "userData = " + dataRx);
                         }
+
                     }
 
                 } catch (IOException e) {

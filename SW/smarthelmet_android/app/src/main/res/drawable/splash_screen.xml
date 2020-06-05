@@ -7,7 +7,7 @@
     <item android:drawable="@android:color/white"/>
 
     <!-- Your product logo - 144dp color version of your app icon -->
-    <item   android:drawable="@drawable/splash_screen"
+    <item   android:drawable="@drawable/splash_icon"
             android:gravity="center"/>
 
 </layer-list>

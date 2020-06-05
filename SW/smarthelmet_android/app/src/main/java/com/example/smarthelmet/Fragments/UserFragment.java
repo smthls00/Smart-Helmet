@@ -1,26 +1,21 @@
 package com.example.smarthelmet.Fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
 import com.example.smarthelmet.R;
 import com.example.smarthelmet.SeriesDataHolder;
@@ -32,17 +27,14 @@ import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import static com.example.smarthelmet.Constants.BTDataIntent;
-import static com.example.smarthelmet.Constants.BTUserIntent;
-import static com.example.smarthelmet.Constants.actCommand;
-import static com.example.smarthelmet.Constants.bpmCommand;
-import static com.example.smarthelmet.Constants.stepsCommand;
-import static com.example.smarthelmet.Constants.userFragmentTag;
-import static com.example.smarthelmet.Constants.utpCommand;
-import static com.example.smarthelmet.Constants.zoomMessageBundle;
-import static com.example.smarthelmet.Constants.zoomSeriesBundle;
+import static com.example.smarthelmet.Constants.*;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
+
+    int bpmThreshold;
+    int tmpThreshold;
+
+    Intent warningIntent;
 
     GraphView actChart;
     BarGraphSeries<DataPoint> actSeries;
@@ -67,8 +59,19 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BTDataReceiver,
                 new IntentFilter(BTDataIntent));
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(PreferenceReceiver,
+                new IntentFilter(usrPreferenceIntent));
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        tmpThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.otpPreference), getString(R.string.otpThreshold)));
+        bpmThreshold = Integer.parseInt(sharedPref.getString(getString(R.string.bpmPreference), getString(R.string.bpmThreshold)));
+
+        warningIntent = new Intent(BTWarningIntent);
 
         tmpSeries = new LineGraphSeries<>();
         bpmSeries = new LineGraphSeries<>();
@@ -178,7 +181,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
 //    private void toggleCardViewnHeight(int height) {
 //
 //        if (bpmCard.getHeight() == minHeight) {
@@ -252,6 +254,31 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 //        return animatorSet;
 //    }
 
+    private BroadcastReceiver PreferenceReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra(usrPreferenceIntent);
+
+            if (message == null)
+                return;
+
+            Log.d("receiverUserThreshold", "message: " + message);
+
+            try {
+                if(message.charAt(0) == bpmCommand.charAt(0)) {
+                    bpmThreshold = Integer.parseInt(message.substring(1));
+                } else if(message.charAt(0) == utpCommand.charAt(0)) {
+                    tmpThreshold = Integer.parseInt(message.substring(1));
+                }
+            } catch (Exception e) {
+                Log.d("preferenceReceiverThresholdException", e.toString());
+            }
+
+
+        }
+    };
+
 
     private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
         @Override
@@ -265,12 +292,26 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             Log.d("receiverUser", "message: " + message);
 
             try {
-                float tmpVal = Float.parseFloat(message.substring(message.indexOf(utpCommand) + 1, message.indexOf(bpmCommand)));
-                float bpmVal = Float.parseFloat(message.substring(message.indexOf(bpmCommand) + 1));
+                int bpmIndex = message.indexOf(bpmCommand);
+                int utpIndex = message.indexOf(utpCommand);
+
+                float bpmVal = Float.parseFloat(message.substring(bpmIndex + 1, utpIndex));
+                float tmpVal = Float.parseFloat(message.substring(utpIndex + 1));
 
 
-                tmpSeries.appendData(new DataPoint(tmpSeries.getHighestValueX() + 0.1, tmpVal), true, 60 * 10);
                 bpmSeries.appendData(new DataPoint(bpmSeries.getHighestValueX() + 0.1, bpmVal), true, 60 * 10);
+                tmpSeries.appendData(new DataPoint(tmpSeries.getHighestValueX() + 0.1, tmpVal), true, 60 * 10);
+
+
+                if(tmpVal > tmpThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Body Temperature level is above " + tmpThreshold + "°C");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
+
+                if(bpmVal > bpmThreshold){
+                    warningIntent.putExtra(BTWarningIntent, "Heart-rate level is above " + bpmThreshold + "BPM");
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(warningIntent);
+                }
 
             } catch (Exception e) {
                 Log.d("exceptionUserFragmentBT", e.toString());

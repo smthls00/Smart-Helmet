@@ -5,7 +5,7 @@
 
 
 
-   I2C Sensors: BNO055, BME680, MAX30102, CCS811
+   I2C Sensors: MAX30102
 
 
    Author: Anar Aliyev
@@ -18,18 +18,9 @@
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
-#include "Adafruit_CCS811.h"
 #include <Adafruit_BNO055.h>
-#include <Adafruit_BME680.h>
 
-#define SEALEVELPRESSURE_HPA (1013.25)
 #define LED_PIN 13
-
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-Adafruit_CCS811 ccs;
-Adafruit_BME680 bme;
-MAX30105 particleSensor;
-
 
 /*
    NTC calculations
@@ -58,10 +49,13 @@ long lastBeat = 0; //Time at which the last beat occurred
 float beatsPerMinute;
 int beatAvg;
 float tmpAvg;
-byte k = 0;
+byte beatCount = 0;
 
-uint16_t eco2;
-uint16_t tvoc;
+char outputString[16];
+
+MAX30105 particleSensor;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
 /*
    MAX30102 Init
 */
@@ -70,7 +64,7 @@ void max30102_init() {
   Serial.println("MAX30102 Init");
 
   // Initialize sensor
-  if (!particleSensor.begin(Wire)) //Use default I2C port, 400kHz speed
+  if (!particleSensor.begin()) //Use default I2C port, 400kHz speed
   {
     Serial.println("MAX30102 Fail");
     while (1);
@@ -80,6 +74,8 @@ void max30102_init() {
   particleSensor.setup(); //Configure sensor with default settings
   particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
   particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
+
+  Serial.println("MAX30102 Done");
 }
 
 
@@ -111,12 +107,13 @@ void max30102_read() {
     }
 
 
-    if (k++ >= 5) {
-      k = 5;
-      Serial1.print("Y");
-      Serial1.print(beatAvg);
-      Serial1.print("\n");
-    }
+    //if (beatCount++ >= 5) {
+    //  beatCount = 5;
+//      Serial.print("beatAvg ");
+//      Serial.println(beatAvg);
+//      Serial.print("BPM ");
+//      Serial.println(beatsPerMinute);
+    //}
 
     //Serial.println("beat");
   }
@@ -124,49 +121,72 @@ void max30102_read() {
 
 
 
+
+
 /*
-   CCS811 Init
+   NTC Read
 */
-void ccs811_init() {
+float NTC_read(byte THERMISTORPIN) {
 
-  Serial.println("CCS811 Init");
+  uint8_t i;
+  float average;
 
-  if (!ccs.begin()) {
-    Serial.println("CCS811 Fail");
-    while (1);
+  // take N samples in a row, with a slight delay
+  for (i = 0; i < NUMSAMPLES; i++) {
+    samples[i] = analogRead(THERMISTORPIN);
+    delay(10);
   }
 
-  // Wait for the sensor to be ready
-  while (!ccs.available());
+  // average all the samples out
+  average = 0;
+  for (i = 0; i < NUMSAMPLES; i++) {
+    average += samples[i];
+  }
+  average /= NUMSAMPLES;
 
-  Serial.println("CCS811 Done");
+  //Serial.print("Average analog reading ");
+  //Serial.println(average);
+
+  // convert the value to resistance
+  average = 1023 / average - 1;
+  average = SERIESRESISTOR / average;
+  //Serial.print("Thermistor resistance ");
+  //Serial.println(average);
+
+  float steinhart;
+  steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
+  steinhart = log(steinhart);                  // ln(R/Ro)
+  steinhart /= BCOEFFICIENT;                   // 1/B * ln(R/Ro)
+  steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
+  steinhart = 1.0 / steinhart;                 // Invert
+  steinhart -= 273.15;                         // convert to C
+
+  //Serial.print("Temperature ");
+  //Serial.print(steinhart);
+  //Serial.println(" *C");
+
+  return steinhart;
 }
-
 
 /*
-   CCS811 Read
+   NTC Read
 */
-void ccs811_read() {
-  ccs.readData();
-  //  if (ccs.available()) {
-  //
-  //
-  //    if (!ccs.readData()) {
-  //
-  //      eco2 = ccs.geteCO2();
-  //      tvoc = ccs.getTVOC();
-  //      //Serial.print("CO2: ");
-  //      //Serial.print(ccs.geteCO2());
-  //      //Serial.print("ppm, TVOC: ");
-  //      //Serial.println(ccs.getTVOC());
-  //    }
-  //    else {
-  //      Serial.println("ERROR!");
-  //      while (1);
-  //    }
-  //  }
-}
+void NTC_average() {
 
+  float forehead = NTC_read(THERMISTORFOREHEAD);
+  float ear = NTC_read(THERMISTOREAR);
+  tmpAvg = (forehead + ear) / 2.0;
+  
+  Serial.print("forehead: ");
+  Serial.print(forehead);
+  Serial.println("*C");
+  Serial.print("ear: ");
+  Serial.print(ear);
+  Serial.println("*C");
+  Serial.print("average: ");
+  Serial.print(tmpAvg);
+  Serial.println("*C");
+}
 
 /*
    BNO055 Init
@@ -176,7 +196,6 @@ void bno055_init() {
 
   if (!bno.begin())
   {
-    /* There was a problem detecting the BNO055 ... check your connections */
     Serial.println("BNO055 Fail");
     while (1);
   }
@@ -241,159 +260,20 @@ void printEvent(sensors_event_t* event) {
   Serial.println(z);
 }
 
-/*
-   BME680 Init
-*/
-void bme680_init() {
-  Serial.println("BME680 Init");
-
-  if (!bme.begin()) {
-    Serial.println("BME680 Fail");
-    while (1);
-  }
-
-  // Set up oversampling and filter initialization
-  bme.setTemperatureOversampling(BME680_OS_8X);
-  bme.setHumidityOversampling(BME680_OS_2X);
-  bme.setPressureOversampling(BME680_OS_4X);
-  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-  bme.setGasHeater(320, 150); // 320*C for 150 ms
-
-  Serial.println("BME680 Done");
-}
-
-
-/*
-   BME680 Read
-*/
-void bme680_read() {
-  //Serial.println("BME680");
-
-  if (!bme.performReading()) {
-    Serial.println("BME680 Fail");
-    while (1);
-  }
-  //    Serial.print("TMP = ");
-  //    Serial.print(bme.temperature);
-  //    Serial.println(" *C");
-  //
-  //    Serial.print("PRS = ");
-  //    Serial.print(bme.pressure / 100.0);
-  //    Serial.println(" hPa");
-  //
-  //    Serial.print("HMT = ");
-  //    Serial.print(bme.humidity);
-  //    Serial.println(" %");
-  //
-  //    Serial.print("GAS = ");
-  //    Serial.print(bme.gas_resistance / 1000.0);
-  //    Serial.println(" KOhms");
-  //
-  //    Serial.print("ALT = ");
-  //    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-  //    Serial.println(" m");
-
-
-  //  if (SerialBT.available() && (millis() - bmeMillis >= 1)) {
-  //
-  //    if (!bme.performReading()) {
-  //      Serial.println("BME680 Fail");
-  //      while (1);
-  //    }
-  //
-  //
-  //    char bmeBT[255];
-  //    sprintf(bmeBT, "t%.1fp%.1fh%.1fg%.1fa%.1f", bme.temperature, (bme.pressure / 100.0), bme.humidity, (bme.gas_resistance / 1000.0), bme.readAltitude(SEALEVELPRESSURE_HPA));
-  //    SerialBT.write((uint8_t*)bmeBT, strlen(bmeBT));
-  //
-  //    bmeMillis = millis();
-  //  }
-}
-
-
-/*
-   NTC Read
-*/
-float NTC_read(byte THERMISTORPIN) {
-
-  uint8_t i;
-  float average;
-
-  // take N samples in a row, with a slight delay
-  for (i = 0; i < NUMSAMPLES; i++) {
-    samples[i] = analogRead(THERMISTORPIN);
-    delay(10);
-  }
-
-  // average all the samples out
-  average = 0;
-  for (i = 0; i < NUMSAMPLES; i++) {
-    average += samples[i];
-  }
-  average /= NUMSAMPLES;
-
-  //Serial.print("Average analog reading ");
-  //Serial.println(average);
-
-  // convert the value to resistance
-  average = 1023 / average - 1;
-  average = SERIESRESISTOR / average;
-  //Serial.print("Thermistor resistance ");
-  //Serial.println(average);
-
-  float steinhart;
-  steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
-  steinhart = log(steinhart);                  // ln(R/Ro)
-  steinhart /= BCOEFFICIENT;                   // 1/B * ln(R/Ro)
-  steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
-  steinhart = 1.0 / steinhart;                 // Invert
-  steinhart -= 273.15;                         // convert to C
-
-  //Serial.print("Temperature ");
-  //Serial.print(steinhart);
-  //Serial.println(" *C");
-
-  return steinhart;
-}
-
-/*
-   NTC Read
-*/
-void NTC_average() {
-
-  tmpAvg = (NTC_read(THERMISTORFOREHEAD) + NTC_read(THERMISTOREAR)) / 2.0;
-
-  Serial.print(tmpAvg);
-  Serial.println("*C");
-}
-
-void serial_write() {
-  char str[128];
-
-  ccs811_read();
-  bme680_read();
-  max30102_read();
-  NTC_average();
-
-  sprintf(str, "c%dv%do%.1fp%.1fh%.1fg%.1fa%.1fb%dt%.1f\n", ccs.geteCO2(), ccs.getTVOC(),
-          bme.temperature, bme.pressure / 100.0, bme.humidity,
-          bme.gas_resistance / 1000.0, bme.readAltitude(SEALEVELPRESSURE_HPA),
-          beatAvg, tmpAvg);
-  //sprintf(str, "hello\n");
-  Serial1.write(str, strlen(str));
-  Serial.println(str);
-}
 
 void calibration() {
   Serial.println("Calibration Start");
 
 
-  for (int i = 0; i < 25; i++) {
-    ccs811_read();
-    bme680_read();
+  for (int i = 0; i < 100; i++) {
     max30102_read();
     NTC_average();
   }
+
+//  while(beatCount != 5){
+//    max30102_read();
+//  }
+  
 
 
   Serial.println("Calibration End");
@@ -403,33 +283,36 @@ void calibration() {
 void setup()
 {
   Serial.begin(9600);
-  Serial1.begin(115200);
+  Serial1.begin(9600);
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
 
-  //while(!Serial.available());
+  Wire.begin();
 
-  //Serial.println("Initializing...");
+  max30102_init();
+  bno055_init();
 
   analogReadResolution(10);
-
-  ccs811_init();
-  bme680_init();
-  //bno055_init();
-  max30102_init();
 
   calibration();
 }
 
 void loop()
 {
-  serial_write();
-  delay(5);
-  //ccs811_read();
-  //delay(2000);
-  //bno055_read();
-  //delay(2000);
-  //bme680_read();
-  //delay(2000);
+
+  NTC_average();
+    
+  for(byte i = 0; i < 150; i++)
+    max30102_read();
+
+  if(Serial1)
+  {
+
+    sprintf(outputString, "b%dt%.1f\n", beatAvg, tmpAvg);
+    Serial1.write((uint8_t*)outputString, strlen(outputString));
+    Serial.println(outputString);
+    
+  }
+  
 }

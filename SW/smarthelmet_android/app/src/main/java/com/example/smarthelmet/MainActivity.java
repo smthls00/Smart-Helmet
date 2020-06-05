@@ -25,9 +25,6 @@ import static com.example.smarthelmet.Constants.settingsFragmentTag;
 import static com.example.smarthelmet.Constants.userFragmentTag;
 
 public class MainActivity extends AppCompatActivity {
-
-    FragmentManager fragmentManager;
-
     private ConnectFragment connectFragment;
     private EnvironmentFragment environmentFragment;
     private UserFragment userFragment;
@@ -36,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

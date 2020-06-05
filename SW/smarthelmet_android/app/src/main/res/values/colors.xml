@@ -11,9 +11,12 @@
     <color name="colorGas">#FFB74D</color>
     <color name="colorCo2">#AED581</color>
     <color name="colorSmoke">#4DD0E1</color>
-    <color name="colorPressure">#FF8A65</color>
+    <color name="colorPressure">#90A4AE</color>
     <color name="colorHumidity">#64B5F6</color>
     <color name="colorAltitude">#9575CD</color>
+    <color name="colorCo">#FF8A65</color>
+    <color name="colorLpg">#E57373</color>
+    <color name="colorTvoc">#4DB6AC</color>
 
 
     <color name="colorStartSteps">#009688</color>
