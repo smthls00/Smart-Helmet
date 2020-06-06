@@ -13,6 +13,7 @@ public final class Constants {
     public static final String BTDataLogIntent = "BTDataLogIntent";
     public static final String BTWarningIntent = "BTWarningIntent";
     public static final String BTThresholdNotificationIntent = "BTThresholdNotificationIntent";
+    public static final String BTBatteryIntent = "BTBatteryIntent";
     public static final String connectIntent = "connectIntent";
     public static final String usrPreferenceIntent = "usrPreferenceIntent";
     public static final String envPreferenceIntent = "envPreferenceIntent";
@@ -46,6 +47,8 @@ public final class Constants {
     public static final String forwardDistanceBTCommand = "f";
     public static final String backwardDistanceBTCommand = "b\n";
     public static final String vibrateBTCommand = "v\n";
+    public static final String leftBTCommand = "l\n";
+    public static final String rightBTCommand = "r\n";
 
 
 
@@ -62,6 +65,7 @@ public final class Constants {
     public static final String coCommand = "z";
     public static final String lpgCommand = "l";
     public static final String tvocCommand = "v";
+    public static final String batteryCommand = "r";
 
     public static final String actCommand = "act";
     public static final String stepsCommand = "steps";

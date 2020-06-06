@@ -29,31 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static android.content.ContentValues.TAG;
-import static com.example.smarthelmet.Constants.BTCommandIntent;
-import static com.example.smarthelmet.Constants.BTDataIntent;
-import static com.example.smarthelmet.Constants.BTDataLogIntent;
-import static com.example.smarthelmet.Constants.BTDataReceiveIntent;
-import static com.example.smarthelmet.Constants.BTEnvIntent;
-import static com.example.smarthelmet.Constants.BTOff;
-import static com.example.smarthelmet.Constants.BTOn;
-import static com.example.smarthelmet.Constants.BTScanIntent;
-import static com.example.smarthelmet.Constants.BTStateIntent;
-import static com.example.smarthelmet.Constants.BTThresholdNotificationIntent;
-import static com.example.smarthelmet.Constants.BTUserIntent;
-import static com.example.smarthelmet.Constants.BTWarningIntent;
-import static com.example.smarthelmet.Constants.BTdeviceName;
-import static com.example.smarthelmet.Constants.bpmCommand;
-import static com.example.smarthelmet.Constants.co2Command;
-import static com.example.smarthelmet.Constants.connectIntent;
-import static com.example.smarthelmet.Constants.continueBTCommand;
-import static com.example.smarthelmet.Constants.logDataPath;
-import static com.example.smarthelmet.Constants.logFileName;
-import static com.example.smarthelmet.Constants.onStopSearching;
-import static com.example.smarthelmet.Constants.scannerTimeOut;
-import static com.example.smarthelmet.Constants.stopBTCommand;
-import static com.example.smarthelmet.Constants.stopOKService;
-import static com.example.smarthelmet.Constants.stopService;
-import static com.example.smarthelmet.Constants.vibrateBTCommand;
+import static com.example.smarthelmet.Constants.*;
 
 public class BTService extends Service {
 
@@ -262,7 +238,7 @@ public class BTService extends Service {
             if (message == null)
                 return;
 
-            writeBTMessage(message);
+            writeBTMessage(message + '\n');
         }
     };
 
@@ -508,6 +484,7 @@ public class BTService extends Service {
     public void broadcastIntent(String TAG, String data) {
         switch (TAG) {
             case BTUserIntent:
+            case BTBatteryIntent:
             case BTEnvIntent:
                 btDataIntent.putExtra(TAG, data);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(btDataIntent);
@@ -704,8 +681,12 @@ public class BTService extends Service {
                             appendLogsToFile(dataRx);
                         }
 
+                        if(dataRx.charAt(0) == batteryCommand.charAt(0)){
+                            broadcastIntent(BTBatteryIntent, dataRx);
 
-                        if (dataRx.charAt(0) == co2Command.charAt(0)) {
+                            Log.d(TAG, "battery = " + dataRx);
+                        }
+                        else if (dataRx.charAt(0) == co2Command.charAt(0)) {
                             broadcastIntent(BTEnvIntent, dataRx);
 
                             Log.d(TAG, "envData = " + dataRx);

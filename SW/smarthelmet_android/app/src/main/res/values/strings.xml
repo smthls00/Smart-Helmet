@@ -62,6 +62,10 @@
     <string name="exportPreference">exportPreference</string>
     <string name="forwardDistancePreference">forwardDistancePreference</string>
     <string name="backwardDistancePreference">backwardDistancePreference</string>
+    <string name="leftPreference">leftPreference</string>
+    <string name="rightPreference">rightPreference</string>
+    <string name="batteryPreference">batteryPreference</string>
+    <string name="batteryLevel">Battery Level: </string>
 
     <string name="cantFind">Can\'t find a helmet</string>
     <string name="btOnPls">Please, turn on BT first</string>

@@ -1,8 +1,11 @@
 package com.example.smarthelmet.Fragments;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -20,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
+import com.jjoe64.graphview.series.DataPoint;
 
 import java.io.File;
 
@@ -30,11 +34,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     EditTextPreference sendPreference;
     EditTextPreference forwardDistancePreference;
     EditTextPreference backwardDistancePreference;
+    EditTextPreference batteryPreference;
+
     CheckBoxPreference receivePreference;
     CheckBoxPreference dataLogPreference;
     CheckBoxPreference thresholdNotificationPreference;
-    Preference exportPreference;
 
+    Preference exportPreference;
+    Preference leftPreference;
+    Preference rightPreference;
 
 
     EditTextPreference bpmPreference;
@@ -68,6 +76,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         forwardDistancePreference = getPreferenceManager().findPreference(getResources().getString(R.string.forwardDistancePreference));
         backwardDistancePreference = getPreferenceManager().findPreference(getResources().getString(R.string.backwardDistancePreference));
         thresholdNotificationPreference = getPreferenceManager().findPreference(getResources().getString(R.string.thresholdNotificationPreference));
+        leftPreference = getPreferenceManager().findPreference(getResources().getString(R.string.leftPreference));
+        rightPreference = getPreferenceManager().findPreference(getResources().getString(R.string.rightPreference));
+        batteryPreference = getPreferenceManager().findPreference(getResources().getString(R.string.batteryPreference));
 
         bpmPreference = getPreferenceManager().findPreference(getResources().getString(R.string.bpmPreference));
         utpPreference = getPreferenceManager().findPreference(getResources().getString(R.string.utpPreference));
@@ -82,7 +93,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         tvocPreference = getPreferenceManager().findPreference(getResources().getString(R.string.tvocPreference));
         lpgPreference = getPreferenceManager().findPreference(getResources().getString(R.string.lpgPreference));
 
-
         commandIntent = new Intent(BTCommandIntent);
         dataLogIntent = new Intent(BTDataLogIntent);
         receiveIntent = new Intent(BTDataReceiveIntent);
@@ -90,6 +100,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         envIntent = new Intent(envPreferenceIntent);
         thresholdIntent = new Intent(BTThresholdNotificationIntent);
 
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BTDataReceiver,
+                new IntentFilter(BTDataIntent));
 
         sendPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -108,16 +120,36 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
 
-        receivePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        leftPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Log.d("receiveSettingsFragment", newValue.toString());
-                if (BTService.getConnectionStatus()) {
-                    receiveIntent.putExtra(BTDataReceiveIntent, (boolean) newValue);
-                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(receiveIntent);
-                }
+            public boolean onPreferenceClick(Preference preference) {
+                Log.d("leftPreference", "leftPreferenceClick");
 
-                return true;
+                if (BTService.getConnectionStatus()) {
+                    commandIntent.putExtra(BTCommandIntent, leftBTCommand);
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(commandIntent);
+                } else
+                    Toast.makeText(getContext(), R.string.connectFirst, Toast.LENGTH_SHORT).show();
+
+
+                return false;
+            }
+        });
+
+
+        rightPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Log.d("rightPreference", "rightPreference");
+
+                if (BTService.getConnectionStatus()) {
+                    commandIntent.putExtra(BTCommandIntent, rightBTCommand);
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(commandIntent);
+                } else
+                    Toast.makeText(getContext(), R.string.connectFirst, Toast.LENGTH_SHORT).show();
+
+
+                return false;
             }
         });
 
@@ -295,6 +327,42 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 }
+
+    private BroadcastReceiver BTDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra(BTBatteryIntent);
+
+            if (message == null)
+                return;
+
+            Log.d("batteryIntent", "message: " + message);
+
+            try {
+
+                float batteryLvl = Float.parseFloat(message.substring(1));
+
+                batteryLvl = (float)(batteryLvl / 1023 * 1.1 * 2 * 3.3);
+
+                Log.d("batteryIntent", "voltage: " + batteryLvl);
+                batteryLvl = (int)(batteryLvl * 100 / 3.8);
+
+                Log.d("batteryIntent", "percentage: " + batteryLvl);
+
+
+                if(batteryLvl > 100)
+                    batteryLvl = 100;
+
+                batteryPreference.setTitle(getResources().getString(R.string.batteryLevel) + " " + (int)batteryLvl);
+
+            } catch (Exception e) {
+                Log.d("settingsFragmentBattery", e.toString());
+            }
+
+
+        }
+    };
 
 
     @Override
