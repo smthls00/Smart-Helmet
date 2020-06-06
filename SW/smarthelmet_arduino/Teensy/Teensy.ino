@@ -1,90 +1,98 @@
 /*
-
    Smart helmet code for Teensy 4.0
 
 
-
-
-   I2C Sensors: MAX30102
+   Sensors: MAX30102б, 2x NTC
 
 
    Author: Anar Aliyev
-
-
-
-
 */
 
+
+/*
+   Includes
+*/
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
 #include <Adafruit_BNO055.h>
 
-#define LED_PIN 13
 
 /*
-   NTC calculations
+   Defines
 */
-#define THERMISTORFOREHEAD A0
-#define THERMISTOREAR A1
-// resistance at 25 degrees C
-#define THERMISTORNOMINAL 10000
-// temp. for nominal resistance (almost always 25 C)
-#define TEMPERATURENOMINAL 25
-// how many samples to take and average, more takes longer
-// but is more 'smooth'
-#define NUMSAMPLES 5
-// The beta coefficient of the thermistor (usually 3000-4000)
-#define BCOEFFICIENT 3950
-// the value of the 'other' resistor
-#define SERIESRESISTOR 10000
+#define DEBUG 1
 
-int samples[NUMSAMPLES];
+//NTC calculations defines
+#define THERMISTOR_FOREHEAD A0
+#define THERMISTOR_EAR A1
+#define THERMISTOR_NOMINAL 10000
+#define TEMPERATURE_NOMINAL 25
+#define NUM_SAMPLES 5
+#define B_COEFFICIENT 3950
+#define SERIES_RESISTOR 10000
 
-const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
-byte rates[RATE_SIZE]; //Array of heart rates
+#define LED_PIN 13
+
+
+#define RATE_SIZE 4
+
+
+/*
+   Global variables
+*/
+int samples[NUM_SAMPLES];
+
+byte rates[RATE_SIZE];
 byte rateSpot = 0;
-long lastBeat = 0; //Time at which the last beat occurred
+long lastBeat = 0;
 
 float beatsPerMinute;
 int beatAvg;
 float tmpAvg;
-byte beatCount = 0;
 
-char outputString[16];
+char sensorsDataString[16];
 
-MAX30105 particleSensor;
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+/*
+   Global sensors objects
+*/
+MAX30105 max30102Obj;
+Adafruit_BNO055 bno055Obj = Adafruit_BNO055(55, 0x28);
+
 
 /*
    MAX30102 Init
 */
-void max30102_init() {
-
+void max30102Init() {
+#ifdef DEBUG
   Serial.println("MAX30102 Init");
+#endif
 
-  // Initialize sensor
-  if (!particleSensor.begin()) //Use default I2C port, 400kHz speed
+  if (!max30102Obj.begin()) //Use default I2C port, 400kHz speed
   {
+#ifdef DEBUG
     Serial.println("MAX30102 Fail");
+#endif
     while (1);
   }
-  //Serial.println("Place your index finger on the sensor with steady pressure.");
 
-  particleSensor.setup(); //Configure sensor with default settings
-  particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
-  particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
+  max30102Obj.setup(); //Configure sensor with default settings
+  max30102Obj.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
+  max30102Obj.setPulseAmplitudeGreen(0); //Turn off Green LED
 
+#ifdef DEBUG
   Serial.println("MAX30102 Done");
+#endif
 }
 
 
 /*
    MAX30102 Read
 */
-void max30102_read() {
+void max30102Read() {
 
-  long irValue = particleSensor.getIR();
+  long irValue = max30102Obj.getIR();
 
   if (checkForBeat(irValue) == true)
   {
@@ -96,8 +104,8 @@ void max30102_read() {
 
     if (beatsPerMinute < 255 && beatsPerMinute > 20)
     {
-      rates[rateSpot++] = (byte)beatsPerMinute; //Store this reading in the array
-      rateSpot %= RATE_SIZE; //Wrap variable
+      rates[rateSpot++] = (byte)beatsPerMinute;
+      rateSpot %= RATE_SIZE;
 
       //Take average of readings
       beatAvg = 0;
@@ -105,59 +113,45 @@ void max30102_read() {
         beatAvg += rates[x];
       beatAvg /= RATE_SIZE;
     }
-
-
-    //if (beatCount++ >= 5) {
-    //  beatCount = 5;
-//      Serial.print("beatAvg ");
-//      Serial.println(beatAvg);
-//      Serial.print("BPM ");
-//      Serial.println(beatsPerMinute);
-    //}
-
-    //Serial.println("beat");
   }
 }
-
-
-
 
 
 /*
    NTC Read
 */
-float NTC_read(byte THERMISTORPIN) {
+float NTCRead(byte THERMISTOR_PIN) {
 
   uint8_t i;
   float average;
 
   // take N samples in a row, with a slight delay
-  for (i = 0; i < NUMSAMPLES; i++) {
-    samples[i] = analogRead(THERMISTORPIN);
+  for (i = 0; i < NUM_SAMPLES; i++) {
+    samples[i] = analogRead(THERMISTOR_PIN);
     delay(10);
   }
 
   // average all the samples out
   average = 0;
-  for (i = 0; i < NUMSAMPLES; i++) {
+  for (i = 0; i < NUM_SAMPLES; i++) {
     average += samples[i];
   }
-  average /= NUMSAMPLES;
+  average /= NUM_SAMPLES;
 
   //Serial.print("Average analog reading ");
   //Serial.println(average);
 
   // convert the value to resistance
   average = 1023 / average - 1;
-  average = SERIESRESISTOR / average;
+  average = SERIES_RESISTOR / average;
   //Serial.print("Thermistor resistance ");
   //Serial.println(average);
 
   float steinhart;
-  steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
+  steinhart = average / THERMISTOR_NOMINAL;     // (R/Ro)
   steinhart = log(steinhart);                  // ln(R/Ro)
-  steinhart /= BCOEFFICIENT;                   // 1/B * ln(R/Ro)
-  steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
+  steinhart /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
+  steinhart += 1.0 / (TEMPERATURE_NOMINAL + 273.15); // + (1/To)
   steinhart = 1.0 / steinhart;                 // Invert
   steinhart -= 273.15;                         // convert to C
 
@@ -169,51 +163,59 @@ float NTC_read(byte THERMISTORPIN) {
 }
 
 /*
-   NTC Read
+   NTC compute average between ear and forehead
 */
-void NTC_average() {
+void NTCAverage() {
 
-  float forehead = NTC_read(THERMISTORFOREHEAD);
-  float ear = NTC_read(THERMISTOREAR);
-  tmpAvg = (forehead + ear) / 2.0;
-  
+  float tmpForehead = NTCRead(THERMISTOR_FOREHEAD);
+  float tmpEar = NTCRead(THERMISTOR_EAR);
+  tmpAvg = (tmpForehead + tmpEar) / 2.0;
+
+#ifdef DEBUG
   Serial.print("forehead: ");
-  Serial.print(forehead);
+  Serial.print(tmpForehead);
   Serial.println("*C");
   Serial.print("ear: ");
-  Serial.print(ear);
+  Serial.print(tmpEar);
   Serial.println("*C");
   Serial.print("average: ");
   Serial.print(tmpAvg);
   Serial.println("*C");
+#endif
 }
 
 /*
    BNO055 Init
 */
-void bno055_init() {
+void bno055Init() {
+#ifdef DEBUG
   Serial.println("BNO055 Init");
+#endif
 
-  if (!bno.begin())
+  if (!bno055Obj.begin())
   {
+#ifdef DEBUG
     Serial.println("BNO055 Fail");
+#endif
     while (1);
   }
 
+#ifdef DEBUG
   Serial.println("BNO055 Done");
+#endif
 }
 
 
 /*
    BNO055 Sensor Read
 */
-void bno055_read() {
+void bno055Read() {
   sensors_event_t orientationData , angVelocityData , linearAccelData;
-  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  bno055Obj.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   //bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
   //bno.getEvent(&linearAccelData, Adafruit_BNO055::VECTOR_LINEARACCEL);
 
-  printEvent(&orientationData);
+  bno055Print(&orientationData);
   //printEvent(&angVelocityData);
   //printEvent(&linearAccelData);
 
@@ -225,9 +227,10 @@ void bno055_read() {
 
 
 /*
-   BNO055 Printing
+   BNO055 Print
 */
-void printEvent(sensors_event_t* event) {
+void bno055Print(sensors_event_t* event) {
+#ifdef DEBUG
   Serial.println();
   Serial.print(event->type);
   double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
@@ -258,31 +261,37 @@ void printEvent(sensors_event_t* event) {
   Serial.print(y);
   Serial.print(" | z= ");
   Serial.println(z);
+#endif
 }
 
 
+/*
+   Sensors calibration
+*/
 void calibration() {
+#ifdef DEBUG
   Serial.println("Calibration Start");
-
+#endif
 
   for (int i = 0; i < 100; i++) {
-    max30102_read();
-    NTC_average();
+    max30102Read();
+    NTCAverage();
   }
 
-//  while(beatCount != 5){
-//    max30102_read();
-//  }
-  
-
-
+#ifdef DEBUG
   Serial.println("Calibration End");
-
+#endif
 }
 
+
+/*
+   Initialization
+*/
 void setup()
 {
+#ifdef DEBUG
   Serial.begin(9600);
+#endif
   Serial1.begin(9600);
 
   pinMode(LED_PIN, OUTPUT);
@@ -290,29 +299,33 @@ void setup()
 
   Wire.begin();
 
-  max30102_init();
-  bno055_init();
+  max30102Init();
+  bno055Init();
 
   analogReadResolution(10);
 
   calibration();
 }
 
+
+/*
+   Main loop
+*/
 void loop()
 {
 
-  NTC_average();
-    
-  for(byte i = 0; i < 150; i++)
-    max30102_read();
+  NTCAverage();
 
-  if(Serial1)
+  for (byte i = 0; i < 150; i++)
+    max30102Read();
+
+  if (Serial1)
   {
+    sprintf(sensorsDataString, "b%dt%.1f\n", beatAvg, tmpAvg);
+    Serial1.write((uint8_t*)sensorsDataString, strlen(sensorsDataString));
+#ifdef DEBUG
+    Serial.println(sensorsDataString);
+#endif
 
-    sprintf(outputString, "b%dt%.1f\n", beatAvg, tmpAvg);
-    Serial1.write((uint8_t*)outputString, strlen(outputString));
-    Serial.println(outputString);
-    
   }
-  
 }
