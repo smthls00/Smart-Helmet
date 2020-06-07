@@ -128,7 +128,7 @@ float NTCRead(byte THERMISTOR_PIN) {
   // take N samples in a row, with a slight delay
   for (i = 0; i < NUM_SAMPLES; i++) {
     samples[i] = analogRead(THERMISTOR_PIN);
-    delay(10);
+    //delay(10);
   }
 
   // average all the samples out
@@ -138,26 +138,16 @@ float NTCRead(byte THERMISTOR_PIN) {
   }
   average /= NUM_SAMPLES;
 
-  //Serial.print("Average analog reading ");
-  //Serial.println(average);
-
-  // convert the value to resistance
   average = 1023 / average - 1;
   average = SERIES_RESISTOR / average;
-  //Serial.print("Thermistor resistance ");
-  //Serial.println(average);
 
   float steinhart;
-  steinhart = average / THERMISTOR_NOMINAL;     // (R/Ro)
-  steinhart = log(steinhart);                  // ln(R/Ro)
-  steinhart /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
-  steinhart += 1.0 / (TEMPERATURE_NOMINAL + 273.15); // + (1/To)
-  steinhart = 1.0 / steinhart;                 // Invert
-  steinhart -= 273.15;                         // convert to C
-
-  //Serial.print("Temperature ");
-  //Serial.print(steinhart);
-  //Serial.println(" *C");
+  steinhart = average / THERMISTOR_NOMINAL;           // (R/Ro)
+  steinhart = log(steinhart);                         // ln(R/Ro)
+  steinhart /= B_COEFFICIENT;                         // 1/B * ln(R/Ro)
+  steinhart += 1.0 / (TEMPERATURE_NOMINAL + 273.15);  // + (1/To)
+  steinhart = 1.0 / steinhart;                        // Invert
+  steinhart -= 273.15;                                // convert to C
 
   return steinhart;
 }
@@ -292,6 +282,7 @@ void setup()
 #ifdef DEBUG
   Serial.begin(9600);
 #endif
+
   Serial1.begin(9600);
 
   pinMode(LED_PIN, OUTPUT);
@@ -316,7 +307,7 @@ void loop()
 
   NTCAverage();
 
-  for (byte i = 0; i < 150; i++)
+  for (byte i = 0; i < 200; i++)
     max30102Read();
 
   if (Serial1)

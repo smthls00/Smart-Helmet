@@ -65,7 +65,7 @@ Adafruit_BME680 bme680Obj;
 Adafruit_DRV2605 drv2605lObj;
 MQ2 mq2Obj(MQ2_PIN, false); //instance (true=with serial output enabled
 
-SharpIR SharpIR(SHARPIR_PIN, SHARPIR_MODEL);
+SharpIR sharpIRObj(SHARPIR_PIN, SHARPIR_MODEL);
 
 Adafruit_NeoPixel pixelsObj(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -82,8 +82,8 @@ char esp32DataString[64];
 
 bool teensySerialComplete = false;
 
-uint8_t forwardThreshold = 500;
-uint8_t backwardThreshold = 40;
+uint16_t forwardThreshold = 500;
+uint16_t backwardThreshold = 40;
 
 uint16_t eco2Val;
 uint16_t tvocVal;
@@ -189,25 +189,25 @@ void vl53l0xRead() {
    Sharp IR read
 */
 void sharpIRRead(){
-  int sharpIRDistance = SharpIR.distance();
+  int sharpIRDistanceVal = sharpIRObj.distance();
 
-  if (sharpIRDistance <= 80 && sharpIRDistance > 0) {
+  if (sharpIRDistanceVal <= 80 && sharpIRDistanceVal > 0) {
 
 #ifdef DEBUG
-    Serial.println(sharpIRDistance); //Print the value to the serial monitor
+    Serial.println(sharpIRDistanceVal); //Print the value to the serial monitor
 #endif
 
-    if (sharpIRDistance >= 70) {
+    if (sharpIRDistanceVal >= 70) {
       dangerAlert(BACKWARD_DIRECTION, false);
       liteAlert(BACKWARD_DIRECTION, false);
     }
 
-    else if (sharpIRDistance < 70 && sharpIRDistance > 30) {
+    else if (sharpIRDistanceVal < 70 && sharpIRDistanceVal > 30) {
       dangerAlert(BACKWARD_DIRECTION, false);
       liteAlert(BACKWARD_DIRECTION, true);
     }
 
-    else if (sharpIRDistance <= 30) {
+    else if (sharpIRDistanceVal <= 30) {
       dangerAlert(BACKWARD_DIRECTION, true);
       liteAlert(BACKWARD_DIRECTION, true);
     }
@@ -499,6 +499,9 @@ void slideAlert(int slideDirection) {
   }
 
   delay(1000);
+
+  pixelsObj.clear();
+  pixelsObj.show();
 }
 
 
@@ -510,8 +513,7 @@ void flashlightAlert() {
   pixelsObj.show();
 
   for (int i = 0; i < NUM_PIXELS; i++) {
-    pixelsObj.setPixelColor(i, pixelsObj.Color(0, 0, 100));
-
+    pixelsObj.setPixelColor(i, pixelsObj.Color(10, 10, 10));
     pixelsObj.show();
   }
 
@@ -527,7 +529,7 @@ void flashlightAlert() {
 */
 void BTInputRead() {
   if (SerialBTObj.available()) {
-    char btCommand[16];
+    char BTCommand[16];
     byte k = 0;
     while (SerialBTObj.available()) {
       char inChar = (char)SerialBTObj.read();
@@ -535,15 +537,15 @@ void BTInputRead() {
       if (inChar == '\n') {
         break;
       }
-      btCommand[k++] = inChar;
+      BTCommand[k++] = inChar;
     }
 
 #ifdef DEBUG
-    Serial.print(F("bt_command:"));
-    Serial.println(btCommand);
+    Serial.print(F("BTCommand:"));
+    Serial.println(BTCommand);
 #endif
 
-    switch (btCommand[0]) {
+    switch (BTCommand[0]) {
       case 'l':
         drv2605lAction();
         slideAlert(LEFT_DIRECTION);
@@ -562,7 +564,7 @@ void BTInputRead() {
         BTStopSend = false;
         break;
       case 'f':
-        forwardThreshold = atoi(&btCommand[1]);
+        forwardThreshold = atoi(&BTCommand[1]);
         if (forwardThreshold < 0)
           forwardThreshold = 10;
         else if (forwardThreshold > 1500)
@@ -681,10 +683,6 @@ void setup() {
 #endif
 
   Serial1.begin(9600);
-
-  while (! Serial) {
-    delay(1);
-  }
 
 #ifdef DEBUG
   Serial.println(F("Initialization"));
