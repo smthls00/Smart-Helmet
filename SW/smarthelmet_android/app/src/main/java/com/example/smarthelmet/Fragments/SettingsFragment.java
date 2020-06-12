@@ -109,7 +109,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 Log.d("sendSettingsFragment", newValue.toString());
 
                 if (BTService.getConnectionStatus()) {
-                    commandIntent.putExtra(BTCommandIntent, newValue.toString());
+                    commandIntent.putExtra(BTCommandIntent, newValue.toString() + "\n");
                     LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(commandIntent);
                 } else
                     Toast.makeText(getContext(), R.string.connectFirst, Toast.LENGTH_SHORT).show();
@@ -341,20 +341,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
             try {
 
-                float batteryLvl = Float.parseFloat(message.substring(1));
+                float batteryVoltage = Float.parseFloat(message.substring(1));
 
-                batteryLvl = (float)(batteryLvl / 1023 * 1.1 * 2 * 3.3);
+                batteryVoltage = (float)(batteryVoltage / 1023 * 1.1 * 2 * 3.3);
 
-                Log.d("batteryIntent", "voltage: " + batteryLvl);
-                batteryLvl = (int)(batteryLvl * 100 / 3.8);
+                Log.d("batteryIntent", "voltage: " + batteryVoltage);
+                int batteryPercent = (int)(batteryVoltage * 100 / 3.8);
 
-                Log.d("batteryIntent", "percentage: " + batteryLvl);
+                Log.d("batteryIntent", "percentage: " + batteryPercent);
 
 
-                if(batteryLvl > 100)
-                    batteryLvl = 100;
+                if(batteryPercent > 100)
+                    batteryPercent = 100;
 
-                batteryPreference.setTitle(getResources().getString(R.string.batteryLevel) + " " + (int)batteryLvl);
+                batteryPreference.setTitle(getResources().getString(R.string.batteryLevel) + " " + (int)batteryPercent + " Battery Voltage: " + batteryVoltage);
 
             } catch (Exception e) {
                 Log.d("settingsFragmentBattery", e.toString());

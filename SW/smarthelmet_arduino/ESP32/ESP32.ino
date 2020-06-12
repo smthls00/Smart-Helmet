@@ -33,7 +33,7 @@
 /*
    Defines
 */
-#define DEBUG 1
+//#define DEBUG 1
 
 
 #define FORWARD_DIRECTION 0
@@ -93,6 +93,9 @@ float coVal;
 float smkVal;
 
 long batteryMillis;
+long pixelsColorsMillis;
+
+uint32_t pixelsColors[NUM_PIXELS] = {0};
 
 
 /*
@@ -160,7 +163,7 @@ void vl53l0xRead() {
 
   vl53l0xObj.rangingTest(&vl53l0xData, false); // pass in 'true' to get debug data printout!
 
-  if (vl53l0xData.RangeStatus != 4 && vl53l0xData.RangeMilliMeter < 8191) {  // phase failures have incorrect data
+  if (vl53l0xData.RangeStatus != 4 && vl53l0xData.RangeMilliMeter < 8191 && vl53l0xData.RangeMilliMeter > 0) {  // phase failures have incorrect data
 
 #ifdef DEBUG
     Serial.print(F("Distance (mm): "));
@@ -168,18 +171,18 @@ void vl53l0xRead() {
 #endif
 
     if (vl53l0xData.RangeMilliMeter >= 1000) {
-      dangerAlert(FORWARD_DIRECTION, false);
-      liteAlert(FORWARD_DIRECTION, false);
+      //dangerAlert(FORWARD_DIRECTION);
+      //liteAlert(FORWARD_DIRECTION, false);
     }
 
-    else if (vl53l0xData.RangeMilliMeter < 1000 && vl53l0xData.RangeMilliMeter > 300 ) {
-      dangerAlert(FORWARD_DIRECTION, false);
-      liteAlert(FORWARD_DIRECTION, true);
+    else if (vl53l0xData.RangeMilliMeter < 1000 && vl53l0xData.RangeMilliMeter > 300) {
+      dangerAlert(FORWARD_DIRECTION);
+      //liteAlert(FORWARD_DIRECTION, true);
     }
 
     else if (vl53l0xData.RangeMilliMeter <= 300) {
-      dangerAlert(FORWARD_DIRECTION, true);
-      liteAlert(FORWARD_DIRECTION, true);
+      dangerAlert(FORWARD_DIRECTION);
+      //liteAlert(FORWARD_DIRECTION, true);
     }
   }
 }
@@ -188,28 +191,31 @@ void vl53l0xRead() {
 /*
    Sharp IR read
 */
-void sharpIRRead(){
+void sharpIRRead() {
   int sharpIRDistanceVal = sharpIRObj.distance();
 
-  if (sharpIRDistanceVal <= 80 && sharpIRDistanceVal > 0) {
+  if (sharpIRDistanceVal > 80)
+    sharpIRDistanceVal = 80;
+
+  if (sharpIRDistanceVal > 0) {
 
 #ifdef DEBUG
     Serial.println(sharpIRDistanceVal); //Print the value to the serial monitor
 #endif
 
-    if (sharpIRDistanceVal >= 70) {
-      dangerAlert(BACKWARD_DIRECTION, false);
-      liteAlert(BACKWARD_DIRECTION, false);
+    if (sharpIRDistanceVal >= 50) {
+      //dangerAlert(BACKWARD_DIRECTION, false);
+      //liteAlert(BACKWARD_DIRECTION);
     }
 
-    else if (sharpIRDistanceVal < 70 && sharpIRDistanceVal > 30) {
-      dangerAlert(BACKWARD_DIRECTION, false);
-      liteAlert(BACKWARD_DIRECTION, true);
+    else if (sharpIRDistanceVal < 50 && sharpIRDistanceVal > 30) {
+      //dangerAlert(BACKWARD_DIRECTION, false);
+      liteAlert(BACKWARD_DIRECTION);
     }
 
     else if (sharpIRDistanceVal <= 30) {
-      dangerAlert(BACKWARD_DIRECTION, true);
-      liteAlert(BACKWARD_DIRECTION, true);
+      //dangerAlert(BACKWARD_DIRECTION, true);
+      liteAlert(BACKWARD_DIRECTION);
     }
   }
 }
@@ -245,6 +251,8 @@ void veml6070Read() {
 
   if (ambientLightVal == 0)
     flashlightAlert();
+  else
+    clearPixelsColors();
 }
 
 
@@ -336,7 +344,6 @@ void bme680Read() {
 /*
    MQ-2 Init
 */
-
 void mq2Init() {
   mq2Obj.begin();
 }
@@ -382,6 +389,9 @@ void drv2605lInit() {
   // default, internal trigger when sending GO command
   drv2605lObj.setMode(DRV2605_MODE_INTTRIG);
 
+  drv2605lObj.setWaveform(0, 14);  // play effect
+  drv2605lObj.setWaveform(1, 0);   // end waveform
+
 #ifdef DEBUG
   Serial.println(F("DRV2605L Done"));
 #endif
@@ -392,11 +402,6 @@ void drv2605lInit() {
    DRV2605L Action
 */
 void drv2605lAction() {
-  // set the effect to play
-  drv2605lObj.setWaveform(0, 14);  // play effect
-  drv2605lObj.setWaveform(1, 0);   // end waveform
-
-  // play the effect!
   drv2605lObj.go();
 }
 
@@ -406,72 +411,38 @@ void drv2605lAction() {
 */
 void neopixelsInit() {
   pixelsObj.begin();
-  pixelsObj.clear();
-  pixelsObj.show();
-}
-
-
-/*
-   Init all sensors
-*/
-void sensorsInit() {
-  neopixelsInit();
-  vl53l0xInit();
-  vcnl4040Init();
-  veml6070Init();
-  drv2605lInit();
-  bme680Init();
-  ccs811Init();
-  mq2Init();
-}
-
-
-/*
-   Read all sensors
-*/
-void sensorsRead() {
-  veml6070Read();
-  vl53l0xRead();
-  sharpIRRead();
-  mq2Read();
-  ccs811Read();
-  bme680Read();
 }
 
 
 /*
    Lite distance alert feedback for neopixel
 */
-void liteAlert(int alertDirection, bool setFlag) {
+void liteAlert(int alertDirection) {
   if (alertDirection == BACKWARD_DIRECTION) {
-    pixelsObj.setPixelColor(0, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
-    pixelsObj.setPixelColor(NUM_PIXELS - 1, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
+    pixelsColors[0] = pixelsObj.Color(255, 0, 0);
+    pixelsColors[NUM_PIXELS - 1] = pixelsObj.Color(255, 0, 0);
   }
 
   else if (alertDirection == FORWARD_DIRECTION) {
-    pixelsObj.setPixelColor(2, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
-    pixelsObj.setPixelColor(5, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
+    pixelsColors[2] = pixelsObj.Color(255, 0, 0);
+    pixelsColors[5] = pixelsObj.Color(255, 0, 0);
   }
-
-  pixelsObj.show();
 }
 
 
 /*
    Danger distance alert feedback for neopixel
 */
-void dangerAlert(int alertDirection, bool setFlag) {
+void dangerAlert(int alertDirection) {
   if (alertDirection == BACKWARD_DIRECTION) {
-    pixelsObj.setPixelColor(1, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
-    pixelsObj.setPixelColor(NUM_PIXELS - 2, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
+    pixelsColors[1] = pixelsObj.Color(255, 0, 0);
+    pixelsColors[NUM_PIXELS - 2] = pixelsObj.Color(255, 0, 0);
   }
 
   else if (alertDirection == FORWARD_DIRECTION) {
-    pixelsObj.setPixelColor(3, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
-    pixelsObj.setPixelColor(4, setFlag ? pixelsObj.Color(200, 0, 0) : pixelsObj.Color(0, 0, 0));
+    pixelsColors[3] = pixelsObj.Color(255, 0, 0);
+    pixelsColors[4] = pixelsObj.Color(255, 0, 0);
   }
-
-  pixelsObj.show();
 }
 
 
@@ -480,13 +451,13 @@ void dangerAlert(int alertDirection, bool setFlag) {
 */
 void slideAlert(int slideDirection) {
   pixelsObj.clear();
-  pixelsObj.show();
 
   if (slideDirection == RIGHT_DIRECTION) {
     for (int i = 0; i < NUM_PIXELS; i++) {
       pixelsObj.setPixelColor(i, pixelsObj.Color(0, 200, 0));
       pixelsObj.show();
-      delay(500);
+      delay(250);
+      pixelsObj.setPixelColor(i, pixelsObj.Color(0, 0, 0));
     }
   }
 
@@ -494,14 +465,12 @@ void slideAlert(int slideDirection) {
     for (int i = NUM_PIXELS - 1; i >= 0; i--) {
       pixelsObj.setPixelColor(i, pixelsObj.Color(0, 200, 0));
       pixelsObj.show();
-      delay(500);
+      delay(250);
+      pixelsObj.setPixelColor(i, pixelsObj.Color(0, 0, 0));
     }
   }
 
   delay(1000);
-
-  pixelsObj.clear();
-  pixelsObj.show();
 }
 
 
@@ -509,18 +478,45 @@ void slideAlert(int slideDirection) {
    Flashlight alert feedback from VEML6070 to neopixel
 */
 void flashlightAlert() {
-  pixelsObj.clear();
-  pixelsObj.show();
-
   for (int i = 0; i < NUM_PIXELS; i++) {
-    pixelsObj.setPixelColor(i, pixelsObj.Color(10, 10, 10));
+    pixelsColors[i] = pixelsObj.Color(255, 255, 255);
+  }
+}
+
+
+/*
+   Clear pixel colors array
+*/
+void clearPixelsColors() {
+  for (int i = 0; i < NUM_PIXELS; i++) {
+    pixelsColors[i] = 0;
+  }
+}
+
+
+/*
+   Update pixels array
+*/
+void updatePixelsColors() {
+  for (int i = 0; i < NUM_PIXELS; i++) {
+    if (pixelsColors[i] != pixelsObj.getPixelColor(i)) {
+      pixelsObj.setPixelColor(i, pixelsColors[i]);
+      pixelsObj.show();
+    }
+  }
+}
+
+
+/*
+   Threshold BT Alert
+*/
+void BTThresholdAlert() {
+  for (int i = 0; i < NUM_PIXELS; i++) {
+    pixelsObj.setPixelColor(i, pixelsObj.Color(255, 165, 0));
     pixelsObj.show();
   }
 
-  delay(1000);
-
-  pixelsObj.clear();
-  pixelsObj.show();
+  delay(2000);
 }
 
 
@@ -556,6 +552,7 @@ void BTInputRead() {
         break;
       case 'v':
         drv2605lAction();
+        BTThresholdAlert();
         break;
       case 's':
         BTStopSend = true;
@@ -675,6 +672,50 @@ void BTCallback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
 
 
 /*
+   Calibration
+*/
+void calibration() {
+  for (int i = 0; i < NUM_PIXELS; i++) {
+    sensorsRead();
+    pixelsObj.setPixelColor(i, pixelsObj.Color(0, 255, 0));
+    pixelsObj.show();
+  }
+
+  pixelsObj.clear();
+  pixelsObj.show();
+}
+
+
+/*
+   Init all sensors
+*/
+void sensorsInit() {
+  vl53l0xInit();
+  vcnl4040Init();
+  veml6070Init();
+  drv2605lInit();
+  bme680Init();
+  ccs811Init();
+  mq2Init();
+  neopixelsInit();
+}
+
+
+/*
+   Read all sensors
+*/
+void sensorsRead() {
+  veml6070Read();
+  vl53l0xRead();
+  sharpIRRead();
+  mq2Read();
+  ccs811Read();
+  bme680Read();
+  //updatePixelsColors();
+}
+
+
+/*
    Initialization
 */
 void setup() {
@@ -692,13 +733,11 @@ void setup() {
 
   sensorsInit();
 
+  calibration();
+
   SerialBTObj.begin("ESP32_SmartHelmet");
 
   SerialBTObj.register_callback(BTCallback);
-
-  //Calibration
-  for (int i = 0; i < 10; i++)
-    sensorsRead();
 }
 
 

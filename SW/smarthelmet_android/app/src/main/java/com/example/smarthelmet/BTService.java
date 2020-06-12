@@ -56,6 +56,14 @@ public class BTService extends Service {
     boolean logFlag;
     boolean thresholdNotificationFlag;
 
+    long envTime;
+    long usrTime;
+    long lastEnvTime;
+    long lastUsrTime;
+    int envCounter;
+    int usrCounter;
+    float envAverageTime;
+    float usrAverageTime;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -238,7 +246,7 @@ public class BTService extends Service {
             if (message == null)
                 return;
 
-            writeBTMessage(message + '\n');
+            writeBTMessage(message);
         }
     };
 
@@ -669,12 +677,21 @@ public class BTService extends Service {
                             sb.append(String.format("%02X ", mmBuffer[i]));
                         }
 
-                        Log.d(TAG, "dataHex = " + sb + ", length = " + numBytes);
+                        //Log.d(TAG, "dataHex = " + sb + ", length = " + numBytes);
 
                         // Send the obtained bytes to the UI activity.
                         String dataRx = new String(mmBuffer, 0, numBytes);
 
-                        Log.d(TAG, "DataRx = " + dataRx);
+                        //Log.d(TAG, "DataRx = " + dataRx);
+
+                        if(usrCounter == 10){
+                            Log.d(TAG, "TIMEDELTAUSR = " + usrAverageTime / 10);
+                        }
+
+                        if(envCounter == 10){
+                            Log.d(TAG, "TIMEDELTAENV = " + envAverageTime / 10);
+                        }
+
 
                         if (logFlag) {
                             Log.d(TAG, "logFlag = " + logFlag);
@@ -690,10 +707,28 @@ public class BTService extends Service {
                             broadcastIntent(BTEnvIntent, dataRx);
 
                             Log.d(TAG, "envData = " + dataRx);
+
+                            envCounter++;
+
+                            if(lastEnvTime != 0){
+                                envTime = (int)((System.nanoTime() - lastEnvTime) / 1000000);
+                                envAverageTime += envTime;
+                            }
+
+                            lastEnvTime = System.nanoTime();
                         } else if (dataRx.charAt(0) == bpmCommand.charAt(0)) {
                             broadcastIntent(BTUserIntent, dataRx);
 
                             Log.d(TAG, "userData = " + dataRx);
+
+                            usrCounter++;
+
+                            if(lastUsrTime != 0){
+                                usrTime = (int)((System.nanoTime() - lastUsrTime) / 1000000);
+                                usrAverageTime += usrTime;
+                            }
+
+                            lastUsrTime = System.nanoTime();
                         }
 
                     }

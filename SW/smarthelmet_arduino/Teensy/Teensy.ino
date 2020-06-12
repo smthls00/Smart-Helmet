@@ -21,7 +21,7 @@
 /*
    Defines
 */
-#define DEBUG 1
+//#define DEBUG 1
 
 //NTC calculations defines
 #define THERMISTOR_FOREHEAD A0
@@ -290,10 +290,10 @@ void setup()
 
   Wire.begin();
 
+  analogReadResolution(10);
+
   max30102Init();
   bno055Init();
-
-  analogReadResolution(10);
 
   calibration();
 }
@@ -307,7 +307,7 @@ void loop()
 
   NTCAverage();
 
-  for (byte i = 0; i < 200; i++)
+  for (byte i = 0; i < 150; i++)
     max30102Read();
 
   if (Serial1)
