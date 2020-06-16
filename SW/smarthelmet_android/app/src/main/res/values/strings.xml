@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmartHelmet</string>
+    <string name="app_name">HeadgearX</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="temperature">Temperature (°C)</string>

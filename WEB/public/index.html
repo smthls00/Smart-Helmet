@@ -1,65 +1,243 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/7.15.0/firebase-app.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/7.15.0/firebase-auth.js"></script>
-    <script defer src="/__/firebase/7.15.0/firebase-database.js"></script>
-    <script defer src="/__/firebase/7.15.0/firebase-messaging.js"></script>
-    <script defer src="/__/firebase/7.15.0/firebase-storage.js"></script>
-    <!-- initialize the SDK after all desired features are loaded -->
-    <script defer src="/__/firebase/init.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <!-- <title>Welcome to Firebase Hosting</title> -->
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+  <!-- update the version number as needed -->
+  <script src="/__/firebase/7.15.0/firebase-app.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script src="/__/firebase/7.15.0/firebase-auth.js"></script>
+  <script src="/__/firebase/7.15.0/firebase-database.js"></script>
+  <!-- initialize the SDK after all desired features are loaded -->
+  <script src="/__/firebase/init.js"></script>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-
-        try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-          document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
-        }
+  <!-- <script>
+    var dps = []; // dataPoints
+    var chart = new CanvasJS.Chart("chartContainer", {
+        title: {
+          text: "Dynamic Data"
+        },
+        axisY: {
+          includeZero: false
+        },
+        data: [{
+          type: "line",
+          dataPoints: dps
+        }]
       });
-    </script>
-  </body>
+
+
+      var x = document.getElementById("chartContainer");
+      x.style.display = "none";
+  </script> -->
+
+  <style media="screen">
+    body {
+      background: white;
+      color: rgba(0, 0, 0, 0.87);
+      font-family: Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #message {
+      background: white;
+      max-width: 360px;
+      margin: 100px auto 16px;
+      padding: 32px 24px;
+      border-radius: 3px;
+    }
+
+    #message h2 {
+      color: #ffa100;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    #message h1 {
+      font-size: 22px;
+      font-weight: 300;
+      color: rgba(0, 0, 0, 0.6);
+      margin: 0 0 16px;
+    }
+
+    #message p {
+      line-height: 140%;
+      margin: 16px 0 24px;
+      font-size: 14px;
+    }
+
+    #message a {
+      display: block;
+      text-align: center;
+      background: #039be5;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: white;
+      padding: 16px;
+      border-radius: 4px;
+    }
+
+    #message,
+    #message a {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    #load {
+      color: rgba(0, 0, 0, 0.4);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+
+      body,
+      #message {
+        margin-top: 0;
+        background: white;
+        box-shadow: none;
+      }
+
+      body {
+        border-top: 16px solid #ffa100;
+      }
+    }
+  </style>
+</head>
+
+<body style="background-color:white;">
+  <div class="w3-container">
+    <h2 id="header">Workers</h2>
+
+    <ul class="w3-ul w3-card-4">
+      <li id="myElement0" class="w3-bar w3-button">
+        <img src="avatar.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+        <div class="w3-bar-item">
+          <span class="w3-large">Bruce</span><br>
+          <span>Manager</span>
+        </div>
+      </li>
+
+      <li id="myElement1" class="w3-bar w3-button">
+        <img src="avatar.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+        <div class="w3-bar-item">
+          <span class="w3-large">Peter</span><br>
+          <span>Worker</span>
+        </div>
+      </li>
+
+      <li id="myElement2" class="w3-bar w3-button">
+        <img src="avatar.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+        <div class="w3-bar-item">
+          <span class="w3-large">Clark</span><br>
+          <span>Worker</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="chartContainer" style="height: 370px; width:100%;"></div>
+
+
+  <script>
+
+    var dps = []; // dataPoints
+
+    document.getElementById("myElement0").addEventListener("click", function () {
+      clicked = true;
+      // alert("Hello World!");
+      var x = document.getElementById("myElement0");
+      x.style.display = "none";
+      x = document.getElementById("myElement1");
+      x.style.display = "none";
+      x = document.getElementById("myElement2");
+      x.style.display = "none";
+      x = document.getElementById("header");
+      x.innerText = "Bruce";
+
+      startWorking();
+    });
+
+
+    var startWorking = function () {
+
+      var yVal;
+      var ref = firebase.database().ref("User");
+      ref.on("value", function (snapshot) {
+        var str = snapshot.val();
+        console.log(str);
+
+        yVal = parseFloat(str.substring(1, str.indexOf('t')));
+
+        console.log("value " + yVal);
+
+      }, function (error) {
+        console.log("Error: " + error.code);
+      });
+
+      var dps = []; // dataPoints
+      var chart = new CanvasJS.Chart("chartContainer", {
+        title: {
+          text: "Beats Per Minute"
+        },
+        axisX: {
+          title: "",
+          tickLength: 0,
+          lineThickness: 0,
+          margin: 0,
+          valueFormatString: " " //comment this to show numeric values
+        },
+
+        axisY: {
+          minimum: 0,
+          maximum: 180,
+          includeZero: false
+        },
+        data: [{
+          markerType: "none",
+          lineColor: "red",
+          type: "line",
+          lineThickness: 7,
+          dataPoints: dps
+        }]
+      });
+
+
+      var xVal = 0.0;
+      var updateInterval = 1000;
+      var dataLength = 10; // number of dataPoints visible at any point
+
+      var updateChart = function (count) {
+
+        count = count || 1;
+
+        for (var j = 0; j < count; j++) {
+          dps.push({
+            x: xVal,
+            y: yVal
+          });
+          xVal+=0.5;
+        }
+
+        if (dps.length > dataLength) {
+          dps.shift();
+        }
+
+        chart.render();
+      };
+
+      updateChart(dataLength);
+      setInterval(function () { updateChart() }, updateInterval);
+    }
+
+  </script>
+
+
+</body>
+
 </html>

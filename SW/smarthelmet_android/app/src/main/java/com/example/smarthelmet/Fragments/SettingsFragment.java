@@ -26,6 +26,7 @@ import com.example.smarthelmet.R;
 import com.jjoe64.graphview.series.DataPoint;
 
 import java.io.File;
+import java.text.DecimalFormat;
 
 import static com.example.smarthelmet.Constants.*;
 
@@ -354,7 +355,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if(batteryPercent > 100)
                     batteryPercent = 100;
 
-                batteryPreference.setTitle(getResources().getString(R.string.batteryLevel) + " " + (int)batteryPercent + " Battery Voltage: " + batteryVoltage);
+                batteryPreference.setTitle(getResources().getString(R.string.batteryLevel) + " " + (int)batteryPercent + "\nBattery Voltage: " + new DecimalFormat("##.#").format(batteryVoltage));
 
             } catch (Exception e) {
                 Log.d("settingsFragmentBattery", e.toString());

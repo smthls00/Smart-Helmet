@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.smarthelmet.BTService;
 import com.example.smarthelmet.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Random;
 
 import static com.example.smarthelmet.Constants.BTOff;
 import static com.example.smarthelmet.Constants.BTOn;
@@ -43,7 +48,9 @@ public class ConnectFragment extends Fragment {
     Intent connectFragmentIntent;
     static BluetoothAdapter bluetoothAdapter;
 
-
+//    Handler handler;
+//    FirebaseDatabase database;
+//    DatabaseReference databaseReference;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +94,14 @@ public class ConnectFragment extends Fragment {
 //                    .show();
 //        }
 
+
+//        database = FirebaseDatabase.getInstance();
+//        handler = new Handler();
+//
+//// Start the initial runnable task by posting through the handler
+//        handler.post(runnableCode);
+
+
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(btScanReceiver,
                 new IntentFilter(BTScanIntent));
 
@@ -94,6 +109,17 @@ public class ConnectFragment extends Fragment {
                 new IntentFilter(BTStateIntent));
     }
 
+
+//    // Define the code block to be executed
+//    private Runnable runnableCode = new Runnable() {
+//        @Override
+//        public void run() {
+//            databaseReference = database.getReference("User");
+//            int random = new Random().nextInt(100);
+//            databaseReference.setValue("b" + random + "t31.0");
+//            handler.postDelayed(this, 500);
+//        }
+//    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

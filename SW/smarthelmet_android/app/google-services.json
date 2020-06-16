@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "542722772089",
+    "firebase_url": "https://smarthelmet-245c1.firebaseio.com",
+    "project_id": "smarthelmet-245c1",
+    "storage_bucket": "smarthelmet-245c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542722772089:android:012e70482c38f49c0e58a8",
+        "android_client_info": {
+          "package_name": "com.example.smarthelmet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "542722772089-jcm79c74ep1rsr7a9m89360jpfhv9oe9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD6VcERBuE7_8Nb30PIpDukzgM2PTpOs0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542722772089-jcm79c74ep1rsr7a9m89360jpfhv9oe9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

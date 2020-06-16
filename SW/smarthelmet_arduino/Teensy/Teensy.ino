@@ -2,7 +2,7 @@
    Smart helmet code for Teensy 4.0
 
 
-   Sensors: MAX30102б, 2x NTC
+   Sensors: MAX30102, 2x NTC
 
 
    Author: Anar Aliyev

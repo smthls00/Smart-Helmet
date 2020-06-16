@@ -21,6 +21,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -56,15 +59,17 @@ public class BTService extends Service {
     boolean logFlag;
     boolean thresholdNotificationFlag;
 
-    long envTime;
-    long usrTime;
-    long lastEnvTime;
-    long lastUsrTime;
-    int envCounter;
-    int usrCounter;
-    float envAverageTime;
-    float usrAverageTime;
+//    long envTime;
+//    long usrTime;
+//    long lastEnvTime;
+//    long lastUsrTime;
+//    int envCounter;
+//    int usrCounter;
+//    float envAverageTime;
+//    float usrAverageTime;
 
+    FirebaseDatabase database;
+    DatabaseReference databaseReference;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -90,6 +95,8 @@ public class BTService extends Service {
         scannerHandler = new Handler();
 
         isConnected = false;
+
+        database = FirebaseDatabase.getInstance();
 
         lastWarningMessage = "someText";
 
@@ -684,13 +691,13 @@ public class BTService extends Service {
 
                         //Log.d(TAG, "DataRx = " + dataRx);
 
-                        if(usrCounter == 10){
-                            Log.d(TAG, "TIMEDELTAUSR = " + usrAverageTime / 10);
-                        }
-
-                        if(envCounter == 10){
-                            Log.d(TAG, "TIMEDELTAENV = " + envAverageTime / 10);
-                        }
+//                        if(usrCounter == 10){
+//                            Log.d(TAG, "TIMEDELTAUSR = " + usrAverageTime / 10);
+//                        }
+//
+//                        if(envCounter == 10){
+//                            Log.d(TAG, "TIMEDELTAENV = " + envAverageTime / 10);
+//                        }
 
 
                         if (logFlag) {
@@ -708,27 +715,33 @@ public class BTService extends Service {
 
                             Log.d(TAG, "envData = " + dataRx);
 
-                            envCounter++;
+                            databaseReference = database.getReference("Environment");
+                            databaseReference.setValue(dataRx);
 
-                            if(lastEnvTime != 0){
-                                envTime = (int)((System.nanoTime() - lastEnvTime) / 1000000);
-                                envAverageTime += envTime;
-                            }
-
-                            lastEnvTime = System.nanoTime();
+//                            envCounter++;
+//
+//                            if(lastEnvTime != 0){
+//                                envTime = (int)((System.nanoTime() - lastEnvTime) / 1000000);
+//                                envAverageTime += envTime;
+//                            }
+//
+//                            lastEnvTime = System.nanoTime();
                         } else if (dataRx.charAt(0) == bpmCommand.charAt(0)) {
                             broadcastIntent(BTUserIntent, dataRx);
 
                             Log.d(TAG, "userData = " + dataRx);
 
-                            usrCounter++;
+                            databaseReference = database.getReference("User");
+                            databaseReference.setValue(dataRx);
 
-                            if(lastUsrTime != 0){
-                                usrTime = (int)((System.nanoTime() - lastUsrTime) / 1000000);
-                                usrAverageTime += usrTime;
-                            }
-
-                            lastUsrTime = System.nanoTime();
+//                            usrCounter++;
+//
+//                            if(lastUsrTime != 0){
+//                                usrTime = (int)((System.nanoTime() - lastUsrTime) / 1000000);
+//                                usrAverageTime += usrTime;
+//                            }
+//
+//                            lastUsrTime = System.nanoTime();
                         }
 
                     }
