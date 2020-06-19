@@ -21,6 +21,8 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 char teensyDataString[16];
 bool teensySerialComplete = false;
 
+bool flashlightFlag = false;
+
 //Static Patterns
 
 //A
@@ -172,19 +174,19 @@ uint32_t offLimitsPatternDynamic[DLEN][NUMPIXELS] = {
 
 //R
 uint32_t unreadMessagePatternDynamic[DLEN][NUMPIXELS] = {
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
 
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
-  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0}
 };
 
@@ -363,21 +365,32 @@ void getSerialCommand() {
         patternTmp.pace = 200;
         patternTmp.patternPtr = *unreadMessagePatternDynamic;
         break;
+
+      case 'Z':
+        flashlightFlag = !flashlightFlag;
     }
 
     int arrayBound = patternTmp.len * NUMPIXELS;
-    
+
     for (int i = 0; i < arrayBound; i += 8) {
+      
       for (int j = 0; j < NUMPIXELS; j++) {
-        pixels.setPixelColor(i, *(patternTmp.patternPtr + j + i));
+        uint32_t currentColor = *(patternTmp.patternPtr + j + i);
+        if(currentColor == 0){
+            if(flashlightFlag){
+              currentColor = pixels.Color(255, 255, 255);
+            }
+        }
+        
+        pixels.setPixelColor(i, currentColor);
       }
 
       pixels.show();
       delay(patternTmp.pace);
     }
 
-      pixels.clear();
-      pixels.show();
+    pixels.clear();
+    pixels.show();
   }
 
 }
