@@ -7,6 +7,12 @@
 #define RED pixels.Color(255, 0, 0)
 #define GREEN pixels.Color(0, 255, 0)
 #define BLUE pixels.Color(0, 0, 255)
+#define ORANGE pixels.Color(255, 165, 0)
+
+#define SLEN 1
+#define DLEN 12
+
+#define PACE 250
 
 
 Adafruit_VCNL4040 vcnl4040 = Adafruit_VCNL4040();
@@ -16,63 +22,179 @@ char teensyDataString[16];
 bool teensySerialComplete = false;
 
 //Static Patterns
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{RED, 0, 0, 0, 0, 0, 0, 0}};
-} farLeftPatternStatic;
 
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{RED, RED, 0, 0, 0, 0, 0, 0}};
-} nearLeftPatternStatic;
+//A
+uint32_t farLeftPatternStatic[SLEN][NUMPIXELS] = {{RED, 0, 0, 0, 0, 0, 0, 0}};
 
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{RED, 0, 0, 0, 0, 0, 0, 0}};
-} farLeftPatternStatic;
+//B
+uint32_t nearLeftPatternStatic[SLEN][NUMPIXELS] = {{RED, RED, 0, 0, 0, 0, 0, 0}};
 
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{RED, RED, 0, 0, 0, 0, 0, 0}};
-} nearLeftPatternStatic;
-
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{0, 0, 0, RED, RED, 0, 0, 0}};
-} farHeadUpPatternStatic;
+//C
+uint32_t farRightPatternStatic[SLEN][NUMPIXELS] = {{0, 0, 0, 0, 0, 0, 0, RED}};
 
 
-struct {
-  int len = 1;
-  uint32_t Colors[1][NUMPIXELS] = {{RED, 0, 0, 0, 0, 0, 0, RED}};
-} backPatternStatic;
+//D
+uint32_t nearRightPatternStatic[SLEN][NUMPIXELS] = {{0, 0, 0, 0, 0, 0, RED, RED}};
+
+
+//E
+uint32_t farHeadUpPatternStatic[SLEN][NUMPIXELS] = {{0, 0, 0, RED, RED, 0, 0, 0}};
+
+
+//F
+uint32_t nearHeadUpPatternStatic[SLEN][NUMPIXELS] = {{0, 0, RED, RED, RED, RED, 0, 0}};
+
+
+//G
+uint32_t farBackPatternStatic[SLEN][NUMPIXELS] = {{RED, 0, 0, 0, 0, 0, 0, RED}};
+
+
+//H
+uint32_t nearBackPatternStatic[SLEN][NUMPIXELS] = {{RED, RED, 0, 0, 0, 0, RED, RED}};
 
 
 
 //Dynamic Patterns
-struct {
-  int len = 4;
-  int pace = 150;
-  uint32_t Colors[4][NUMPIXELS] = {
-    {0, 0, 0, RED, 0, 0, 0, 0},
-    {0, 0, RED, 0, 0, 0, 0, 0},
-    {0, RED, 0, 0, 0, 0, 0, 0},
-    {RED, 0, 0, 0, 0, 0, 0, 0}
-  };
-} goLeftPatternDynamic;
+
+//K
+uint32_t goLeftPatternDynamic[DLEN][NUMPIXELS] = {
+  {0, 0, 0, GREEN, 0, 0, 0, 0},
+  {0, 0, GREEN, 0, 0, 0, 0, 0},
+  {0, GREEN, 0, 0, 0, 0, 0, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, 0},
+
+  {0, 0, 0, GREEN, 0, 0, 0, 0},
+  {0, 0, GREEN, 0, 0, 0, 0, 0},
+  {0, GREEN, 0, 0, 0, 0, 0, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, 0},
+
+  {0, 0, 0, GREEN, 0, 0, 0, 0},
+  {0, 0, GREEN, 0, 0, 0, 0, 0},
+  {0, GREEN, 0, 0, 0, 0, 0, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, 0}
+};
+
+
+//L
+uint32_t goRightPatternDynamic[DLEN][NUMPIXELS] = {
+  {0, 0, 0, 0, GREEN, 0, 0, 0},
+  {0, 0, 0, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, 0, 0, 0, 0, 0, GREEN},
+
+  {0, 0, 0, 0, GREEN, 0, 0, 0},
+  {0, 0, 0, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, 0, 0, 0, 0, 0, GREEN},
+
+  {0, 0, 0, 0, GREEN, 0, 0, 0},
+  {0, 0, 0, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, 0, 0, 0, 0, 0, GREEN}
+};
+
+
+//M
+uint32_t goAheadPatternDynamic[DLEN][NUMPIXELS] = {
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0},
+
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0},
+
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0}
+};
+
+
+//N
+uint32_t goBackPatternDynamic[DLEN][NUMPIXELS] = {
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0},
+
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0},
+
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0}
+};
+
+
+//O
+uint32_t gasPatternDynamic[DLEN][NUMPIXELS] = {
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
+  {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+
+//P
+uint32_t offLimitsPatternDynamic[DLEN][NUMPIXELS] = {
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {RED, RED, RED, RED, RED, RED, RED, RED},
+  {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+
+//R
+uint32_t unreadMessagePatternDynamic[DLEN][NUMPIXELS] = {
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE},
+  {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+
 
 struct {
-  int len = 4;
-  int pace = 150;
-  uint32_t Colors[4][NUMPIXELS] = {
-    {0, 0, 0, 0, RED, 0, 0, 0},
-    {0, 0, 0, 0, 0, RED, 0, 0},
-    {0, 0, 0, 0, 0, 0, RED, 0},
-    {0, 0, 0, 0, 0, 0, 0, RED}
-  };
-} goRightPatternDynamic;
-
-
+  int len;
+  int pace;
+  uint32_t *patternPtr;
+} patternTmp;
 
 /*
    Read incoming data from Teensy
@@ -159,6 +281,107 @@ void vcnl4040Init() {
   Serial.println(vcnl4040.getProximityHighResolution() ? "True" : "False");
 }
 
+void getSerialCommand() {
+
+  if (Serial.available() > 0) {
+
+    char inChar = Serial.read();
+
+    switch (inChar) {
+      case 'A':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *farLeftPatternStatic;
+        break;
+      case 'B':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *nearLeftPatternStatic;
+        break;
+      case 'C':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *farRightPatternStatic;
+        break;
+      case 'D':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *nearRightPatternStatic;
+        break;
+      case 'E':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *farHeadUpPatternStatic;
+        break;
+      case 'F':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *nearHeadUpPatternStatic;
+        break;
+      case 'G':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *farBackPatternStatic;
+        break;
+      case 'H':
+        patternTmp.len = SLEN;
+        patternTmp.pace = 1000;
+        patternTmp.patternPtr = *nearBackPatternStatic;
+        break;
+      case 'K':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *goLeftPatternDynamic;
+        break;
+      case 'L':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *goRightPatternDynamic;
+        break;
+      case 'M':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *goAheadPatternDynamic;
+        break;
+      case 'N':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *goBackPatternDynamic;
+        break;
+      case 'O':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *gasPatternDynamic;
+        break;
+      case 'P':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *offLimitsPatternDynamic;
+        break;
+      case 'R':
+        patternTmp.len = DLEN;
+        patternTmp.pace = 200;
+        patternTmp.patternPtr = *unreadMessagePatternDynamic;
+        break;
+    }
+
+    int arrayBound = patternTmp.len * NUMPIXELS;
+    
+    for (int i = 0; i < arrayBound; i += 8) {
+      for (int j = 0; j < NUMPIXELS; j++) {
+        pixels.setPixelColor(i, *(patternTmp.patternPtr + j + i));
+      }
+
+      pixels.show();
+      delay(patternTmp.pace);
+    }
+
+      pixels.clear();
+      pixels.show();
+  }
+
+}
+
 void setup() {
   Serial.begin(115200);
   Serial1.begin(9600);
@@ -172,20 +395,7 @@ void setup() {
 }
 
 void loop() {
-  int prox = vcnl4040.getProximity();
-  Serial.print("Proximity:"); Serial.println(prox);
-
-  if (prox >= 4) {
-    for (int i = 0; i < NUMPIXELS; i++) {
-      pixels.setPixelColor(i, pixels.Color(0, 150, 0));
-    }
-  } else
-    pixels.clear();
-
-  pixels.show();
-  delay(500);
-
-
+  getSerialCommand();
   teensySerialEvent();
   teensyPrint();
 }
