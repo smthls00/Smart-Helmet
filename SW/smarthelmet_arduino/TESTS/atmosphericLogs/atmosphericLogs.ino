@@ -87,6 +87,10 @@ void sdInit() {
     Serial.println("SD card Initialization failed!");
     while (1);
   }
+
+
+  //remove file
+  //SD.remove(filename);
 }
 
 void ccs811Init() {
@@ -146,7 +150,9 @@ void appendLogs() {
       }
     }
     else {
-      Serial.println("doesn't exist");
+      Serial.println("doesn't exist, let's create");
+      myFile = SD.open(filename, FILE_WRITE);
+      myFile.close();
     }
   }
 }
