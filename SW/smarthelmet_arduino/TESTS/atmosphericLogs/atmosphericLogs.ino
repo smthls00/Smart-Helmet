@@ -90,7 +90,8 @@ void sdInit() {
 
 
   //remove file
-  //SD.remove(filename);
+//  SD.remove(filename);
+//  while(1);
 }
 
 void ccs811Init() {
