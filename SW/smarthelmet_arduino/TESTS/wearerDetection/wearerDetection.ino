@@ -15,6 +15,9 @@
 
 #define PACE 250
 
+TaskHandle_t teensyHandle ;
+TaskHandle_t serialHandle;
+
 
 Adafruit_VCNL4040 vcnl4040 = Adafruit_VCNL4040();
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -175,16 +178,27 @@ struct {
 /*
    Read incoming data from Teensy
 */
-void teensySerialEvent() {
-  byte k = 0;
-  while (Serial1.available()) {
-    char inChar = (char)Serial1.read();
+void teensySerialEvent(void *pvParameters) {
+  while (1) {
+    byte k = 0;
+    while (Serial1.available()) {
+      char inChar = (char)Serial1.read();
 
-    if (inChar == '\n') {
-      teensySerialComplete = true;
-      break;
+      if (inChar == '\n') {
+        teensySerialComplete = true;
+        break;
+      }
+      teensyDataString[k++] = inChar;
     }
-    teensyDataString[k++] = inChar;
+
+    if (teensySerialComplete) {
+      Serial.println(String(vcnl4040.getProximity()) + ", " + String(teensyDataString));
+
+      memset(teensyDataString, 0, sizeof(char));
+      teensySerialComplete = false;
+    }
+    
+    delay(10);
   }
 }
 
@@ -197,6 +211,142 @@ void teensyPrint() {
 
     memset(teensyDataString, 0, sizeof(char));
     teensySerialComplete = false;
+  }
+}
+
+void getSerialCommand(void *pvParameters) {
+  while (1) {
+
+    if (Serial.available() > 0) {
+
+      char inChar = Serial.read();
+
+      switch (inChar) {
+        case 'A':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *farLeftPatternStatic;
+          break;
+        case 'B':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *nearLeftPatternStatic;
+          break;
+        case 'C':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *farRightPatternStatic;
+          break;
+        case 'D':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *nearRightPatternStatic;
+          break;
+        case 'E':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *farHeadUpPatternStatic;
+          break;
+        case 'F':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *nearHeadUpPatternStatic;
+          break;
+        case 'G':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *farBackPatternStatic;
+          break;
+        case 'H':
+          patternTmp.len = SLEN;
+          patternTmp.pace = 1000;
+          patternTmp.patternPtr = *nearBackPatternStatic;
+          break;
+        case 'K':
+          patternTmp.len = DLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *goLeftPatternDynamic;
+          break;
+        case 'L':
+          patternTmp.len = DLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *goRightPatternDynamic;
+          break;
+        case 'M':
+          patternTmp.len = DLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *goAheadPatternDynamic;
+          break;
+        case 'N':
+          patternTmp.len = DLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *goBackPatternDynamic;
+          break;
+        case 'O':
+          patternTmp.len = MLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *gasPatternDynamic;
+          break;
+        case 'P':
+          patternTmp.len = MLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *offLimitsPatternDynamic;
+          break;
+        case 'R':
+          patternTmp.len = MLEN;
+          patternTmp.pace = 250;
+          patternTmp.patternPtr = *unreadMessagePatternDynamic;
+          break;
+
+        case 'Z':
+          flashlightFlag = !flashlightFlag;
+          break;
+
+        default:
+          inChar = '0';
+      }
+
+      if (inChar != '0') {
+
+        Serial.println("char is " + String(inChar));
+
+        int arrayBound = patternTmp.len * NUMPIXELS;
+
+        if (inChar != 'Z') {
+          for (int i = 0; i < arrayBound; i += 8) {
+
+            for (int j = 0; j < NUMPIXELS; j++) {
+              uint32_t currentColor = *(patternTmp.patternPtr + j + i);
+
+              if (currentColor == 0) {
+                if (flashlightFlag) {
+                  currentColor = pixels.Color(255, 255, 255);
+                }
+              }
+
+              pixels.setPixelColor(j, currentColor);
+            }
+
+            pixels.show();
+            delay(patternTmp.pace);
+          }
+        }
+
+        if (flashlightFlag) {
+          int flashlightColor = pixels.Color(255, 255, 255);
+          for (int i = 0; i < NUMPIXELS; i++) {
+
+            pixels.setPixelColor(i, flashlightColor);
+          }
+        } else
+          pixels.clear();
+
+        delay(10);
+        pixels.show();
+      }
+    }
+
+    delay(10);
   }
 }
 
@@ -257,130 +407,6 @@ void vcnl4040Init() {
   Serial.println(vcnl4040.getProximityHighResolution() ? "True" : "False");
 }
 
-void getSerialCommand() {
-
-  if (Serial.available() > 0) {
-
-    char inChar = Serial.read();
-
-    switch (inChar) {
-      case 'A':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *farLeftPatternStatic;
-        break;
-      case 'B':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *nearLeftPatternStatic;
-        break;
-      case 'C':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *farRightPatternStatic;
-        break;
-      case 'D':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *nearRightPatternStatic;
-        break;
-      case 'E':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *farHeadUpPatternStatic;
-        break;
-      case 'F':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *nearHeadUpPatternStatic;
-        break;
-      case 'G':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *farBackPatternStatic;
-        break;
-      case 'H':
-        patternTmp.len = SLEN;
-        patternTmp.pace = 1000;
-        patternTmp.patternPtr = *nearBackPatternStatic;
-        break;
-      case 'K':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *goLeftPatternDynamic;
-        break;
-      case 'L':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *goRightPatternDynamic;
-        break;
-      case 'M':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *goAheadPatternDynamic;
-        break;
-      case 'N':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *goBackPatternDynamic;
-        break;
-      case 'O':
-        patternTmp.len = MLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *gasPatternDynamic;
-        break;
-      case 'P':
-        patternTmp.len = MLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *offLimitsPatternDynamic;
-        break;
-      case 'R':
-        patternTmp.len = MLEN;
-        patternTmp.pace = 250;
-        patternTmp.patternPtr = *unreadMessagePatternDynamic;
-        break;
-
-      case 'Z':
-        flashlightFlag = !flashlightFlag;
-        break;
-
-      default:
-        return;
-    }
-
-    Serial.println("char is " + String(inChar));
-
-    int arrayBound = patternTmp.len * NUMPIXELS;
-
-    for (int i = 0; i < arrayBound; i += 8) {
-      
-      for (int j = 0; j < NUMPIXELS; j++) {
-        uint32_t currentColor = *(patternTmp.patternPtr + j + i);
-        
-//        if(currentColor == 0){
-//            if(flashlightFlag){
-//              currentColor = pixels.Color(255, 255, 255);
-//            }
-//        }
-        
-        pixels.setPixelColor(j, currentColor);
-      }
-
-      pixels.show();
-      delay(patternTmp.pace);
-    }
-
-//    if(flashlightFlag){
-//      
-//      
-//    }
-
-    pixels.clear();
-    pixels.show();
-  }
-
-}
-
 void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
@@ -391,10 +417,29 @@ void setup() {
 
   vcnl4040Init();
   pixels.begin();
+
+
+  xTaskCreatePinnedToCore(
+    getSerialCommand,    // Task function
+    "getSerialCommand",       // A name just for humans
+    10000,          // This stack size can be checked & adjusted by reading the Stack Highwater
+    NULL,           // Parameter of the task
+    1,              // Priority
+    &serialHandle,        // Task handle to keep the track of the created task
+    0);             // Pink task to core 0
+
+  xTaskCreatePinnedToCore(
+    teensySerialEvent,
+    "teensySerialEvent",
+    10000,
+    NULL,
+    1,
+    &teensyHandle,
+    1);
 }
 
 void loop() {
-  getSerialCommand();
-//  teensySerialEvent();
-//  teensyPrint();
+  //  getSerialCommand();
+  //  teensySerialEvent();
+  //  teensyPrint();
 }
