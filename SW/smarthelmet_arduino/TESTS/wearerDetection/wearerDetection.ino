@@ -10,6 +10,7 @@
 #define ORANGE pixels.Color(255, 165, 0)
 
 #define SLEN 1
+#define MLEN 5
 #define DLEN 12
 
 #define PACE 250
@@ -117,77 +118,50 @@ uint32_t goAheadPatternDynamic[DLEN][NUMPIXELS] = {
 
 //N
 uint32_t goBackPatternDynamic[DLEN][NUMPIXELS] = {
-  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
-  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
-  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
   {0, 0, 0, GREEN, GREEN, 0, 0, 0},
-
-  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
-  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
   {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+
   {0, 0, 0, GREEN, GREEN, 0, 0, 0},
-
-  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
-  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
   {0, 0, GREEN, 0, 0, GREEN, 0, 0},
-  {0, 0, 0, GREEN, GREEN, 0, 0, 0}
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN},
+
+  {0, 0, 0, GREEN, GREEN, 0, 0, 0},
+  {0, 0, GREEN, 0, 0, GREEN, 0, 0},
+  {0, GREEN, 0, 0, 0, 0, GREEN, 0},
+  {GREEN, 0, 0, 0, 0, 0, 0, GREEN}
 };
 
 
 //O
-uint32_t gasPatternDynamic[DLEN][NUMPIXELS] = {
+uint32_t gasPatternDynamic[MLEN][NUMPIXELS] = {
   {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
   {0, 0, 0, 0, 0, 0, 0, 0},
   {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
   {0, 0, 0, 0, 0, 0, 0, 0},
-
   {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-
-  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE},
-  {0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 
 //P
-uint32_t offLimitsPatternDynamic[DLEN][NUMPIXELS] = {
+uint32_t offLimitsPatternDynamic[MLEN][NUMPIXELS] = {
   {RED, RED, RED, RED, RED, RED, RED, RED},
   {0, 0, 0, 0, 0, 0, 0, 0},
   {RED, RED, RED, RED, RED, RED, RED, RED},
   {0, 0, 0, 0, 0, 0, 0, 0},
-
   {RED, RED, RED, RED, RED, RED, RED, RED},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {RED, RED, RED, RED, RED, RED, RED, RED},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-
-  {RED, RED, RED, RED, RED, RED, RED, RED},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {RED, RED, RED, RED, RED, RED, RED, RED},
-  {0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 
 //R
-uint32_t unreadMessagePatternDynamic[DLEN][NUMPIXELS] = {
+uint32_t unreadMessagePatternDynamic[MLEN][NUMPIXELS] = {
   {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
   {0, BLUE, BLUE, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
-
   {0, BLUE, BLUE, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-
-  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, BLUE, BLUE, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 
@@ -332,43 +306,49 @@ void getSerialCommand() {
         break;
       case 'K':
         patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *goLeftPatternDynamic;
         break;
       case 'L':
         patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *goRightPatternDynamic;
         break;
       case 'M':
         patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *goAheadPatternDynamic;
         break;
       case 'N':
         patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *goBackPatternDynamic;
         break;
       case 'O':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.len = MLEN;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *gasPatternDynamic;
         break;
       case 'P':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.len = MLEN;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *offLimitsPatternDynamic;
         break;
       case 'R':
-        patternTmp.len = DLEN;
-        patternTmp.pace = 200;
+        patternTmp.len = MLEN;
+        patternTmp.pace = 250;
         patternTmp.patternPtr = *unreadMessagePatternDynamic;
         break;
 
       case 'Z':
         flashlightFlag = !flashlightFlag;
+        break;
+
+      default:
+        return;
     }
+
+    Serial.println("char is " + String(inChar));
 
     int arrayBound = patternTmp.len * NUMPIXELS;
 
@@ -376,13 +356,14 @@ void getSerialCommand() {
       
       for (int j = 0; j < NUMPIXELS; j++) {
         uint32_t currentColor = *(patternTmp.patternPtr + j + i);
-        if(currentColor == 0){
-            if(flashlightFlag){
-              currentColor = pixels.Color(255, 255, 255);
-            }
-        }
         
-        pixels.setPixelColor(i, currentColor);
+//        if(currentColor == 0){
+//            if(flashlightFlag){
+//              currentColor = pixels.Color(255, 255, 255);
+//            }
+//        }
+        
+        pixels.setPixelColor(j, currentColor);
       }
 
       pixels.show();
@@ -401,7 +382,7 @@ void getSerialCommand() {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial1.begin(9600);
   // Wait until serial port is opened
   while (!Serial) {
@@ -414,6 +395,6 @@ void setup() {
 
 void loop() {
   getSerialCommand();
-  teensySerialEvent();
-  teensyPrint();
+//  teensySerialEvent();
+//  teensyPrint();
 }
