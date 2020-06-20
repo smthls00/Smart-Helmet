@@ -10,7 +10,9 @@
 #include "Adafruit_VEML6070.h"
 
 #define SD_CS_PIN 33 //File: "pins_arduino.h" Slave Select
-#define SEALEVELPRESSURE_HPA (1013.25)
+#define SEALEVELPRESSURE_HPA (1021) // Kaiserslautern 20th June
+
+#define LED_PIN 13
 
 File myFile;
 
@@ -22,7 +24,10 @@ DateTime oldTime;
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
-char filename[] = "/dataLogs.txt";
+String fileName;
+
+long logMillis;
+long ledMillis;
 
 void bme680Init() {
   if (!bme.begin()) {
@@ -88,10 +93,20 @@ void sdInit() {
     while (1);
   }
 
+  DateTime now = rtc.now();
+  fileName = "/" + String(now.year()) + '-' + String(now.month()) + '-' + String(now.day()) + '-' + String(now.hour()) + '-' + String(now.minute()) + '-' + String(now.second()) + ".txt";
 
-  //remove file
-//  SD.remove(filename);
-//  while(1);
+  Serial.println(fileName);
+
+  myFile = SD.open(fileName, FILE_WRITE);
+  myFile.close();
+
+  if (SD.exists(fileName)) {
+    Serial.println("file exists");
+  } else {
+    Serial.println("file doesn't exist");
+    while (1);
+  }
 }
 
 void ccs811Init() {
@@ -121,39 +136,36 @@ void ccs811Read() {
 
 
 void appendLogs() {
-  DateTime now = rtc.now();
+  if (millis() - logMillis >= 60000) {
 
-  if (abs(now.minute() - oldTime.minute()) >= 1) {
-
-    if (SD.exists(filename)) {
-
-      myFile = SD.open(filename, FILE_APPEND);
-
-      if (myFile) {
-
-        String timeLog = "\n\n\n" + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + "-" + String(daysOfTheWeek[now.dayOfTheWeek()]) + "-" + String(now.hour()) + "-" + String(now.minute()) + "-" + String(now.hour()) + "\n";
-
-        String bme680Log = String("BME680\n") + "Temperature: " + String(bme.temperature) + " *C, " + "Pressure: " + String(bme.pressure / 100.0) + " hPa, " + "Humidity: " + String(bme.humidity) + " %, " + "Gas: " + String(bme.gas_resistance / 1000.0) + " Kohms, " + "Altitude: " + bme.readAltitude(SEALEVELPRESSURE_HPA) + " m\n";
-        String ccs811Log = String("CCS811\n") + "CO2: " + String(ccs.geteCO2()) + " ppm, " + "TVOC: " + String(ccs.getTVOC()) + " ppm\n";
-        String veml6070Log = String("VEML6070\n") + "UV: " + String(veml6070.readUV()) + "\n";
-        String overallLog = timeLog + bme680Log + ccs811Log + veml6070Log;
+    myFile = SD.open(fileName, FILE_APPEND);
 
 
-        Serial.println(overallLog);
+    if (myFile) {
 
-        myFile.println(overallLog);
-        myFile.close();
+      //        String timeLog = "\n\n\n" +  + "\n";
+      //        String bme680Log = String("BME680\n") + "Temperature: " + String(bme.temperature) + " *C, " + "Pressure: " + String(bme.pressure / 100.0) + " hPa, " + "Humidity: " + String(bme.humidity) + " %, " + "Gas: " + String(bme.gas_resistance / 1000.0) + " Kohms, " + "Altitude: " + bme.readAltitude(SEALEVELPRESSURE_HPA) + " m\n";
+      //        String ccs811Log = String("CCS811\n") + "CO2: " + String(ccs.geteCO2()) + " ppm, " + "TVOC: " + String(ccs.getTVOC()) + " ppm\n";
+      //        String veml6070Log = String("VEML6070\n") + "UV: " + String(veml6070.readUV()) + "\n";
 
-        oldTime = now;
-      } else {
-        // if the file didn't open, print an error:
-        Serial.println("error opening");
-      }
-    }
-    else {
-      Serial.println("doesn't exist, let's create");
-      myFile = SD.open(filename, FILE_WRITE);
+      String timeLog = String(millis()) + ", ";
+
+      String bme680Log = String(bme.temperature) + ", " + String(bme.pressure / 100.0) + ", " + String(bme.humidity) + ", " + String(bme.gas_resistance / 1000.0) + ", " + bme.readAltitude(SEALEVELPRESSURE_HPA) + ", ";
+      String ccs811Log = String(ccs.geteCO2()) + ", " + String(ccs.getTVOC()) + ", ";
+      String veml6070Log = String(veml6070.readUV());
+
+
+      String overallLog = timeLog + bme680Log + ccs811Log + veml6070Log;
+
+      Serial.println(overallLog);
+
+      myFile.println(overallLog);
       myFile.close();
+
+      logMillis = millis();
+
+    } else {
+      Serial.println("failed to open");
     }
   }
 }
@@ -162,8 +174,11 @@ void appendLogs() {
 void setup() {
   Serial.begin(115200);
 
-  pinMode(33, OUTPUT);
-  digitalWrite(33, HIGH);
+  pinMode(SD_CS_PIN, OUTPUT);
+  digitalWrite(SD_CS_PIN, HIGH);
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
   Serial.println("Initialization");
 
@@ -180,9 +195,9 @@ void setup() {
   }
 
   appendLogs();
-
-
   Serial.println("Initialization done");
+
+  ledMillis = millis();
 }
 
 void loop() {
@@ -190,4 +205,10 @@ void loop() {
   ccs811Read();
   veml6070.readUV();
   appendLogs();
+
+
+  if (millis() - ledMillis >= 1500) {
+    ledMillis = millis();
+    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  }
 }
