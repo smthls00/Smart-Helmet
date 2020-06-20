@@ -130,8 +130,8 @@ void appendLogs() {
 
         String bme680Log = String("BME680\n") + "Temperature: " + String(bme.temperature) + " *C, " + "Pressure: " + String(bme.pressure / 100.0) + " hPa, " + "Humidity: " + String(bme.humidity) + " %, " + "Gas: " + String(bme.gas_resistance / 1000.0) + " Kohms, " + "Altitude: " + bme.readAltitude(SEALEVELPRESSURE_HPA) + " m\n";
         String ccs811Log = String("CCS811\n") + "CO2: " + String(ccs.geteCO2()) + " ppm, " + "TVOC: " + String(ccs.getTVOC()) + " ppm\n";
-        //String veml6070Log = "VEML6070\n" + "UV: " + String(veml6070.readUV()) + "\n";
-        String overallLog = timeLog + bme680Log + ccs811Log; //+ veml6070Log;
+        String veml6070Log = String("VEML6070\n") + "UV: " + String(veml6070.readUV()) + "\n";
+        String overallLog = timeLog + bme680Log + ccs811Log + veml6070Log;
 
 
         Serial.println(overallLog);
@@ -139,7 +139,7 @@ void appendLogs() {
         myFile.println(overallLog);
         myFile.close();
 
-        oldTime = rtc.now();
+        oldTime = now;
       } else {
         // if the file didn't open, print an error:
         Serial.println("error opening");
@@ -164,11 +164,12 @@ void setup() {
   sdInit();
   bme680Init();
   ccs811Init();
-  //veml6070.begin(VEML6070_1_T);
+  veml6070.begin(VEML6070_1_T);
 
   for (int i = 0; i < 5; i++) {
     bme680Read();
     ccs811Read();
+    veml6070.readUV();
   }
 
   appendLogs();
@@ -180,6 +181,6 @@ void setup() {
 void loop() {
   bme680Read();
   ccs811Read();
-  //veml6070.readUV();
+  veml6070.readUV();
   appendLogs();
 }

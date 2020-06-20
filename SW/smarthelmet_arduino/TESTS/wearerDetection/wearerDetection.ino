@@ -389,6 +389,11 @@ void getSerialCommand() {
       delay(patternTmp.pace);
     }
 
+//    if(flashlightFlag){
+//      
+//      
+//    }
+
     pixels.clear();
     pixels.show();
   }
